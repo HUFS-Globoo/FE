@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const SiginUp3 = () => {
+const SignUp3 = () => {
   return (
     <>
       회원가입 3단계
@@ -8,4 +8,4 @@ const SiginUp3 = () => {
   );
 };
 
-export default SiginUp3;
+export default SignUp3;

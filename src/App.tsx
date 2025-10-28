@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-
+import GlobalStyle  from "./styles/GlobalStyle";
 // 페이지
 import Main from './pages/Main';
 import Login from "./pages/Login";
@@ -21,9 +21,14 @@ import StudyPost from "./pages/study/StudyPost";
 // 프로필 관련 페이지
 import ProfileList from "./pages/profile/ProfileList";
 import ProfileDetail from "./pages/profile/ProfileDetail";
+import Header from "./components/Header";
 
 function App() {
   return (
+    <>
+    <GlobalStyle />
+    <Header />
+
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="/login" element={<Login />} />
@@ -43,6 +48,8 @@ function App() {
       <Route path="/profile" element={<ProfileList />} />
       <Route path="/profile/:id" element={<ProfileDetail />} />
     </Routes>
+    </>
+    
   );
 }
 

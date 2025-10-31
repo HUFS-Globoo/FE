@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
-  /* 색상 변수 정의/
+  /* 색상 변수 정의 */
   :root {
     --primary: #002D56;
     --yellow1: #FAFDD9;

@@ -214,14 +214,15 @@ const DropdownContainer = styled.div`
   margin-left: 1rem;
 `;
 
-const DropdownHeader = styled.div`
+const DropdownHeader = styled.div<{ isSelected: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   font-size: 1rem;
   font-weight: 500;
-  color: #ABABAB;
+  color: ${({ isSelected }) => (isSelected ? "var(--black)" : "#ABABAB")};
+  
   cursor: pointer;
 `;
 
@@ -256,7 +257,7 @@ const DropdownItem = styled.li`
 
 function GenderDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState("남");
+  const [selected, setSelected] = useState("");
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
   const handleSelect = (value: string) => {
@@ -266,8 +267,8 @@ function GenderDropdown() {
 
   return (
     <DropdownContainer>
-      <DropdownHeader onClick={toggleDropdown}>
-        {selected}
+      <DropdownHeader onClick={toggleDropdown} isSelected={!!selected}>
+        {selected || "남"} 
         <Arrow open={isOpen}>▼</Arrow>
       </DropdownHeader>
       {isOpen && (

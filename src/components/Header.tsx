@@ -17,6 +17,7 @@ const HeaderLogo = styled.img`
   height: auto;
   display: block;
   object-fit: contain;
+  cursor: pointer;
 `;
 
 const Menu = styled.div`
@@ -40,7 +41,7 @@ export default function Header() {
 
   return(
     <Container>
-      <HeaderLogo src={Logo} alt="logo"/>
+      <HeaderLogo src={Logo} alt="logo" onClick={() => navigate("/")}/>
       <Menu>
         <MenuItem onClick={() => navigate("/")}>홈</MenuItem>
         <MenuItem onClick={() => navigate("/random-match")}>랜덤 매칭</MenuItem>

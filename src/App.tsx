@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import GlobalStyle  from "./styles/GlobalStyle";
 // 페이지
 import Main from './pages/Main';
@@ -24,10 +24,13 @@ import ProfileDetail from "./pages/profile/ProfileDetail";
 import Header from "./components/Header";
 
 function App() {
+  
+  const location = useLocation();
+
   return (
     <>
     <GlobalStyle />
-    <Header />
+    {location.pathname !== "/login" && <Header />}
 
     <Routes>
       <Route path="/" element={<Main />} />

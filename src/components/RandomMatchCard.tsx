@@ -1,7 +1,8 @@
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import CardImg from "../assets/card.svg";
-import Color from "../assets/colorCard.svg";
+import { useState, useEffect } from "react";
+import MockImg from "../assets/main-character.svg";
+
 
 const Wrapper = styled.div`
   position: relative;
@@ -80,20 +81,199 @@ const CancelButton = styled.div`
   cursor: pointer;
 `
 
+const MatchedTitle = styled.div`
+  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.48213rem;
+  letter-spacing: 0.075rem;
+`
+
+const MatchedProfile = styled.div`
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding-top: 2.13rem;
+  box-sizing: border-box;
+`
+
+const ProfileImg = styled.img`
+  width: 6.875rem;
+  height: 6.875rem;
+  border-radius: 3.125rem;
+  object-fit: cover; 
+  object-position: center; 
+  background-color: var(--white);
+  margin: 0 auto;
+`
+
+const ProfileName = styled.div`
+  font-size: 1.25rem;
+  font-weight: 300;
+  text-align: center;
+  padding-top: 1.12rem;
+`
+const LanguageBox = styled.div`
+  padding-top: 0.94rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.87rem
+`
+
+const LanguageContent = styled.div`
+  font-size: 1rem;
+  font-weight: 300;
+  text-align: center;
+`
+
+const KeywordContainer = styled.div`
+  display: grid;
+  padding-top: 1.94rem;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1.5rem 1.94rem;
+  justify-content: center;
+  margin: 0 auto;
+`
+
+const KeywordBox = styled.div`
+  display: flex;
+  width: 5.69rem;
+  height: 2.13rem;
+  border-radius: 3.125rem;
+  background: var(--white);
+  justify-content: center;
+  align-items: center;
+`
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 1.44rem;
+  gap: 1.06rem;
+  justify-content: center;
+
+`
+
+const Button = styled.div`
+  font-family: 'SchoolSafetyRoundedSmile';
+  width: 11.875rem;
+  height: 3.5rem;
+  display: flex;
+  border-radius: 0.75rem;
+  border: 2.769px solid rgba(255, 255, 255, 0.60);
+  background: linear-gradient(116deg, rgba(239, 239, 239, 0.60) 10.92%, rgba(255, 255, 255, 0.08) 96.4%);
+  backdrop-filter: blur(38.07310485839844px);
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+
+  font-size: 1rem;
+  font-weight: 400;
+
+  cursor: pointer;
+`
+
 export default function RandomMatchCard() {
 
-  const navigate = useNavigate();
+  const mockMatchData = {
+    status: "MATCHED",
+    pair: {
+      id: "uuid",
+      roomKey: "rk_abc",
+      userAId: 1,
+      userBId: 22,
+      createdAt: "2025-11-04T08:00:00Z",
+    },
+    partner: {
+      userId: 22,
+      nickname: "머쨍이",
+      profileImage: null,
+      nativeLanguages: ["ja"],
+      learnLanguages: ["ko"],
+      country: "KR",
+      mbti: "ISTP",
+      keywords: ["운동", "차분함", "아이돌"],
+    },
+  };
 
-  return(
+  const navigate = useNavigate();
+  const [stage, setStage] = useState<"loading" | "matched" | "chat">("loading");
+  const [partner, setPartner] = useState(mockMatchData.partner);
+
+
+  //테스트용: 3초 뒤 매칭 성공 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setStage("matched");
+      setPartner(mockMatchData.partner);
+    }, 3000);
+    
+  }, []);
+
+  const languageMap: Record<string, string> = {
+    ja: "일본어",
+    ko: "한국어",
+  };
+
+  const countryMap: Record<string, string> = {
+    KR: "한국",
+    JP: "일본",
+  };
+
+  return (
     <Wrapper>
       <ColorBackground />
       <Container>
-        <Title>랜덤 매칭 중입니다...</Title>
-        <SpinnerWrapper />
-        <CancelButton onClick={() => navigate("/")}>매칭 다음에 하기</CancelButton>
+        { stage === "matched" && (
+          <>
+            <MatchedTitle>매칭에 성공했습니다!</MatchedTitle>
+            <MatchedProfile>
+              <ProfileImg src = {partner?.profileImage || MockImg} alt = "프로필 이미지"/>
+              <ProfileName>{partner?.nickname}</ProfileName>
+              <LanguageBox>
+                <LanguageContent>사용 언어:{languageMap[partner?.nativeLanguages?.[0]]}</LanguageContent>
+                <LanguageContent>선호 언어:{languageMap[partner?.learnLanguages?.[0]]}</LanguageContent>
+                <LanguageContent>국적:{countryMap[partner?.country]}</LanguageContent>
+              </LanguageBox>
+              <KeywordContainer>
+              {[...(partner?.keywords || []), partner?.mbti].map((word, idx) => (
+                <KeywordBox key={idx}>#{word}</KeywordBox>
+              ))}
+              </KeywordContainer>
+              <ButtonContainer>
+                <Button>채팅 시작하기</Button>
+                <Button
+                  onClick={() => {
+                    setStage("loading");
+                    setTimeout(() => setStage("matched"), 3000);
+                  }}
+                >
+                다른 상대 찾기
+                </Button>
+              </ButtonContainer>
+            </MatchedProfile>
+          </>
+        )}
+        {stage === "loading" && (
+          <>
+            <Title>랜덤 매칭 중입니다...</Title>
+            <SpinnerWrapper />
+            <CancelButton onClick={() => navigate("/")}>
+              매칭 다음에 하기
+            </CancelButton>
+          </>
+        )}
+
+        {stage === "chat" && (
+          <>
+
+          </>
+        )}
       </Container>
     </Wrapper>
-
-  )
+  );
 }
 

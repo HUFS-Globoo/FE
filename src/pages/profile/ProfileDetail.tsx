@@ -7,7 +7,7 @@ import { type ProfileDetailResponse } from "../../types/mypage&profile.types";
 // 목 데이터 (타인 프로필)
 const mockOtherUserData: ProfileDetailResponse = {
   userId: 22,
-  nickname: "왕길동",
+  nickname: "왕마오",
   campus: "GLOBAL",
   country: "KR",
   mbti: "ENFP",
@@ -16,8 +16,8 @@ const mockOtherUserData: ProfileDetailResponse = {
   introTitle: "힘드러요.,",
   introContent: "친구들 좋아해요",
   languages: {
-    native: ["한국어"],
-    learn: ["영어"]
+    native: ["일본어"],
+    learn: ["한국어"]
   }
 };
 

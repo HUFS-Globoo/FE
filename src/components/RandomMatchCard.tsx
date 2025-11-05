@@ -1,8 +1,20 @@
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import MockImg from "../assets/main-character.svg";
+import { IoIosLogOut } from "react-icons/io";
 
+type ChatMessage = {
+  type: "MESSAGE_ACK" | "READ_RECEIPT" | "LEAVE_NOTICE" | "SYSTEM";
+  roomId: number | string;
+  messageId?: number;
+  senderId?: number;
+  readerId?: number;
+  leaverId?: number;
+  message?: string;
+  lastReadMessageId?: number;
+  createdAt?: string;
+};
 
 const Wrapper = styled.div`
   position: relative;
@@ -17,7 +29,7 @@ const Container = styled.div`
   margin: 0 auto;
   width: 29.5625rem;
   height: 37.4375rem;
-  top: -0.4rem; 
+  //top: -0.4rem; 
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -26,19 +38,32 @@ const Container = styled.div`
   border-radius: 2rem;
   border: 1.8px solid #FFF;
   border-radius: 2rem;
-  background: url({CardImg}) lightgray 50% / cover no-repeat, linear-gradient(111deg, rgba(255, 255, 255, 0.50) -4.87%, rgba(255, 255, 255, 0.00) 103.95%);
-  backdrop-filter: blur(25px);
+  border: 2.769px solid rgba(255, 255, 255, 0.60);
+  background: linear-gradient(116deg, rgba(239, 239, 239, 0.60) 10.92%, rgba(255, 255, 255, 0.08) 96.4%);
+  backdrop-filter: blur(38.07310485839844px);
   z-index: 1;
   box-sizing: border-box;
 `
-const ColorBackground = styled.div`
+const ColorBackground = styled.div<{ stage: string }>`
   position: absolute;
   bottom: -0.56rem;
   right: 0.56rem; 
   width: 100%;
   height: 100%; 
   border-radius: 2rem;
-  background: linear-gradient(242deg, #FFE6A2 30.46%, #BDB68E 47.83%, #9CA698 67.52%, rgba(0, 45, 86, 0.50) 94.11%);
+
+
+  background: ${({ stage }) => {
+    switch (stage) {
+      case "matched":
+        return "#FFE6A2";
+      case "chat":
+        return "rgba(255, 230, 162, 0.20)";
+      default:
+        return "linear-gradient(242deg, #FFE6A2 30.46%, #BDB68E 47.83%, #9CA698 67.52%, rgba(0, 45, 86, 0.50) 94.11%)";
+    }
+  }};
+
   z-index: 0;
   box-sizing: border-box;
 `
@@ -176,6 +201,92 @@ const Button = styled.div`
   cursor: pointer;
 `
 
+const MessageHeader = styled.div`
+  width: 100%;
+  height: 5.31rem;
+  display: flex;
+  flex-direction: row;
+  margin-top: -2.5rem;
+  padding-left: 1.69rem;
+  box-sizing: border-box;
+  align-items: center;
+`
+
+const MessageProfile = styled.img`
+  width: 3.125rem;
+  height: 3.125rem;
+  border-radius: 3.125rem;
+  background: #FFF;
+`
+
+const NicnameContent = styled.div`
+  padding-left: 0.94rem;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 150%; 
+`
+
+const OutIcon = styled(IoIosLogOut)`
+  padding-left: 7.69rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+`
+
+const MessageContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.12rem;
+  padding: 0 1.69rem;
+  box-sizing: border-box;
+`
+
+const MessageBox = styled.div`
+  display: inline-block;
+  width: fit-content;
+  border-radius: 2rem;
+  background: var(--skyblue);
+  padding: 0.3125rem 0.9375rem;
+  justify-content: center;
+  align-items: center;
+`
+
+const SendMessageContainer = styled.div`
+  width: 27.75rem;
+  height: 2.3125rem;
+  background-color: #E1E1E1;
+  margin-top: auto;
+  border-radius: 2rem;
+`
+
+const SendInput = styled.input`
+  background-color: #E1E1E1;
+  padding-left: 1.25rem;
+  box-sizing: border-box;
+  width: 100&;
+  height: 100%;
+  border-radius: 2rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 150%;
+  color: black;
+
+  &::placeholder {
+    font-size: 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 150%;
+  }
+  &:focus {
+    outline: none; 
+  }
+
+`
+
+
 export default function RandomMatchCard() {
 
   const mockMatchData = {
@@ -202,7 +313,13 @@ export default function RandomMatchCard() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<"loading" | "matched" | "chat">("loading");
   const [partner, setPartner] = useState(mockMatchData.partner);
-
+  const [messages, setMessages] = useState<{ message: string; isMine: boolean }[]>([
+  { message: "안녕하세요!", isMine: false },
+  { message: "안녕! 반가워요", isMine: true },
+  { message: "지금 뭐 하고 있어요?", isMine: false },
+  { message: "밥묵어요", isMine: true },
+]);
+  const [input, setInput] = useState("");
 
   //테스트용: 3초 뒤 매칭 성공 
   useEffect(() => {
@@ -223,9 +340,10 @@ export default function RandomMatchCard() {
     JP: "일본",
   };
 
+
   return (
     <Wrapper>
-      <ColorBackground />
+      <ColorBackground stage={stage}/>
       <Container>
         { stage === "matched" && (
           <>
@@ -244,7 +362,11 @@ export default function RandomMatchCard() {
               ))}
               </KeywordContainer>
               <ButtonContainer>
-                <Button>채팅 시작하기</Button>
+                <Button
+                  onClick={() => {
+                      setStage("chat");
+                  }}
+                >채팅 시작하기</Button>
                 <Button
                   onClick={() => {
                     setStage("loading");
@@ -269,7 +391,27 @@ export default function RandomMatchCard() {
 
         {stage === "chat" && (
           <>
-
+            <MessageHeader>
+              <MessageProfile src={MockImg} alt="프로필 이미지"/>
+              <NicnameContent>{mockMatchData.partner.nickname} 님이 입장하셨습니다.</NicnameContent>
+              <OutIcon onClick={() => navigate("/")}/>
+            </MessageHeader>
+            <MessageContainer>
+            {messages.map((msg, idx) => (
+              <MessageBox
+                key={idx}
+                style={{
+                  alignSelf: msg.isMine ? "flex-end" : "flex-start",
+                  background: msg.isMine ? "var(--skyblue)" : "var(--yellow2)",
+                }}
+              >
+                {msg.message}
+              </MessageBox>
+            ))}
+            </MessageContainer>
+            <SendMessageContainer>
+              <SendInput placeholder="메시지를 입력해주세요"/>
+            </SendMessageContainer>
           </>
         )}
       </Container>

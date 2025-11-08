@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SubmitButton from '../../components/SubmitButton';
+import { useSignup } from "../../contexts/SignupContext";
 
 const Container = styled.div`
   width: 100%;
@@ -150,13 +151,62 @@ const Option = styled.div`
 const SignUp3 = () => {
 
   const navigate = useNavigate();
+  const { signupData, setSignupData } = useSignup(); 
   const languages = ["한국어", "영어", "일본어", "중국어", "러시아어", "독일어", "스페인어"];
+  const nationalities = ["대한민국", "미국", "일본", "중국", "스페인", "독일", "러시아"];
+
+  const langMap: Record<string, string> = {
+    "한국어": "ko",
+    "영어": "en",
+    "일본어": "ja",
+    "중국어": "zh",
+    "러시아어": "ru",
+    "독일어": "de",
+    "스페인어": "es",
+  };
+
+  const nationMap: Record<string, string> = {
+    "대한민국": "KR",
+    "미국": "US",
+    "일본": "JP",
+    "중국": "CN",
+    "스페인": "ES",
+    "독일": "DE",
+    "러시아": "RU",
+  };
+
+  const reverseLangMap = Object.fromEntries(Object.entries(langMap).map(([k, v]) => [v, k]));
+  const reverseNationMap = Object.fromEntries(Object.entries(nationMap).map(([k, v]) => [v, k]));
+  
+  const [useLang, setUseLang] = useState(
+    reverseLangMap[signupData.nativeLanguageCode || "ko"] || "한국어"
+  );
+  const [prefLang, setPrefLang] = useState(
+    reverseLangMap[signupData.preferredLanguageCode || "ko"] || "한국어"
+  );
+  const [nationality, setNationality] = useState(
+    reverseNationMap[signupData.nationalityCode || "KR"] || "대한민국"
+  );
+
   const [useLangOpen, setUseLangOpen] = useState(false);
-  const [useLang, setUseLang] = useState("한국어");
-
   const [prefLangOpen, setPrefLangOpen] = useState(false);
-  const [prefLang, setPrefLang] = useState("한국어");
+  const [nationalityOpen, setNationalityOpen] = useState(false);
+  
+  const handleNext = () => {
 
+
+
+    const updatedData = {
+      ...signupData,
+      nativeLanguageCode: langMap[useLang] ?? "ko",   
+      preferredLanguageCode: langMap[prefLang] ?? "ko",
+      nationalityCode: nationMap[nationality] ?? "KR",  
+    };
+
+  setSignupData(updatedData);
+  console.log("Step3 저장된 데이터:", updatedData); 
+  navigate("/signup/step4");
+  };
 
   return (
     <Container>
@@ -171,11 +221,12 @@ const SignUp3 = () => {
             </StepContent>
           </StepBox>
 
+
           <StepBox>
             <StepIcon>2</StepIcon>
             <StepContent>
               <StepTitle>Step 2</StepTitle>
-              <StepDetail>학교 이메일 인증</StepDetail>
+              <StepDetail>언어 & 국적</StepDetail>
             </StepContent>
           </StepBox>
 
@@ -183,14 +234,6 @@ const SignUp3 = () => {
             <StepIcon>3</StepIcon>
             <StepContent>
               <StepTitle>Step 3</StepTitle>
-              <StepDetail>언어 & 국적</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>4</StepIcon>
-            <StepContent>
-              <StepTitle>Step 4</StepTitle>
               <StepDetail>나를 소개하는 키워드 선택</StepDetail>
             </StepContent>
           </StepBox>
@@ -198,7 +241,7 @@ const SignUp3 = () => {
       </SignUpBox>
 
       <ContentContainer>
-          <ContentTitle>03 선호 언어와 자신의 국적을 입력해주세요 </ContentTitle>
+          <ContentTitle>02 선호 언어와 자신의 국적을 입력해주세요 </ContentTitle>
           <InputContainer>
             <UserLanguageInputContainer className="Body1">
               <UserLanguageTitle className="Body1">사용 언어</UserLanguageTitle>
@@ -234,8 +277,25 @@ const SignUp3 = () => {
                 )}
               </SelectedBox>
             </UserLanguageInputContainer>
+
+          <UserLanguageInputContainer  className="Body1">
+            <UserLanguageTitle  className="Body1">국적</UserLanguageTitle>
+            <SelectedBox isSelected={!!nationality} onClick={() => setNationalityOpen(!nationalityOpen)}>
+              {nationality}
+              <Arrow open={nationalityOpen}>▾</Arrow>
+              {nationalityOpen && (
+                <OptionList>
+                  {nationalities.map((nation) => (
+                    <Option key={nation} onClick={() => { setNationality(nation); setNationalityOpen(false); }}>
+                      {nation}
+                    </Option>
+                  ))}
+                </OptionList>
+              )}
+            </SelectedBox>
+          </UserLanguageInputContainer>
           </InputContainer>
-          <SubmitButton onClick={() => navigate("/signup/step4")}/>
+          <SubmitButton onClick={handleNext}/>
       </ContentContainer>
 
     </Container>

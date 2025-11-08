@@ -1,33 +1,25 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react"; 
 
-export type SignupData = {
-  // Step1
-  name: string;
-  nickname: string;
-  username: string;
-  password: string;
-  phoneNumber: string;
-  birthDate: string;
-  gender: string;
+export interface SignupData {
+  email?: string;
+  username?: string;
+  password?: string;
+  name?: string;
+  phoneNumber?: string;
+  nickname?: string;
+  birthDate?: string;               
+  gender?: "MALE" | "FEMALE";
+  campus?: "GLOBAL" | "SEOUL";
+  nativeLanguageCode?: string;   
+  preferredLanguageCode?: string;
+  nationalityCode?: string;
+  mbti?: string;
+  personalityKeywords?: string[];
+  hobbyKeywords?: string[];
+  topicKeywords?: string[];
+}
 
-  // Step2
-  email: string;
-  code: string;
-  isVerified: boolean;
-
-  // Step3
-  campus: string;
-  nativeLanguageCode: string;
-  preferredLanguageCode: string;
-  nationalityCode: string;
-
-  // Step4
-  mbti: string;
-  personalityKeywords: string[];
-  hobbyKeywords: string[];
-  topicKeywords: string[];
-};
 
 type SignupContextType = {
   signupData: SignupData;
@@ -44,11 +36,9 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
     password: "",
     phoneNumber: "",
     birthDate: "",
-    gender: "",
+    gender: undefined,
     email: "",
-    code: "",
-    isVerified: false,
-    campus: "",
+    campus: undefined,
     nativeLanguageCode: "",
     preferredLanguageCode: "",
     nationalityCode: "",
@@ -56,8 +46,8 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
     personalityKeywords: [],
     hobbyKeywords: [],
     topicKeywords: [],
-
   });
+
 
   return (
     <SignupContext.Provider value={{ signupData, setSignupData }}>

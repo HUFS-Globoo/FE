@@ -163,11 +163,27 @@ const Login = () => {
         <InputContainer>
           <InputBox>
             <InputTitle >아이디</InputTitle>
-            <InputItem  type="text" placeholder="likelion"/>
+            <InputItem
+              type="text"
+              placeholder="likelion"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
             <InputTitle >학교 이메일</InputTitle>
-            <InputItem  type="text" placeholder="likelion@hufs.ac.kr"/>
+            <InputItem
+              type="text"
+              placeholder="likelion@hufs.ac.kr"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <InputTitle >비밀번호</InputTitle>
-            <InputItem  type="password" placeholder="********"/>
+            <InputItem
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </InputBox>
           <SumbitContainer>
             <SubmitButton onClick={handleLogin}>로그인</SubmitButton>

@@ -138,6 +138,7 @@ const ProfileImage = styled.img`
   flex-shrink: 0;
 `;
 
+// 닉네임은 한줄만 표시(더 넘으면 elipsis 처리)
 const Nickname = styled.h3`
   line-height: 1.4;
   color: var(--black);
@@ -153,9 +154,8 @@ const Nickname = styled.h3`
   max-width: 120px;
 `;
 
-// 닉네임은 한줄만 표시(더 넘으면 elipsis 처리)
 const MBTIBadge = styled.div`
-  padding: 4px 12px;
+  padding: 4px 2px;
   border-radius: 50px;
   background-color: var(--white);
   color: var(--skyblue);

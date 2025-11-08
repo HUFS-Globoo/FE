@@ -208,7 +208,7 @@ const ProfileGrid = styled.div`
   margin-bottom: 60px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr; /* 모바일에서는 1열 */
+    grid-template-columns: 1fr; /* 모바일에서는 1열*/
     gap: 20px;
   }
 `;

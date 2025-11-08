@@ -1,58 +1,66 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import GlobalStyle  from "./styles/GlobalStyle";
-// 페이지
-import Main from './pages/Main';
+import GlobalStyle from "./styles/GlobalStyle";
+
+// 페이지 import
+import Main from "./pages/Main";
 import Login from "./pages/Login";
 import Mypage from "./pages/Mypage";
 import Message from "./pages/Message";
-import RandomMatch from './pages/RandomMatch';
+import RandomMatch from "./pages/RandomMatch";
 
-// 회원가입 단계별 페이지
+// 회원가입 단계
 import SignUp1 from "./pages/signup/SignUp1";
-import SignUp2 from "./pages/signup/SignUp2";
 import SignUp3 from "./pages/signup/SignUp3";
 import SignUp4 from "./pages/signup/SignUp4";
 
-// 스터디 관련 페이지
+// 스터디 관련
 import StudyList from "./pages/study/StudyList";
 import StudyDetail from "./pages/study/StudyDetail";
 import StudyPost from "./pages/study/StudyPost";
 
-// 프로필 관련 페이지
+// 프로필 관련
 import ProfileList from "./pages/profile/ProfileList";
 import ProfileDetail from "./pages/profile/ProfileDetail";
+
+// 컴포넌트
 import Header from "./components/Header";
 
+// Context
+import { SignupProvider } from "./contexts/SignupContext";
+
 function App() {
-  
   const location = useLocation();
 
   return (
     <>
-    <GlobalStyle />
-    {location.pathname !== "/login" && location.pathname !== "/" && <Header />}
+      <GlobalStyle />
 
-    <Routes>
-      <Route path="/" element={<Main />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/mypage" element={<Mypage />} />
-      <Route path="/message" element={<Message />} />
-      <Route path="/random-match" element={<RandomMatch />} />
+      <SignupProvider> {/* ✅ App 전체를 감쌈 */}
+        {location.pathname !== "/login" && location.pathname !== "/" && <Header />}
 
-      <Route path="/signup/step1" element={<SignUp1 />} />
-      <Route path="/signup/step2" element={<SignUp2 />} />
-      <Route path="/signup/step3" element={<SignUp3 />} />
-      <Route path="/signup/step4" element={<SignUp4 />} />
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/mypage" element={<Mypage />} />
+          <Route path="/message" element={<Message />} />
+          <Route path="/random-match" element={<RandomMatch />} />
 
-      <Route path="/study" element={<StudyList />} />
-      <Route path="/study/:id" element={<StudyDetail />} />
-      <Route path="/study/post" element={<StudyPost />} />
+          {/* ✅ 회원가입 단계 */}
+          <Route path="/signup/step1" element={<SignUp1 />} />
+          <Route path="/signup/step3" element={<SignUp3 />} />
+          <Route path="/signup/step4" element={<SignUp4 />} />
 
-      <Route path="/profile" element={<ProfileList />} />
-      <Route path="/profile/:id" element={<ProfileDetail />} />
-    </Routes>
+          {/* ✅ 스터디 */}
+          <Route path="/study" element={<StudyList />} />
+          <Route path="/study/:id" element={<StudyDetail />} />
+          <Route path="/study/post" element={<StudyPost />} />
+
+          {/* ✅ 프로필 */}
+          <Route path="/profile" element={<ProfileList />} />
+          <Route path="/profile/:id" element={<ProfileDetail />} />
+        </Routes>
+      </SignupProvider>
     </>
-    
   );
 }
 

@@ -14,8 +14,10 @@ const Container = styled.button`
 
 `
 
+
 interface SubmitButtonProps {
-  onClick?: () => void;
+  onClick: () => void;
+  children?: React.ReactNode; 
 }
 
 export default function SubmitButton({ onClick }: SubmitButtonProps) {

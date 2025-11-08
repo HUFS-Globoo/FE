@@ -1,13 +1,14 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import SubmitButton from '../../components/SubmitButton'
+import SubmitButton from '../../components/SubmitButton';
 import { useState } from "react";
+import { useSignup } from "../../contexts/SignupContext";
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-`
+`;
 
 const SignUpBox = styled.div`
   width: 29.3125rem;
@@ -16,35 +17,33 @@ const SignUpBox = styled.div`
   justify-content: center;
   align-items: center;
   gap: 5.56rem;
-`
+`;
 
 const SignUpTitle = styled.div`
   padding-top: 4.56rem;
   font-family: 'Escoredream';
   font-size: 2rem;
   font-weight: 500;
-`
+`;
 
 const StepContainer = styled.div`
   width: 14.3125rem;
   display: flex;
   flex-direction: column;
   gap: 3.75rem;
-`
+`;
 
 const StepBox = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   gap: 1rem;
-`
+`;
 
 const StepIcon = styled.div`
   display: flex;
   width: 3.125rem;
   height: 3.125rem;
-  padding: 0.75rem 1.1875rem 0.5625rem 1rem;
-  box-sizing: border-box;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
@@ -52,25 +51,23 @@ const StepIcon = styled.div`
   color: white;
   font-size: 1.5rem;
   font-weight: 500;
-  aspect-ratio: 1/1;
-`
+`;
 
 const StepContent = styled.div`
-  width: 10.375rem;
   display: flex;
   flex-direction: column;
   gap: 0.81rem;
-`
+`;
 
 const StepTitle = styled.div`
   font-size: 0.875rem;
   font-weight: 300;
-`
+`;
 
 const StepDetail = styled.div`
   font-size: 0.875rem;
   font-weight: 300;
-`
+`;
 
 const ContentContainer = styled.div`
   flex: 1;
@@ -79,47 +76,24 @@ const ContentContainer = styled.div`
   padding-top: 7.81rem;
   padding-left: 8.06rem;
   gap: 3.75rem;
-`
+`;
 
 const ContentTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 500;
-`
+`;
 
-const InputContainer = styled.div`
-  width: 35.5rem;
+const SelectContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 1.88rem;
-`
+  gap: 1.5rem;
+`;
 
-const InputBox = styled.div`
-  height: 4.5rem;
-  padding-left: 0.69rem;
-  border-bottom: 1px solid #ABABAB;
+const Label = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
-  box-sizing: border-box;
-`
-const InputTitle = styled.div`
-  width: 15.31rem;
-  font-size: 1rem;
-  font-weight: 500;
-`
-const InputItem = styled.input`
-  border: none;
-
-  &::placeholder {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #B1B1B1;
-  }
-
-  &:focus {
-    outline: none; 
-  }
-`
+  gap: 0.5rem;
+  cursor: pointer;
+`;
 const InputWrapper = styled.div`
     height: 4.5rem;
     border-bottom: 1px solid #ABABAB;
@@ -131,68 +105,80 @@ const InputWrapper = styled.div`
     padding-right: 0rem;
     gap: 1.44rem;
 `
-const Box = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+const Circle = styled.div<{ selected: boolean }>`
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 0.2rem solid var(--gray);
+  background: ${({ selected }) => (selected ? "var(--primary)" : "var(--gray)")};
+`;
 
-`
-const BirthWrapper = styled.div`
-  width: 23.81rem;
+const InputContainer = styled.div`
+  width: 35.5rem;
   display: flex;
-  flex-direction: row;
-  gap: 1.63rem;
-  box-sizing: border-box;
-`
-const BirthInputTitle = styled.div`
-  width: 7.44rem;
-  box-sizing: border-box;
+  flex-direction: column;
+  gap: 1.88rem;
+`;
+
+const InputBox = styled.div`
+  height: 4.5rem;
+  padding-left: 0.69rem;
+  border-bottom: 1px solid #ABABAB;
+  display: flex;
+  align-items: center;
+`;
+
+const InputTitle = styled.div`
+  width: 15.31rem;
   font-size: 1rem;
   font-weight: 500;
-`
-const YearInputItem = styled.input`
-  border: none;
-  width: 2.5rem;
+`;
 
+const InputItem = styled.input`
+  border: none;
   &::placeholder {
     font-size: 1rem;
     font-weight: 500;
     color: #B1B1B1;
   }
-
   &:focus {
-    outline: none; 
+    outline: none;
   }
-`
+`;
+
+const BirthWrapper = styled.div`
+  width: 23.81rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1.63rem;
+`;
+
+const BirthInputTitle = styled.div`
+  width: 7.44rem;
+  font-size: 1rem;
+  font-weight: 500;
+`;
+
+const YearInputItem = styled.input`
+  border: none;
+  width: 2.5rem;
+`;
 
 const MonthInputItem = styled.input`
   border: none;
   width: 1.25rem;
-
-&::placeholder {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #B1B1B1;
-}
-
-&:focus {
-  outline: none; 
-}
-`
+`;
 
 const DayInputItem = styled.input`
   border: none;
   width: 1.25rem;
+`;
 
-&::placeholder {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #B1B1B1;
-}
+const Box = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-&:focus {
-  outline: none; 
-}
 `
 const GenderWrapper = styled.div`
   height: 4.5rem;
@@ -201,12 +187,12 @@ const GenderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: 1.44rem;
+`;
 
-`
 const GenderTitle = styled.div`
   width: 2.63rem;
   padding-left: 0.69rem;
-`
+`;
 
 const DropdownContainer = styled.div`
   position: relative;
@@ -218,11 +204,7 @@ const DropdownHeader = styled.div<{ isSelected: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  font-size: 1rem;
-  font-weight: 500;
   color: ${({ isSelected }) => (isSelected ? "var(--black)" : "#ABABAB")};
-  
   cursor: pointer;
 `;
 
@@ -249,32 +231,40 @@ const DropdownList = styled.ul`
 
 const DropdownItem = styled.li`
   padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  font-weight: 400;
   cursor: pointer;
   color: #000;
 `;
 
-function GenderDropdown() {
+
+function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => void }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<"MALE" | "FEMALE" | "">("");
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
-  const handleSelect = (value: string) => {
+
+  const handleSelect = (value: "MALE" | "FEMALE") => {
     setSelected(value);
+    onSelect(value);
     setIsOpen(false);
+  };
+
+ 
+  const getDisplayText = (value: "MALE" | "FEMALE" | "") => {
+    if (value === "MALE") return "남성";
+    if (value === "FEMALE") return "여성";
+    return "성별 선택";
   };
 
   return (
     <DropdownContainer>
       <DropdownHeader onClick={toggleDropdown} isSelected={!!selected}>
-        {selected || "남"} 
+        {getDisplayText(selected)}
         <Arrow open={isOpen}>▼</Arrow>
       </DropdownHeader>
       {isOpen && (
         <DropdownList>
-          <DropdownItem onClick={() => handleSelect("남")}>남</DropdownItem>
-          <DropdownItem onClick={() => handleSelect("여")}>여</DropdownItem>
+          <DropdownItem onClick={() => handleSelect("MALE")}>남성</DropdownItem>
+          <DropdownItem onClick={() => handleSelect("FEMALE")}>여성</DropdownItem>
         </DropdownList>
       )}
     </DropdownContainer>
@@ -282,10 +272,30 @@ function GenderDropdown() {
 }
 
 export default function SignUp1() {
-
   const navigate = useNavigate();
+  const { signupData, setSignupData } = useSignup();
+  const [campus, setCampus] = useState<"GLOBAL" | "SEOUL">("GLOBAL");
 
-  return(
+  const handleNext = () => {
+    const updatedData = {
+      ...signupData,
+      campus: campus || "SEOUL",
+      gender: signupData.gender || "MALE",
+      birthDate: signupData.birthDate || "2000-01-01",
+      email: signupData.email,
+      username: signupData.username,
+      password: signupData.password,
+      name: signupData.name,
+      nickname: signupData.nickname,
+      phoneNumber: signupData.phoneNumber,
+    };
+  
+    setSignupData(updatedData);
+    console.log("Step1 저장된 데이터:", updatedData); 
+    navigate("/signup/step3");
+  };
+
+  return (
     <Container>
       <SignUpBox>
         <SignUpTitle>회원가입</SignUpTitle>
@@ -302,7 +312,7 @@ export default function SignUp1() {
             <StepIcon>2</StepIcon>
             <StepContent>
               <StepTitle>Step 2</StepTitle>
-              <StepDetail>학교 이메일 인증</StepDetail>
+              <StepDetail>언어 & 국적</StepDetail>
             </StepContent>
           </StepBox>
 
@@ -310,71 +320,156 @@ export default function SignUp1() {
             <StepIcon>3</StepIcon>
             <StepContent>
               <StepTitle>Step 3</StepTitle>
-              <StepDetail>언어 & 국적</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>4</StepIcon>
-            <StepContent>
-              <StepTitle>Step 4</StepTitle>
               <StepDetail>나를 소개하는 키워드 선택</StepDetail>
             </StepContent>
           </StepBox>
         </StepContainer>
       </SignUpBox>
+
       <ContentContainer>
-          <ContentTitle>01 기본 정보를 입력해주세요</ContentTitle>
-          <InputContainer>
-            <InputBox>
-              <InputTitle>이름</InputTitle>
-              <InputItem type="text" placeholder="홍길동"/>
-            </InputBox>
+        <ContentTitle>01 기본 정보를 입력해주세요</ContentTitle>
 
-            <InputBox>
-              <InputTitle>닉네임</InputTitle>
-              <InputItem type="text" placeholder="멋쟁이"/>
-            </InputBox>
+        <SelectContainer>
+          <Label onClick={() => setCampus("GLOBAL")}>
+            <Circle selected={campus === "GLOBAL"} />
+            글로벌
+          </Label>
+          <Label onClick={() => setCampus("SEOUL")}>
+            <Circle selected={campus === "SEOUL"} />
+            서울
+          </Label>
+        </SelectContainer>
 
-            <InputBox>
-              <InputTitle>아이디</InputTitle>
-              <InputItem type="text" placeholder="likelion"/>
-            </InputBox>
+        <InputContainer>
+          <InputBox>
+            <InputTitle>이름</InputTitle>
+            <InputItem
+              type="text"
+              placeholder="홍길동"
+              value={signupData.name || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, name: e.target.value })
+              }
+            />
+          </InputBox>
 
-            <InputBox>
-              <InputTitle>전화번호</InputTitle>
-              <InputItem type="tel" placeholder="01012341234"/>
-            </InputBox>
-            <Box>
-              <InputWrapper>
+          <InputBox>
+            <InputTitle>닉네임</InputTitle>
+            <InputItem
+              type="text"
+              placeholder="멋쟁이"
+              value={signupData.nickname || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, nickname: e.target.value })
+              }
+            />
+          </InputBox>
 
-                <BirthWrapper>
-                  <BirthInputTitle>생년월일</BirthInputTitle>
+          <InputBox>
+            <InputTitle>아이디</InputTitle>
+            <InputItem
+              type="text"
+              placeholder="likelion"
+              value={signupData.username || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, username: e.target.value })
+              }
+            />
+          </InputBox>
 
-                    <div><YearInputItem type="text" placeholder="2025" /> <span style={{ fontSize: "1rem", fontWeight: "500" }}>년</span> </div>
-                    <div><MonthInputItem type="text" placeholder="10" /> <span style={{ fontSize: "1rem", fontWeight: "500" }}>월</span> </div>
-                    <div><DayInputItem type="text" placeholder="31" /> <span style={{ fontSize: "1rem", fontWeight: "500" }}>일</span> </div>
+          <InputBox>
+            <InputTitle>전화번호</InputTitle>
+            <InputItem
+              type="tel"
+              placeholder="01012341234"
+              value={signupData.phoneNumber || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, phoneNumber: e.target.value })
+              }
+            />
+          </InputBox>
 
-                </BirthWrapper>
+          <InputBox>
+            <InputTitle>이메일</InputTitle>
+            <InputItem
+              type="text"
+              placeholder="likelion@hufs.ac.kr"
+              value={signupData.email || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, email: e.target.value })
+              }
+            />
+          </InputBox>
+          <Box>
+            <InputWrapper>
+              <BirthWrapper>
+                <BirthInputTitle>생년월일</BirthInputTitle>
+                  <YearInputItem
+                    type="text"
+                    placeholder="2025"
+                    onChange={(e) => {
+                      const [_, m = "", d = ""] = signupData.birthDate?.split("-") || [];
+                      setSignupData({
+                        ...signupData,
+                        birthDate: `${e.target.value}-${m}-${d}`,
+                      });
+                    }}
+                  />
+                  <span>년</span>
+
+                  <MonthInputItem
+                    type="text"
+                    placeholder="10"
+                    onChange={(e) => {
+                      const [y = "", _, d = ""] = signupData.birthDate?.split("-") || [];
+                      setSignupData({
+                        ...signupData,
+                        birthDate: `${y}-${e.target.value}-${d}`,
+                      });
+                    }}
+                  />
+                  <span>월</span>
+                  <DayInputItem
+                    type="text"
+                    placeholder="31"
+                    onChange={(e) => {
+                      const [y = "", m = ""] = signupData.birthDate?.split("-") || [];
+                      setSignupData({
+                        ...signupData,
+                        birthDate: `${y}-${m}-${e.target.value}`,
+                      });
+                    }}
+                  />
+                  <span>일</span>
+              </BirthWrapper>
+            </InputWrapper>
+
+            <GenderWrapper>
+              <GenderTitle>성별</GenderTitle>
+              <GenderDropdown
+                onSelect={(value) =>
+                  setSignupData({ ...signupData, gender: value })
+                }
+              />
+            </GenderWrapper>
+          </Box>
 
 
-              </InputWrapper>
-              <GenderWrapper>
-                  <GenderTitle>성별</GenderTitle>
-                  <GenderDropdown />
-              </GenderWrapper>
+          <InputBox>
+            <InputTitle>비밀번호</InputTitle>
+            <InputItem
+              type="password"
+              placeholder="********"
+              value={signupData.password || ""}
+              onChange={(e) =>
+                setSignupData({ ...signupData, password: e.target.value })
+              }
+            />
+          </InputBox>
+        </InputContainer>
 
-            </Box>
-
-
-            {/* 생년월일 성별 입력부분 필요*/}
-            <InputBox>
-              <InputTitle>비밀번호</InputTitle>
-              <InputItem type="password" placeholder="********"/>
-            </InputBox>
-          </InputContainer>
-          <SubmitButton onClick={() => navigate("/signup/step2")} />
+        <SubmitButton onClick={handleNext}>다음 단계</SubmitButton>
       </ContentContainer>
     </Container>
-  )
+  );
 }

@@ -146,20 +146,6 @@ const OutText = styled.div`
   color: #FF8282;
 `
 
-const PartnerProfileImg = styled.img`
-  width: 3rem;
-  height: 3.497rem;
-`
-
-const PartnerNickname = styled.div`
-  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
-  font-size: 16px;
-  font-weight: 700; 
-  letter-spacing: -0.01em; 
-  line-height: 1.4; 
-  color: var(--Secondary-500, #1A202C);
-`
-
 const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -247,6 +233,21 @@ export default function Message() {
     IT: ItalyProfileImg,
     EG: EgyptProfileImg,
     CN: ChinaProfileImg,
+  };
+
+  type ProfileCardItem = {
+    userId: number;
+    nickname: string;
+    campus: 'GLOBAL' | 'SEOUL';
+    country: 'KR' | 'US' | 'IT' | 'EG' | 'CN';
+    languages: {
+      native: string[];
+      learn: string[];
+    };
+    mbti: string;
+    keywords: string[];
+    intro: string;
+    profileImage: string | null;
   };
 
   const BASE_PROFILES: ProfileCardItem[] = [
@@ -340,7 +341,7 @@ export default function Message() {
 
           <ChatBox>
             <ChatHeader>
-              <ChatProfileImg src={ChinaProfileImg}/>
+              <ChatProfileImg src={COUNTRY_IMAGE_MAP[selectedProfile.country]}/>
               <ChatNicname className="H2">{selectedProfile.nickname}</ChatNicname>
               <OutContainer onClick={() => navigate("/")}>
                 <OutIcon />

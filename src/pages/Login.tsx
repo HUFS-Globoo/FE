@@ -2,7 +2,8 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import CharacterBlur from "../assets/character-blur.svg";
-
+import { useState } from "react";
+import axiosInstance from "../../axiosInstance";
 
 const Container = styled.div`
   width: 100%;
@@ -113,7 +114,43 @@ const SignUpContent = styled.div`
 const Login = () => {
 
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
  
+
+  const handleLogin = async () => {
+    if (!username || !email || !password) {
+      alert("모든 항목을 입력해주세요");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post("/api/auth/login", {
+        username,
+        email,
+        password,
+      });
+
+      const { accessToken, refreshToken } = response.data;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      alert("로그인 성공!");
+      console.log("로그인 응답:", response);
+      navigate("/");
+    } catch (error: any) {
+      console.error("로그인 실패:", error);
+      if (error.response?.status === 401) {
+        alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+      } else {
+        alert("로그인 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
+
   return (
     <Container>
       <IntroContainer>
@@ -133,7 +170,7 @@ const Login = () => {
             <InputItem  type="password" placeholder="********"/>
           </InputBox>
           <SumbitContainer>
-            <SubmitButton>로그인</SubmitButton>
+            <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
             <SignUpContent onClick={() => navigate("/signup/step1")}>회원이 아니신가요? <span style={{color:"var(--primary)", cursor:"pointer"}} >회원가입</span></SignUpContent>
           </SumbitContainer>
           

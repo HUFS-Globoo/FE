@@ -132,10 +132,11 @@ const Login = () => {
         password,
       });
 
-      const { accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken, userId } = response.data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("userId", String(userId));
 
       alert("로그인 성공!");
       console.log("로그인 응답:", response);

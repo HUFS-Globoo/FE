@@ -315,14 +315,14 @@ const StudyList = () => {
             </UserInfo>
             <ButtonGroup>
               <ActionButton 
-                $variant="secondary" 
+                $variant="primary" 
                 className="Button1"
                 onClick={handleMyPostsClick}
               >
                 작성한 게시글
               </ActionButton>
               <ActionButton 
-                $variant="secondary" 
+                $variant="primary" 
                 className="Button1"
                 onClick={handleMyCommentsClick}
               >
@@ -333,7 +333,7 @@ const StudyList = () => {
                 className="Button1"
                 onClick={handleCreatePostClick}
               >
-                📝 게시글 작성
+               게시글 작성
               </ActionButton>
             </ButtonGroup>
           </UserProfileCard>
@@ -344,7 +344,7 @@ const StudyList = () => {
           
           <FilterSection>
             <FilterText>
-              <FilterTitle className="H5">📚 나와 Fit이 맞는 스터디 찾기</FilterTitle>
+              <FilterTitle className="H5">나와 Fit이 맞는 스터디 찾기</FilterTitle>
             </FilterText>
             
             <FilterOptions>

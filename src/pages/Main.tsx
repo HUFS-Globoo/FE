@@ -58,7 +58,7 @@ const BannerTitle = styled.div`
 `
 
 const BannerContent = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile';
   font-size: 1.5rem;
   font-weight: 400;
   line-height: 1.875rem; /* 125% */
@@ -76,7 +76,7 @@ const ContentContainer = styled.div`
 `
 
 const ContentTitle = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso OTF";
+  font-family: 'SchoolSafetyRoundedSmile';
   font-size: 2rem;
   font-weight: 400;
 `
@@ -110,7 +110,7 @@ const Icon = styled.img`
 `
 
 const CardTitle = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile';
   font-size: 1.5rem;
   font-weight: 400;
   line-height: normal;
@@ -119,7 +119,7 @@ const CardTitle = styled.div`
 const CardContent = styled.div`
   padding-top: 2.37rem;
   text-align: center;
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile';
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.625rem; /* 185.714% */

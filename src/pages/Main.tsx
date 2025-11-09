@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import BannerImg from "../assets/banner-background.svg";
 import Header from "../components/Header";
 import Character from "../assets/main-character.svg";
+import axiosInstance from "../../axiosInstance";
 
 const Container = styled.div`
   width: 100%;
@@ -142,6 +143,26 @@ const Main = () => {
 
   const navigate = useNavigate();
 
+  const handleStartMatching = async () => {
+    try {
+      const response = await axiosInstance.post("/api/matching/queue", {
+        userId: 1, // 실제 로그인 유저 ID로 교체 (ex: localStorage에서 가져오기)
+      });
+
+      const result = response.data.data;
+      console.log("매칭 결과:", result);
+
+      // WAITING이면 대기 상태로 RandomMatch 이동
+      // FOUND면 바로 매칭된 상태로 RandomMatch 이동
+      navigate("/random-match", { state: { matchStatus: result } });
+
+    } catch (error) {
+      console.error("매칭 요청 오류:", error);
+      alert("매칭 대기열 진입 중 오류가 발생했습니다.");
+    }
+  };
+
+
   return (
     <Container>
       <TransparentHeader />
@@ -161,7 +182,7 @@ const Main = () => {
             <Icon src={RandomMatch} />
             <CardTitle>친구 랜덤 매칭</CardTitle>
             <CardContent>취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭합니다.</CardContent>
-            <Button  onClick={() => navigate("/random-match")}>시작하기</Button>
+            <Button onClick={handleStartMatching}>시작하기</Button>
           </ServiceCard>
 
           <ServiceCard>

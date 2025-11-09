@@ -146,22 +146,29 @@ const Main = () => {
 
   const handleStartMatching = async () => {
     try {
+      const userId = localStorage.getItem("userId");
+  
+      if (!userId) {
+        alert("로그인 후 이용해주세요!");
+        navigate("/login");
+        return;
+      }
+  
       const response = await axiosInstance.post("/api/matching/queue", {
-        userId: 1, // 실제 로그인 유저 ID로 교체 (ex: localStorage에서 가져오기)
+        userId: Number(userId),
       });
-
+  
       const result = response.data.data;
       console.log("매칭 결과:", result);
-
-      // WAITING이면 대기 상태로 RandomMatch 이동
-      // FOUND면 바로 매칭된 상태로 RandomMatch 이동
+  
       navigate("/random-match", { state: { matchStatus: result } });
-
-    } catch (error) {
+  
+    } catch (error: any) {
       console.error("매칭 요청 오류:", error);
       alert("매칭 대기열 진입 중 오류가 발생했습니다.");
     }
   };
+  
 
 
   return (

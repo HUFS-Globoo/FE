@@ -136,7 +136,7 @@ const Login = () => {
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("userId", String(userId));
+      localStorage.setItem("userId", response.data.userId);
 
       alert("로그인 성공!");
       console.log("로그인 응답:", response);

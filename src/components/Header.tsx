@@ -8,26 +8,29 @@ const Container = styled.div`
   height: 3.81rem;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 37.96rem;
+  padding: 0 2rem; 
+  box-sizing: border-box;
 `
 const HeaderLogo = styled.img`
   width: 120px;
   height: auto;
-  display: block;
+  display: flex;
   object-fit: contain;
   cursor: pointer;
+  justify-content: flex-start;
 `;
 
 const Menu = styled.div`
   display: flex;
   flex-direction: row;
   gap: 2.5rem;
+  justify-content: flex-end;
 `
 const MenuItem = styled.div`
   display: flex;
-  justify-content: flex-end;
+  
   font-family: 'SchoolSafetyRoundedSmile';
   font-size: 1.25rem;
   font-weight: 400;

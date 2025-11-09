@@ -17,4 +17,21 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => {
+    const data = response.data;
+
+    if (data && typeof data === "object" && data.profileImageUrl) {
+      if (data.profileImageUrl.startsWith("/uploads")) {
+        data.profileImageUrl = `${BASE_URL}${data.profileImageUrl}`;
+      }
+    }
+
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

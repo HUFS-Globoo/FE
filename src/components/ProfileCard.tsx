@@ -10,48 +10,53 @@ import CampusIcon from "../assets/ic-campus.svg";
 import LanguageIcon from "../assets/ic-language-tag.svg";
 import EmailIcon from "../assets/ic-email.svg";
 
-// import type { UserMeResponse } from "../types/mypage&profile.types";
 
-// 컴포넌트에서 사용할 공통 Props 인터페이스
 interface ProfileCardProps {
-  // 공통 필수 데이터
   userId?: number;
-  username?: string; 
+  username?: string;
   nickname: string;
   mbti: string;
   country: string;
   profileImage: string | null;
   infoTitle: string | null;
   infoContent: string | null;
-  keywords: Array<{ id?: number; name: string }> | string[];  // 두 가지 형태 모두 허용
-  
-  // ContactInfo 관련
-  campus: 'GLOBAL' | 'SEOUL';
+
+
+  keywords:
+    | {
+        personalityKeywords?: string[];
+        hobbyKeywords?: string[];
+        topicKeywords?: string[];
+      }
+    | Array<{ id?: number; name: string }>
+    | string[];
+
+  campus: "GLOBAL" | "SEOUL";
   nativeLanguages: string[];
   learnLanguages: string[];
   email?: string;
 
-  // 제어 Props
-  isOwner?: boolean; // 마이페이지인지 타인 프로필(상세 프로필)인지 구분
-  isEditMode?: boolean; // 수정 모드 여부
+  isOwner?: boolean;
+  isEditMode?: boolean;
   onEdit?: () => void;
   onSave?: (updatedData: any) => void;
   onCancel?: () => void;
+  onImageUpload?: (file: File) => void;
 }
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,    // 🇺🇸 미국
-  KR: KoreaProfileImg,      // 🇰🇷 한국
-  IT: ItalyProfileImg,      // 🇮🇹 이탈리아
-  EG: EgyptProfileImg,      // 🇪🇬 이집트
-  CN: ChinaProfileImg,      // 🇨🇳 중국
+  US: AmericaProfileImg,
+  KR: KoreaProfileImg,
+  IT: ItalyProfileImg,
+  EG: EgyptProfileImg,
+  CN: ChinaProfileImg,
 };
 
 // 드롭다운 옵션
 const campusOptions = [
   { value: "GLOBAL", label: "글로벌캠퍼스" },
-  { value: "SEOUL", label: "서울캠퍼스" }
+  { value: "SEOUL", label: "서울캠퍼스" },
 ];
 
 const languageOptions = [
@@ -60,14 +65,9 @@ const languageOptions = [
   { value: "영어", label: "영어" },
   { value: "이탈리아어", label: "이탈리아어" },
   { value: "아랍어", label: "아랍어" },
-  { value: "중국어", label: "중국어" }
+  { value: "중국어", label: "중국어" },
 ];
 
-// 😭API 연동 시 키워드 카테고리 나누기 - 키워드 타입별 색상 정의 
-// type KeywordCategory = 'PERSONALITY' | 'HOBBY' | 'TOPIC';
-
-// 백엔드에서 country: "KR" 로 받으면 countryCharacterImages["KR"] 으로 매핑되어 한국 캐릭터 이미지 사용
-// 근데 백엔드에서 주는 country 코드가 US, KR, IT, EG, CN 값이 모두 있어야해서 확인 필요
 const Card = styled.div<{ $isEditMode: boolean }>`
   width: 100%;
   background-color: var(--white);
@@ -77,8 +77,9 @@ const Card = styled.div<{ $isEditMode: boolean }>`
   margin-bottom: 2rem;
   display: flex;
   gap: 3rem;
-  box-shadow: ${props => props.$isEditMode ? '0 4px 12px rgba(34, 205, 252, 0.2)' : 'none'}; 
-`;// 피그마랑 다르게 수정모드일 때 box-shadow 추가했어용
+  box-shadow: ${(props) =>
+    props.$isEditMode ? "0 4px 12px rgba(34, 205, 252, 0.2)" : "none"};
+`;
 
 const TopSection = styled.div`
   display: flex;
@@ -140,10 +141,10 @@ const IntroInput = styled.input`
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
   font-size: 1rem;
-  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
+  font-family: "SchoolSafetyRoundedSmile", sans-serif;
   font-weight: 700;
   background-color: var(--gray-text-filled);
-  
+
   &:focus {
     outline: none;
     border-color: var(--skyblue);
@@ -162,13 +163,12 @@ const IntroTextarea = styled.textarea`
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
   font-size: 1rem;
-  font-family: 'Escoredream', sans-serif;
+  font-family: "Escoredream", sans-serif;
   font-weight: 300;
   min-height: 8rem;
   resize: vertical;
   background-color: var(--gray-text-filled);
 
-  
   &:focus {
     outline: none;
     border-color: var(--skyblue);
@@ -181,13 +181,23 @@ const TagSection = styled.div`
   flex-wrap: wrap;
 `;
 
-const Tag = styled.div`
-  padding: 0.5rem 1rem;
-  border-radius: 1.25rem;
-  background-color: #FFE6A2;
-  color: var(--black);
-`;// 😭 API 연결하면 확인 필요(임의로 단일 태그 색상 적용시킴) 
-// hex코드로 작성해도 색상 안나와서 우선 api 연동하면서 수정
+const Tag = styled.div<{ $category?: string }>`
+  padding: 0.5rem 1rem;
+  border-radius: 1.25rem;
+  color: var(--black);
+  background-color: ${({ $category }) => {
+    switch ($category) {
+      case "PERSONALITY":
+        return "var(--yellow2)";
+      case "HOBBY":
+        return "var(--chip-skyblue)";
+      case "TOPIC":
+        return "var(--chip-green)";
+      default:
+        return "#FFE6A2";
+    }
+  }};
+`;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -212,7 +222,7 @@ const EditButton = styled.button`
     color: var(--white);
 
     img {
-    filter: brightness(0) saturate(100%) invert(100%);
+      filter: brightness(0) saturate(100%) invert(100%);
     }
   }
 `;
@@ -220,7 +230,7 @@ const EditButton = styled.button`
 const EditIconImg = styled.img`
   width: 1.25rem;
   height: 1.25rem;
-  transition: filter 0.2s; 
+  transition: filter 0.2s;
 `;
 
 const SaveButton = styled.button`
@@ -256,16 +266,17 @@ const ContactGrid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 `;
+
 const ContactContentWrapper = styled.div`
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem; 
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
 `;
 
 const ContactTextWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 `;
 
 const ContactItem = styled.div<{ $isEditable?: boolean }>`
@@ -288,7 +299,7 @@ const ContactIconWrapper = styled.div`
   margin-bottom: 0.5rem;
 
   & img {
-    width: 1.5rem; 
+    width: 1.5rem;
     height: 1.5rem;
   }
 `;
@@ -318,7 +329,7 @@ const DropdownButton = styled.button`
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  
+
   &:hover {
     border-color: var(--skyblue);
   }
@@ -343,15 +354,13 @@ const DropdownItem = styled.div`
   padding: 0.75rem 1rem;
   cursor: pointer;
   font-size: 0.875rem;
-  
-  
+
   &:hover {
     background-color: var(--gray-text-filled);
   }
 `;
 
-const ProfileCard = ({ 
-  // userId, <- (중요) 😭API 연결 시 사용 예정
+const ProfileCard = ({
   username,
   nickname,
   mbti,
@@ -364,50 +373,47 @@ const ProfileCard = ({
   nativeLanguages,
   learnLanguages,
   email,
-  isOwner = false, 
-  isEditMode = false, 
-  onEdit, 
-  onSave, 
-  onCancel 
+  isOwner = false,
+  isEditMode = false,
+  onEdit,
+  onSave,
+  onCancel,
+  onImageUpload, 
 }: ProfileCardProps) => {
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
     infoContent: infoContent || "",
+    profileImage: profileImage || null,
   });
 
-  // 😭(API때 다시 확인..)prop이 바뀔 때마다 내부 상태를 prop 값으로 재설정하여 동기화 
-    useEffect(() => {
-        setEditedData({
-            infoTitle: infoTitle || "",
-            infoContent: infoContent || "",
-        });
-    }, [infoTitle, infoContent]);
+  useEffect(() => {
+    setEditedData(prev => ({
+      ...prev,
+      profileImage: profileImage || null, 
+    }));
+  }, [infoTitle, infoContent, profileImage]);
+  
+  
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [selectedValues, setSelectedValues] = useState<{
-        campus: 'GLOBAL' | 'SEOUL';
-        nativeLanguages: string[]; 
-        learnLanguages: string[]; 
-    }>({
-        campus: campus,
-        nativeLanguages: nativeLanguages,
-        learnLanguages: learnLanguages 
-  });
-  
+  const [selectedValues, setSelectedValues] = useState({
+    campus: campus,
+    nativeLanguages: nativeLanguages,
+    learnLanguages: learnLanguages,
+  });
+
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const isOutside = Object.values(dropdownRefs.current).every(
-        ref => ref && !ref.contains(event.target as Node)
+        (ref) => ref && !ref.contains(event.target as Node)
       );
-      if (isOutside) {
-        setOpenDropdown(null);
-      }
+      if (isOutside) setOpenDropdown(null);
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleDropdown = (name: string) => {
@@ -415,41 +421,62 @@ const ProfileCard = ({
   };
 
   const handleSelect = (name: string, value: string) => {
-        // name이 'campus'인 경우는 단일 선택
-        if (name === 'campus') {
-            setSelectedValues({ ...selectedValues, [name]: value as 'GLOBAL' | 'SEOUL' });
-        } else if (name === 'nativeLanguages' || name === 'learnLanguages') { // 복수형 키 사용
-            // 현재 UI는 단일 선택만 가능하므로 선택된 언어 하나만 포함하는 새로운 배열로 상태 업데이트함
-            setSelectedValues({ ...selectedValues, [name]: [value] });
-        }
-        
-        setOpenDropdown(null);
-    };
+    if (name === "campus") {
+      setSelectedValues({ ...selectedValues, [name]: value as "GLOBAL" | "SEOUL" });
+    } else if (name === "nativeLanguages" || name === "learnLanguages") {
+      setSelectedValues({ ...selectedValues, [name]: [value] });
+    }
+    setOpenDropdown(null);
+  };
 
-  const characterImage = profileImage || 
-    countryCharacterImages[country] || 
-    'https://via.placeholder.com/200';
+  const characterImage =
+    profileImage || countryCharacterImages[country] || "https://via.placeholder.com/200";
 
-  // 😭API 연동 시 확인 필요
-  const processedKeywords = keywords.map(keyword => {
-    // keyword가 문자열이면 그대로, 객체면 name만 추출
-    return typeof keyword === 'string' ? keyword : keyword.name;
-  });
+  const processedKeywords = [
+    ...(Array.isArray((keywords as any)?.personalityKeywords)
+      ? (keywords as any).personalityKeywords.map((k: string) => ({
+          name: k,
+          category: "PERSONALITY",
+        }))
+      : []),
+    ...(Array.isArray((keywords as any)?.hobbyKeywords)
+      ? (keywords as any).hobbyKeywords.map((k: string) => ({
+          name: k,
+          category: "HOBBY",
+        }))
+      : []),
+    ...(Array.isArray((keywords as any)?.topicKeywords)
+      ? (keywords as any).topicKeywords.map((k: string) => ({
+          name: k,
+          category: "TOPIC",
+        }))
+      : []),
+  ];
+
+const [isEditingMbti, setIsEditingMbti] = useState(false);
+const [editedMbti, setEditedMbti] = useState(mbti);
+
+  useEffect(() => {
+    setEditedMbti(mbti);
+  }, [mbti]);
 
   const handleSave = () => {
-    if (onSave) {
-      onSave({
-            ...editedData, // infoTitle, infoContent
-            // 😭(수정api에서 저장 api 확인 필요)추가된 선택 값도 함께 전달 - 저장 API 동ㅈㄱ..
-            campus: selectedValues.campus,
-            nativeLanguages: selectedValues.nativeLanguages,
-            learnLanguages: selectedValues.learnLanguages
-      });
-    }
-  };
+    if (onSave) {
+      onSave({
+        ...editedData,
+        mbti: editedMbti,
+        campus: selectedValues.campus,
+        nativeLanguages: selectedValues.nativeLanguages,
+        learnLanguages: selectedValues.learnLanguages,
+        profileImageUrl: editedData.profileImage,
+      });
+    }
+  };
+  
 
   const displayName = username ? `${username} / ${nickname}` : nickname;
-  const campusName = campusOptions.find(c => c.value === selectedValues.campus)?.label || '글로벌캠퍼스';
+  const campusName =
+    campusOptions.find((c) => c.value === selectedValues.campus)?.label || "글로벌캠퍼스";
 
   const contactItems = [
     {
@@ -458,44 +485,115 @@ const ProfileCard = ({
       value: campusName,
       editable: true,
       dropdownName: "campus",
-      options: campusOptions
+      options: campusOptions,
     },
     {
       icon: LanguageIcon,
       label: "사용언어",
-      value: selectedValues.nativeLanguages.join(', ') || '-',
+      value: selectedValues.nativeLanguages.join(", ") || "-",
       editable: true,
       dropdownName: "nativeLanguages",
-      options: languageOptions
+      options: languageOptions,
     },
     {
       icon: LanguageIcon,
       label: "선호언어",
-      value: selectedValues.learnLanguages.join(', ') || '-',
+      value: selectedValues.learnLanguages.join(", ") || "-",
       editable: true,
       dropdownName: "learnLanguages",
-      options: languageOptions
+      options: languageOptions,
     },
     {
       icon: EmailIcon,
       label: "이메일",
-      value: email || '이메일은 비밀~', // 타인 프로필에 email 없을 경우 표시
-      editable: false
-    }
+      value: email || "이메일은 비밀~",
+      editable: false,
+    },
   ];
-
-  const displayItems = contactItems;
 
   return (
     <Card $isEditMode={isEditMode}>
       <TopSection>
-        <LeftSection>
-          <CharacterImage src={characterImage} alt="프로필 이미지" />
-          <UserInfo>
-            <UserName className="H4">{displayName}</UserName>
-            <UserMbti className="H5">{mbti}</UserMbti>
-          </UserInfo>
-        </LeftSection>
+      <LeftSection>
+        <CharacterImage
+          src={editedData.profileImage || characterImage}
+          alt="프로필 이미지"
+          onClick={() => {
+            if (isOwner && isEditMode) {
+              document.getElementById("profileUploadInput")?.click();
+            }
+          }}
+          style={{
+            cursor: isOwner && isEditMode ? "pointer" : "default",
+            opacity: isOwner && isEditMode ? 0.9 : 1,
+          }}
+        />
+
+        <input
+          id="profileUploadInput"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              if (onImageUpload) {
+                onImageUpload(file);
+              }
+
+              setEditedData((prev) => ({
+                ...prev,
+                profileImage: URL.createObjectURL(file), 
+              }));
+              
+            }
+          }}
+        />
+
+
+      <UserInfo>
+        <UserName className="H4">{displayName}</UserName>
+
+        {isOwner && isEditMode ? (
+          isEditingMbti ? (
+            <input
+              type="text"
+              value={editedMbti}
+              onChange={(e) => setEditedMbti(e.target.value.toUpperCase())}
+              onBlur={() => setIsEditingMbti(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") setIsEditingMbti(false);
+              }}
+              maxLength={4}
+              style={{
+                textAlign: "center",
+                border: "none",
+                outline: "none",
+                borderRadius: "0.4rem",
+                padding: "0.3rem 0.6rem",
+                width: "5rem",
+                fontFamily: "SchoolSafetyRoundedSmile",
+                fontSize: "1rem",
+                color: "var(--skyblue)",
+              }}
+              autoFocus
+            />
+          ) : (
+            <UserMbti
+              className="H5"
+              style={{ cursor: "pointer" }}
+              onClick={() => setIsEditingMbti(true)}
+            >
+              {editedMbti}
+            </UserMbti>
+          )
+        ) : (
+          <UserMbti className="H5">{editedMbti}</UserMbti>
+        )}
+      </UserInfo>
+
+      </LeftSection>
+
         
         <RightSection>
           <IntroSection>
@@ -526,20 +624,21 @@ const ProfileCard = ({
               </>
             )}
             <TagSection>
-              {processedKeywords.map((keyword, index) => (
-                <Tag 
-                      key={index} // 😭 카테고리 전달
-                      className="Body2"
-                  >
-                  # {keyword}
-                </Tag>
-              ))}
-            </TagSection>
+              {processedKeywords.map((keyword, index) => (
+                <Tag
+                  key={index}
+                  $category={keyword.category}
+                  className="Body2"
+                >
+                  # {keyword.name}
+                </Tag>
+              ))}
+            </TagSection>
           </IntroSection>
 
 
           <ContactGrid>
-            {displayItems.map((item, index) => (
+            {contactItems.map((item, index) => (
               <ContactItem key={index} $isEditable={isOwner && isEditMode && item.editable}>
                 <ContactContentWrapper>
                   <ContactIconWrapper>

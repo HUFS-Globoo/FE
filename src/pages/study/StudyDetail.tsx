@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import CommentSection from "../../components/CommentSection";
 import type { StudyCardItem, StudyComment } from "../../types/study.types";
@@ -262,6 +262,7 @@ const JoinButton = styled.button`
 
 const StudyDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [studyData, setStudyData] = useState<StudyCardItem | null>(null);
   const [comments, setComments] = useState<StudyComment[]>([]);
 
@@ -316,16 +317,16 @@ const StudyDetail = () => {
   };
 
   const handleMyPostsClick = () => {
-    console.log("My posts clicked");
-  };
+  navigate("/mypage");
+};
 
-  const handleMyCommentsClick = () => {
-    console.log("My comments clicked");
-  };
+const handleMyCommentsClick = () => {
+  navigate("/mypage");
+};
 
-  const handleCreatePostClick = () => {
-    console.log("Create post clicked");
-  };
+const handleCreatePostClick = () => {
+  navigate("/study/post");
+};
 
   if (!studyData) {
     return (
@@ -451,7 +452,7 @@ const StudyDetail = () => {
           <CommentSection 
             studyId={parseInt(id!)}
             comments={comments}
-            currentUserId={mockUserData.id} // 누락된 prop 추가! ✅
+            currentUserId={mockUserData.id} // 😭api에서 받아온 현재 사용자 ID로 대체 필요함
             onAddComment={handleAddComment}
             onEditComment={handleEditComment}
             onDeleteComment={handleDeleteComment}

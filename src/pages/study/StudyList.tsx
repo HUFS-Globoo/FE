@@ -293,7 +293,7 @@ const StudyList = () => {
   };
 
   const handleCreatePostClick = () => {
-    navigate("/study/create");
+    navigate("/study/post");
   };
 
   return (
@@ -315,14 +315,14 @@ const StudyList = () => {
             </UserInfo>
             <ButtonGroup>
               <ActionButton 
-                $variant="primary" 
+                $variant="secondary" 
                 className="Button1"
                 onClick={handleMyPostsClick}
               >
                 작성한 게시글
               </ActionButton>
               <ActionButton 
-                $variant="primary" 
+                $variant="secondary" 
                 className="Button1"
                 onClick={handleMyCommentsClick}
               >

@@ -140,12 +140,38 @@ const ProfileDetail = () => {
   
   
 
-  const handleSendMessage = () => {
-    console.log("메시지 전송:", message);
-    //😭메시지 전송 API 호출
-    alert("메시지가 전송되었습니다!");
-    setMessage("");
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+    if (!userData?.userId) {
+      alert("상대방 정보를 불러올 수 없습니다.");
+      return;
+    }
+  
+    try {
+      console.log("쪽지 전송 요청:", { partnerId: userData.userId, content: message });
+  
+      const res = await axiosInstance.post("/api/messages", {
+        partnerId: userData.userId, 
+        content: message,
+      });
+  
+      console.log("쪽지 전송 성공:", res.data);
+      alert(`${userData.nickname}님에게 쪽지가 성공적으로 전송되었습니다!`);
+  
+      setMessage("");
+    } catch (error: any) {
+      console.error("쪽지 전송 실패:", error);
+      if (error.response?.status === 403) {
+        alert("로그인이 필요합니다.");
+      } else if (error.response?.status === 404) {
+        alert("상대방을 찾을 수 없습니다.");
+      } else {
+        alert("쪽지 전송 중 오류가 발생했습니다.");
+      }
+    }
   };
+  
+  
 
   if (loading) {
     return (
@@ -202,7 +228,7 @@ const ProfileDetail = () => {
             onClick={handleSendMessage}
             disabled={!message.trim()}
           >
-            문의하기
+            쪽지 보내기
           </MessageButton>
         </MessageSection>
       </ContentWrapper>

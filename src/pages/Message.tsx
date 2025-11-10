@@ -8,6 +8,8 @@ import ChinaProfileImg from "../assets/img-profile1-China.svg";
 import { IoIosLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axiosInstance from "../../axiosInstance";
+import { useEffect } from "react";
 
 
 const Container = styled.div`
@@ -160,9 +162,8 @@ const MessageBox = styled.div`
   border-radius: 0 0.75rem 0.75rem 0.75rem;
   background: var(--yellow2);
   align-items: center;
-  max-width: 70%;
-  word-wrap: break-word; /* 단어가 길면 자동 줄바꿈 */
-  overflow-wrap: break-word; /* 최신 표준 (word-wrap 대체) */
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
   white-space: pre-wrap;
 `
 const PartnerBox = styled.div`
@@ -218,14 +219,99 @@ const SendButton = styled.div`
 export default function Message() {
 
   const navigate = useNavigate();
+  const [chatRooms, setChatRooms] = useState<any[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const currentUserId = Number(localStorage.getItem("userId"));
+  type MessageItem = {
+    id: number;
+    message: string;
+    isMine: boolean;
+    isRead: boolean;
+  };
+  
+  const [messages, setMessages] = useState<MessageItem[]>([]);
+
+  useEffect(() => {
+    const fetchChatRooms = async () => {
+      try {
+        const res = await axiosInstance.get("/api/messages"); 
+        console.log("쪽지방 목록 조회 성공:", res.data);
+        setChatRooms(res.data); 
+      } catch (error) {
+        console.error("쪽지방 목록 조회 실패:", error);
+      }
+    };
+    fetchChatRooms();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProfile) return;
+  
+    const fetchMessages = async () => {
+      try {
+        const res = await axiosInstance.get(`/api/messages/${selectedProfile.id}`);
+        console.log(` ${selectedProfile.username}과의 대화 조회 성공:`, res.data);
+  
+        const formattedMessages = res.data.map((msg: any) => ({
+          id: msg.id,
+          message: msg.content,
+          isMine: Number(msg.sender.id) === Number(currentUserId),
+          isRead: msg.isRead,
+        }));
+        setMessages(formattedMessages);
+  
+        await axiosInstance.post(`/api/messages/${selectedProfile.id}/read`);
+        console.log(`${selectedProfile.username}의 메시지 읽음 처리 완료`);
+      } catch (error) {
+        console.error(`쪽지 조회 실패 (${selectedProfile.username}):`, error);
+      }
+    };
+  
+    fetchMessages();
+  
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [selectedProfile]);
+  
+
+  const [newMessage, setNewMessage] = useState("");
 
 
-  const [messages, setMessages] = useState<{ message: string; isMine: boolean }[]>([
-    { message: "안녕하세요!", isMine: false },
-    { message: "안녕하세요! ", isMine: true },
-    { message: "지금 뭐 하고 있어요?", isMine: false },
-    { message: "밥묵어요", isMine: true },
-  ]);
+
+  const handleSendMessage = async () => {
+    if (!selectedProfile || newMessage.trim() === "") return;
+
+    try {
+      const res = await axiosInstance.post("/api/messages", {
+        partnerId: selectedProfile.id, 
+        content: newMessage,
+      });
+
+      console.log("메시지 전송 성공:", res.data);
+
+      const newMsg = {
+        id: res.data.id,
+        message: res.data.content,
+        isMine: res.data.sender.id === currentUserId, 
+        isRead: res.data.isRead,
+      };
+
+      setMessages((prev) => [...prev, newMsg]); 
+      setNewMessage(""); 
+
+      const container = document.getElementById("messageContainer");
+      if (container) {
+        setTimeout(() => {
+          container.scrollTop = container.scrollHeight;
+        }, 100);
+      }
+    } catch (error) {
+      console.error("메시지 전송 실패:", error);
+    }
+  };
+
+
+  
 
   const COUNTRY_IMAGE_MAP: Record<string, string> = {
     KR: KoreaProfileImg,
@@ -250,66 +336,6 @@ export default function Message() {
     profileImage: string | null;
   };
 
-  const BASE_PROFILES: ProfileCardItem[] = [
-    { 
-      userId: 1, 
-      nickname: '왕길동쓰', 
-      campus: 'GLOBAL', 
-      country: 'KR', 
-      languages: { native: ['ko'], learn: ['en'] },
-      mbti: 'ENFP', 
-      keywords: ['긍정적', '운동', '음악', '여행'], 
-      intro: '"저는 운동과 음악을 좋아하는 학생인데 저와 비슷한 분 찾아봐요 ㅎㅎ"\n멋사 친구들과 함께 개발하는 걸 좋아하고, 번개 모임도 대환영합니다 ㅎㅎ 잘 부탁드려요!', 
-      profileImage: null 
-    },
-    { 
-      userId: 2, 
-      nickname: 'Justin M.', 
-      campus: 'SEOUL', 
-      country: 'US', 
-      languages: { native: ['en'], learn: ['ko'] },
-      mbti: 'ISTJ', 
-      keywords: ['개발', '독서', '여행'], 
-      intro: '"저는 운동과 음악을 좋아하는 학생인데 저와 비슷한 분 찾아봐요 ㅎㅎ"\nA highly motivated individual looking for a study buddy. I enjoy learning new languages and meeting people from different cultures.', 
-      profileImage: null 
-    },
-    { 
-      userId: 3, 
-      nickname: 'Chiara R.', 
-      campus: 'GLOBAL', 
-      country: 'IT', 
-      languages: { native: ['it'], learn: ['ko', 'en'] },
-      mbti: 'INFP', 
-      keywords: ['요리', '미술', '커피'], 
-      intro: '"저는 운동과 음악을 좋아하는 학생인데 저와 비슷한 분 찾아봐요 ㅎㅎ"\nCiao! 이탈리아 문화에 관심 있는 친구를 찾아요. 함께 언어 교환하며 문화도 나눠요.', 
-      profileImage: null 
-    },
-    { 
-      userId: 4, 
-      nickname: 'Ramses', 
-      campus: 'SEOUL', 
-      country: 'EG', 
-      languages: { native: ['ar'], learn: ['ko'] },
-      mbti: 'ENTP', 
-      keywords: ['토론', '역사', '여행'], 
-      intro: '"저는 운동과 음악을 좋아하는 학생인데 저와 비슷한 분 찾아봐요 ㅎㅎ"\n한국어 공부에 열심인 이집트 학생입니다. 환영합니다! 역사와 문화 이야기를 나누고 싶어요.', 
-      profileImage: null 
-    },
-    { 
-      userId: 5, 
-      nickname: 'Li Wei', 
-      campus: 'GLOBAL', 
-      country: 'CN', 
-      languages: { native: ['zh'], learn: ['ko', 'en'] },
-      mbti: 'ENFJ', 
-      keywords: ['음식', '여행', '사진'], 
-      intro: '"저는 운동과 음악을 좋아하는 학생인데 저와 비슷한 분 찾아봐요 ㅎㅎ"\n중국 문화와 한국 문화를 나누고 싶어요! 맛있는 음식과 여행 이야기를 좋아합니다.', 
-      profileImage: null 
-    },
-  ];
-
-  const [selectedProfile, setSelectedProfile] = useState(BASE_PROFILES[0]);
-
   return(
     <Container>
       <Title className="H1">쪽지</Title>
@@ -320,51 +346,122 @@ export default function Message() {
             <p className="H4" style={{color:"var(--gray-700)"}}>대화 나눈 친구들</p>
           </MessageListTitle>
           <MessageList>
-            {BASE_PROFILES.map((profile) => (
-              <MessageListBox
-                key={profile.userId}
-                onClick={() => setSelectedProfile(profile)} // 클릭 시 선택
-                style={{
-                  cursor: "pointer"
-                }}
-              >
-                <CharacterImage
-                  src={COUNTRY_IMAGE_MAP[profile.country]}
-                  alt={`${profile.nickname} 이미지`}
-                />
-                <MessageNickname className="H4">{profile.nickname}</MessageNickname>
-              </MessageListBox>
-            ))}
+            {chatRooms.length > 0 ? (
+              chatRooms.map((room) => {
+                // 현재 로그인 유저가 user1인지 user2인지 판단해야 함
+                const currentUserId = Number(localStorage.getItem("userId")); // 필요 시 수정
+                const partner = room.user1.id === currentUserId ? room.user2 : room.user1;
+
+                return (
+                  <MessageListBox
+                    key={room.id}
+                    onClick={() => setSelectedProfile(partner)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <CharacterImage
+                      src={partner.profileImageUrl || KoreaProfileImg}
+                      alt={`${partner.username} 이미지`}
+                    />
+                    <MessageNickname className="H4">{partner.username}</MessageNickname>
+                  </MessageListBox>
+                );
+              })
+            ) : (
+              <p>쪽지방이 없습니다.</p>
+            )}
           </MessageList>
         </MessageListContainer>
-        <ChatContainer>
 
+
+        <ChatContainer>
           <ChatBox>
+          {selectedProfile ? (
             <ChatHeader>
-              <ChatProfileImg src={COUNTRY_IMAGE_MAP[selectedProfile.country]}/>
-              <ChatNicname className="H2">{selectedProfile.nickname}</ChatNicname>
+              <ChatProfileImg
+                src={COUNTRY_IMAGE_MAP[selectedProfile.country] || KoreaProfileImg}
+              />
+              <ChatNicname className="H2">{selectedProfile.username}</ChatNicname>
               <OutContainer onClick={() => navigate("/")}>
                 <OutIcon />
                 <OutText className="Button2">채팅방 나가기</OutText>
               </OutContainer>
             </ChatHeader>
-            <MessageContainer>
-            {messages.map((msg, idx) => (
-              <MessageBox
-                key={idx}
-                style={{
-                  alignSelf: msg.isMine ? "flex-end" : "flex-start",
-                  background: msg.isMine ? "#BEF0FF" : "var(--yellow2)",
-                }}
-              >
-                {msg.message}
-              </MessageBox>
-              ))}
+          ) : (
+            <ChatHeader>
+              <ChatNicname className="H2">대화를 선택해주세요</ChatNicname>
+            </ChatHeader>
+          )}
+            <MessageContainer id="messageContainer">
+              {selectedProfile ? (
+                messages.length > 0 ? (
+                  messages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        justifyContent: msg.isMine ? "flex-end" : "flex-start",
+                        width: "100%",
+                        marginBottom: "0.5rem", // 메시지 간격
+                      }}
+                    >
+                      <div
+                        style={{
+                          maxWidth: "70%",
+                          textAlign: msg.isMine ? "right" : "left",
+                        }}
+                      >
+                        <MessageBox
+                          style={{
+                            background: msg.isMine ? "#BEF0FF" : "var(--yellow2)",
+                            borderRadius: msg.isMine
+                              ? "0.75rem 0 0.75rem 0.75rem" // 오른쪽 말풍선
+                              : "0 0.75rem 0.75rem 0.75rem", // 왼쪽 말풍선
+                          }}
+                        >
+                          {msg.message}
+                        </MessageBox>
+                        
+                        {msg.isMine && (
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              color: msg.isRead ? "#7C8A9A" : "#C0C0C0",
+                              marginTop: "0.25rem",
+                            }}
+                          >
+                            {msg.isRead ? "✔ 읽음" : "전송됨"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>아직 주고받은 쪽지가 없습니다.</p>
+                )
+              ) : (
+                <p>대화 상대를 선택하면 쪽지 내역이 표시됩니다.</p>
+              )}
             </MessageContainer>
+
+
             <SendBox>
-              <SendInput type="text" placeholder="메시지를 입력해주세요" />
-              <SendButton className="H4">보내기</SendButton>
+              <SendInput
+                type="text"
+                placeholder="메시지를 입력해주세요"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+              />
+              <SendButton className="H4" onClick={handleSendMessage}>
+                보내기
+              </SendButton>
             </SendBox>
+
           </ChatBox>
 
         </ChatContainer>

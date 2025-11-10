@@ -6,9 +6,7 @@ import {
   StudyFilterParams 
 } from '../types/study.types';
 
-// ===== Study Controller API 함수들 =====
-
-// GET /api/studies - 스터디 목록 조회 (필터링 포함)
+// GET /api/studies - 스터디 목록 조회 (필터링 포함시킴  - 필요없으면 빼기)
 export const getStudies = async (filters?: StudyFilterParams): Promise<StudyListResponse> => {
   try {
     const params = new URLSearchParams();
@@ -70,7 +68,7 @@ export const deleteStudy = async (postId: number): Promise<void> => {
   }
 };
 
-// ===== 에러 처리 헬퍼 =====
+// ===== 에러 처리 =====
 export const handleApiError = (error: any): string => {
   if (error?.response?.data?.message) {
     return error.response.data.message;

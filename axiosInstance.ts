@@ -22,8 +22,15 @@ axiosInstance.interceptors.response.use(
     const data = response.data;
 
     if (data && typeof data === "object" && data.profileImageUrl) {
-      if (data.profileImageUrl.startsWith("/uploads")) {
-        data.profileImageUrl = `${BASE_URL}${data.profileImageUrl}`;
+      if (data.profileImageUrl.startsWith("/uploads") || data.profileImageUrl.startsWith("uploads")) {
+        const normalizedBase = BASE_URL.endsWith("/")
+          ? BASE_URL.slice(0, -1) 
+          : BASE_URL;
+        const normalizedPath = data.profileImageUrl.startsWith("/")
+          ? data.profileImageUrl
+          : "/" + data.profileImageUrl;
+
+        data.profileImageUrl = `${normalizedBase}${normalizedPath}`;
       }
     }
 

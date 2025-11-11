@@ -4,7 +4,11 @@ import styled from "styled-components";
 import ProfileCard from "../../components/ProfileCard";
 import { type ProfileDetailResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
-
+import AmericaProfileImg from "../../assets/img-profile1-America.svg";
+import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
+import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
+import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
+import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 
 const Container = styled.div`
   width: 100%;
@@ -96,28 +100,34 @@ const ProfileDetail = () => {
         const data = res.data;
         console.log("프로필 불러오기 성공:", data);
   
-        // ✅ BASE_URL 정의 (여기서 불러옴)
         const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
-        // ✅ 슬래시 중복 자동 제거
         const cleanBaseUrl = BASE_URL.endsWith("/")
           ? BASE_URL.slice(0, -1)
           : BASE_URL;
+
+        const countryCharacterImages: Record<string, string> = {
+          US: AmericaProfileImg,
+          KR: KoreaProfileImg,
+          IT: ItalyProfileImg,
+          EG: EgyptProfileImg,
+          CN: ChinaProfileImg,
+        };
   
-        // ✅ /uploads로 시작하는 경로만 서버 URL 붙이기
         const profileImageUrl =
-          data.profileImage && data.profileImage.startsWith("/uploads")
+        data.profileImage && data.profileImage.trim() !== ""
+          ? data.profileImage.startsWith("/uploads")
             ? `${cleanBaseUrl}${data.profileImage}`
-            : data.profileImage;
-  
-        // ✅ 데이터 변환
+            : data.profileImage
+          : countryCharacterImages[data.country?.toUpperCase()] || KoreaProfileImg;
+
         const formattedData: ProfileDetailResponse = {
           userId: data.userId,
           nickname: data.nickname,
           campus: data.campus,
           country: data.country,
           mbti: data.mbti,
-          profileImage: profileImageUrl, // 여기서 교체된 이미지 URL 사용
+          profileImage: profileImageUrl, 
           introTitle: data.infoTitle,
           introContent: data.infoContent,
           keywords: data.keywords.map((k: any) => k.name),
@@ -216,12 +226,12 @@ const ProfileDetail = () => {
 
         {/* 메시지 보내기 */}
         <MessageSection>
-          <MessageTitle className="H4">문의 작성하기</MessageTitle>
+          <MessageTitle className="H4">쪽지 작성하기</MessageTitle>
           <MessageTextarea
             className="Body1"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="문의할 내용을 작성해주세요"
+            placeholder="메시지를 작성해주세요"
           />
           <MessageButton 
             className="Button1"

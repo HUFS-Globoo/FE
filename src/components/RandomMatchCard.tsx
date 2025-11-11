@@ -4,6 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import MockImg from "../assets/main-character.svg";
 import axiosInstance from "../../axiosInstance";
 import { IoIosLogOut } from "react-icons/io";
+import AmericaProfileImg from "../assets/img-profile1-America.svg";
+import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
+import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
+import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
+import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
 
 const Wrapper = styled.div`
   position: relative;
@@ -109,7 +115,7 @@ const ProfileImg = styled.img`
 
 const ProfileName = styled.div`
   font-size: 1.25rem;
-  font-weight: 300;
+  font-weight: 500;
   text-align: center;
   padding-top: 1.12rem;
 `;
@@ -131,7 +137,7 @@ const LanguageContent = styled.div`
 
 const KeywordContainer = styled.div`
   display: grid;
-  padding-top: 1.94rem;
+  padding-top: 1.4rem;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, auto);
   gap: 0.8rem 1.9rem;
@@ -190,7 +196,7 @@ const MessageProfile = styled.img`
 const NicnameContent = styled.div`
   padding-left: 0.94rem;
   font-size: 1rem;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 150%; 
 `
 
@@ -208,6 +214,26 @@ const MessageContainer = styled.div`
   gap: 2.12rem;
   padding: 0 1.69rem;
   box-sizing: border-box;
+  overflow-y: auto; 
+  max-height: 28rem;
+  scroll-behavior: smooth; 
+
+  &::-webkit-scrollbar {
+    width: 0.375rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2); 
+    border-radius: 0.625rem; 
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 배경은 투명 */
+  }
 `
 
 const MessageBox = styled.div`
@@ -254,6 +280,7 @@ const SendInput = styled.input`
   }
 
 `
+
 
 interface ChatMessage {
   id?: number;
@@ -474,13 +501,13 @@ const sendMessage = () => {
   };
 
   const languageMap: Record<string, string> = {
-    zh: "Chinese",
-    en: "English",
-    fr: "French",
-    de: "German",
-    ja: "Japanese",
-    ko: "Korean",
-    es: "Spanish",
+    zh: "중국어",
+    en: "영어",
+    fr: "프랑스어",
+    de: "독일어",
+    ja: "일본어",
+    ko: "한국어",
+    es: "스페인어",
   };
 
   const countryMap: Record<string, string> = {
@@ -495,6 +522,16 @@ const sendMessage = () => {
     AU: "호주",
   };
 
+  const countryCharacterImages: Record<string, string> = {
+    US: AmericaProfileImg,
+    KR: KoreaProfileImg,
+    IT: ItalyProfileImg,
+    EG: EgyptProfileImg,
+    CN: ChinaProfileImg,
+  };
+
+ 
+
   return (
     <Wrapper>
       <ColorBackground />
@@ -505,17 +542,32 @@ const sendMessage = () => {
             <MatchedTitle>매칭에 성공했습니다!</MatchedTitle>
             <MatchedProfile>
             <ProfileImg
-              src={partner?.profileImageUrl || MockImg}
+              src={
+                partner?.profileImageUrl ||
+                countryCharacterImages[partner?.country] ||
+                MockImg
+              }
               alt="프로필 이미지"
             />
               <ProfileName>{partner?.nickname}</ProfileName>
+
               <LanguageBox>
                 <LanguageContent>
-                  사용 언어: {partner?.nativeLanguages?.[0]?.name || "정보 없음"}
+                  사용 언어:{" "}
+                  {languageMap[
+                    partner?.nativeLanguages?.[0]?.code ||
+                    partner?.nativeLanguages?.[0]?.name?.toLowerCase()
+                  ] || "정보 없음"}
                 </LanguageContent>
+                
                 <LanguageContent>
-                  선호 언어: {partner?.learnLanguages?.[0]?.name || "정보 없음"}
+                  선호 언어:{" "}
+                  {languageMap[
+                    partner?.learnLanguages?.[0]?.code ||
+                    partner?.learnLanguages?.[0]?.name?.toLowerCase()
+                  ] || "정보 없음"}
                 </LanguageContent>
+                
                 <LanguageContent>
                   국적: {countryMap[partner?.country] || partner?.country || "정보 없음"}
                 </LanguageContent>

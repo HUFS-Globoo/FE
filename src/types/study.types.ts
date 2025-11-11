@@ -1,5 +1,15 @@
 // 스터디 모집 게시물 타입 정의 - Swagger API 명세서 기준(연동시 오류나면 수정,,)
 
+// 사용자 기본 정보 타입 (작성자, 댓글 작성자 등)
+export interface UserBase {
+  id: number;
+  username: string;
+  nickname: string;
+  email: string;
+  profileImageUrl: string | null;
+  country: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   errorCode: string;
@@ -9,41 +19,45 @@ export interface ApiResponse<T> {
 
 // ===== 스터디 관련 타입 =====
 
-export type StudyStatus = string; 
-export type Campus = string; // 😭"SEOUL" | "GLOBAL" (프로필, 마이페이지 타입 확인 필요)
-export type Language = string; // "한국어" | "영어" | ...
+export type StudyStatus = '모집중' | '마감';
+export type Campus = 'SEOUL' | 'GLOBAL';
+export type Language = string;
 
 // 스터디 게시글 기본 정보
 export interface StudyItem {
   id: number;
   title: string;
   content: string;
-  status: string;
-  campus: string; 
-  language: string;
+  status: StudyStatus;
+  campus: Campus; 
+  language: Language;
   capacity: number; // 😭최대 인원(연동시 잘 되는지 확인 필요)
+  
+  authorId: number;
+  authorNickname: string;
+  authorProfileImageUrl: string | null;
+  
   createdAt: string;
   updatedAt: string;
+
+  // currentParticipants: number; // 😭현재 참여 인원 필요하나 api 작성 재확인 필요
 }
-// api 에 스터디 작성자 정보가 포함되어 있지 않아 ui용으로 별도 정의하지 않음
 //  StudyDetail에서 authorUsername: string; 해당 부분(현재는 목데이터) 주석처리함
 
 
 // 스터디 리스트 응답 (GET /api/studies)
 export interface StudyListResponse {
-  success: boolean;
-  errorCode: string;
-  message: string;
   data: StudyItem[];
+  pageInfo: {
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+  };
 }
 
 // 스터디 상세 응답 (GET /api/studies/{postId})
-export interface StudyDetailResponse {
-  success: boolean;
-  errorCode: string;
-  message: string;
-  data: StudyItem;
-}
+export interface StudyDetailResponse extends ApiResponse<StudyItem> {}
 
 // ===== Comments 타입 =====
 
@@ -57,7 +71,7 @@ export interface CommentAuthor {
 // 댓글 
 export interface StudyComment {
   id: number;
-  postId: number;
+  // postId: number;
   content: string;
   createdAt: string;
   updatedAt: string;
@@ -81,9 +95,9 @@ export interface CommentListResponse {
 export interface StudyRequest {
   title: string;
   content: string;
-  status: string;
-  campus: string;
-  language: string;
+  status: StudyStatus;
+  campus: Campus | '';
+  language: Language;
   capacity: number;
 }
 
@@ -92,25 +106,13 @@ export interface CommentRequest {
   content: string;
 }
 
-// 😭===== UI 전용 타입들 (목데이터 - 삭제) =====
-
-export interface StudyCardItem extends StudyItem {
-  // 😭현재 참여 인원 (별도 API에서 조회해야 할 수도 있음)
-  currentParticipants?: number;
-  // 😭작성자 정보 (별도 API나 추가 정보)
-  authorId?: number;
-  authorNickname?: string;
-  authorProfileImage?: string | null;
-  authorCountry?: string;
-  // 😭UI용 태그들 - 게시글 모집 상태, 언어, 캠퍼스(마이페이지, 프로필 리스트 keywords랑 꼬이지 않도록 주의)
-  tags?: string[];
-}
 
 // 스터디 필터링()
-export interface StudyFilterParams {
-  campus?: string;
-  language?: string;
-  status?: string;
+export interface StudyFilter {
+  campus?: Campus[]; 
+  language?: Language[]; 
+  status?: StudyStatus;
+  searchKeyword?: string;
   page?: number;
   size?: number;
 }

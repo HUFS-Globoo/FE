@@ -1,8 +1,39 @@
-import { useState, useEffect } from "react";
+// src/components/study/StudyDetail.tsx
+
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import CommentSection from "../../components/CommentSection";
-import type { StudyCardItem, StudyComment } from "../../types/study.types";
+
+import { 
+    getStudyDetail, deleteStudy, handleApiError 
+} from "../../api/studyAPI"; 
+
+import { 
+    getCommentsByStudyId, 
+    addCommentToStudy, 
+    updateComment, 
+    deleteComment 
+} from "../../api/commentAPI";
+
+import type { 
+    StudyItem, 
+    StudyDetailResponse, 
+    StudyComment, 
+    CommentRequest,
+    StudyStatus
+} from "../../types/study.types";
+
+// 목데이터 (인증 구현 전까지 현재 로그인 사용자 정보로 사용)
+const mockUserData = {
+    id: 1, // 현재 로그인 사용자의 ID
+    username: "홍길동",
+    nickname: "멋쟁이",
+    email: "likelion@hufs.ac.kr",
+    profileImage: null,
+    country: "KR"
+};
+
 import ParticipantImg from "../../assets/img-participant.svg";
 import AmericaProfileImg from "../../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
@@ -10,67 +41,13 @@ import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
 import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 
-// 목데이터 - 나중에 API로 교체
-const mockStudyDetail: StudyCardItem = {
-  id: 3,
-  title: "융인대생과 함께 배우는 아랍어 교실",
-  content: "스터디 부원 모집해요! 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요스터디 부원 모집해요 스터디 부원 모집해요스터디 부원 모집해요",
-  status: "모집중",
-  campus: "GLOBAL",
-  language: "아랍어",
-  capacity: 15,
-  createdAt: "2025-10-15T00:00:00Z",
-  updatedAt: "2025-10-15T00:00:00Z",
-  currentParticipants: 11,
-  authorId: 3,
-  authorProfileImage: null,
-  authorCountry: "EG",
-  tags: ["아랍어", "이집트"]
-};
-
-const mockComments: StudyComment[] = [
-  {
-    id: 5,
-    postId: 3,
-    content: "영어 마침 배워보고 싶었는데 어떻게 참여하나요? 친구랑 같이 참여해보고 싶어요!영어 마침 배워보고 싶었는데 어떻게 참여하나요? 친구랑 같이 참여해보고 싶어요!영어 마침 배워보고 싶었는데 어떻게 참여하나요? 친구랑 같이 참여해보고 싶어요! 친구랑 같이 참여해보고 싶어요!",
-    createdAt: "2025-11-08T00:00:00Z",
-    updatedAt: "2025-11-08T00:00:00Z",
-    author: {
-      id: 3,
-      nickname: "닉네임동백",
-      profileImageUrl: null
-    }
-  },
-  {
-    id: 2,
-    postId: 3,
-    content: "멋지겠다",
-    createdAt: "2025-11-07T00:00:00Z",
-    updatedAt: "2025-11-07T00:00:00Z",
-    author: {
-      id: 2,
-      nickname: "8812",
-      profileImageUrl: null
-    }
-  }
-];
-
-const mockUserData = {
-  id: 1,
-  username: "홍길동",
-  nickname: "멋쟁이",
-  email: "likelion@hufs.ac.kr",
-  profileImage: null,
-  country: "KR"
-};
-
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
+    US: AmericaProfileImg,
+    KR: KoreaProfileImg,
+    IT: ItalyProfileImg,
+    EG: EgyptProfileImg,
+    CN: ChinaProfileImg,
 };
 
 const Container = styled.div`
@@ -101,7 +78,7 @@ const PageTitle = styled.h1`
   margin-bottom: 2.5rem;
 `;
 
-// 사용자 프로필 카드 (좌측) - StudyList와 동일
+// 사용자 프로필 카드 (좌측)
 const UserProfileCard = styled.div`
   background-color: var(--white);
   border: 1px solid var(--gray);
@@ -203,7 +180,7 @@ const StudyMetaInfo = styled.div`
   margin-bottom: 1rem;
 `;
 
-const StatusBadge = styled.span<{ $status: '모집중' | '마감' }>`
+const StatusBadge = styled.span<{ $status: StudyStatus }>`
   padding: 0.25rem 0.75rem;
   border-radius: 0.5rem;
   background-color: ${props => props.$status === '모집중' ? 'var(--primary)' : 'var(--gray)'};
@@ -261,206 +238,260 @@ const JoinButton = styled.button`
 `;
 
 const StudyDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [studyData, setStudyData] = useState<StudyCardItem | null>(null);
-  const [comments, setComments] = useState<StudyComment[]>([]);
+    const { id: postId } = useParams<{ id: string }>();
+    const studyId = Number(postId);
+    const navigate = useNavigate();
+    const [studyDetail, setStudyDetail] = useState<StudyItem | null>(null);
+    const [comments, setComments] = useState<StudyComment[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isCommentsLoading, setIsCommentsLoading] = useState(false); 
 
-  useEffect(() => {
-    // 😭 실제 API 호출로 대체 필요
-    // const fetchStudyDetail = async () => {
-    //   const response = await fetch(`/api/studies/${id}`);
-    //   const result = await response.json();
-    //   setStudyData(result.data);
-    // };
-    // fetchStudyDetail();
 
-    // 목데이터 설정
-    setStudyData(mockStudyDetail);
-    setComments(mockComments);
-  }, [id]);
+    // 댓글 commeeent
+    const fetchComments = useCallback(async () => {
+        if (isNaN(studyId) || studyId === 0) return;
 
-  const handleAddComment = (content: string) => {
-    // 😭 실제 API 호출로 대체
-    const newComment: StudyComment = {
-      id: Date.now(),
-      postId: parseInt(id!),
-      content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      author: {
-        id: mockUserData.id,
-        nickname: mockUserData.nickname,
-        profileImageUrl: mockUserData.profileImage
-      }
-    };
-    setComments([...comments, newComment]);
-  };
+        setIsCommentsLoading(true);
+        try {
+            const response = await getCommentsByStudyId(studyId);
+            setComments(response.content || []); 
+        } catch (err) {
+            console.error("댓글 로딩 실패:", err);
+        } finally {
+            setIsCommentsLoading(false);
+        }
+    }, [studyId]);
 
-  const handleEditComment = (commentId: number, content: string) => {
-    // 😭 실제 API 호출로 대체
-    setComments(comments.map(comment => 
-      comment.id === commentId 
-        ? { ...comment, content, updatedAt: new Date().toISOString() }
-        : comment
-    ));
-  };
 
-  const handleDeleteComment = (commentId: number) => {
-    // 😭 실제 API 호출로 대체
-    setComments(comments.filter(comment => comment.id !== commentId));
-  };
+    // 게시글 상세 정보
+    useEffect(() => {
+        const fetchStudyDetail = async () => {
+            if (isNaN(studyId) || studyId === 0) {
+                setError("잘못된 게시글 ID입니다.");
+                setIsLoading(false);
+                return;
+            }
 
-  const handleJoinStudy = () => {
-    // 😭 실제 가입 API 호출로 대체
-    alert("스터디에 가입되었습니다! 곧 작성자님이 연락드릴 거예요.");
-  };
-
-  const handleMyPostsClick = () => {
-  navigate("/mypage");
-};
-
-const handleMyCommentsClick = () => {
-  navigate("/mypage");
-};
-
-const handleCreatePostClick = () => {
-  navigate("/study/post");
-};
-
-  if (!studyData) {
-    return (
-      <Container>
-        <ContentWrapper>
-          <div className="Body1">로딩 중...</div>
-        </ContentWrapper>
-      </Container>
-    );
-  }
-
-  const characterImage = studyData.authorProfileImage || 
-    countryCharacterImages[studyData.authorCountry || 'KR'] || 
-    KoreaProfileImg;
-
-  // 캠퍼스 및 언어 매핑
-  const campusMap: { [key: string]: string } = {
-    'GLOBAL': '글로벌캠퍼스',
-    'SEOUL': '서울캠퍼스'
-  };
-
-  const languageMap: { [key: string]: string } = {
-    '한국어': '한국어',
-    '영어': '영어',
-    '일본어': '일본어',
-    '중국어': '중국어',
-    '아랍어': '아랍어',
-  };
-
-  const tags = [];
-  if (studyData.campus) tags.push(campusMap[studyData.campus] || studyData.campus);
-  if (studyData.language) tags.push(languageMap[studyData.language] || studyData.language);
-  if (studyData.tags) tags.push(...studyData.tags);
-
-  return (
-    <Container>
-      <ContentWrapper>
-        <LeftPanel>
-          <UserProfileCard>
-            <ProfileImage 
-              src={mockUserData.profileImage || "/placeholder-profile.png"} 
-              alt="프로필"
-            />
-            <UserInfo>
-              <UserName className="H4">
-                {mockUserData.username} / {mockUserData.nickname}
-              </UserName>
-              <UserEmail className="Body2">
-                {mockUserData.email}
-              </UserEmail>
-            </UserInfo>
-            <ButtonGroup>
-              <ActionButton 
-                $variant="secondary" 
-                className="Button1"
-                onClick={handleMyPostsClick}
-              >
-                작성한 게시글
-              </ActionButton>
-              <ActionButton 
-                $variant="secondary" 
-                className="Button1"
-                onClick={handleMyCommentsClick}
-              >
-                작성한 댓글
-              </ActionButton>
-              <ActionButton 
-                $variant="primary" 
-                className="Button1"
-                onClick={handleCreatePostClick}
-              >
-                게시글 작성
-              </ActionButton>
-            </ButtonGroup>
-          </UserProfileCard>
-        </LeftPanel>
-
-        <RightPanel>
-          <PageTitle className="H1">스터디 모집</PageTitle>
-          
-          <StudyDetailCard>
-            <StudyHeader>
-              <StudyAuthorSection>
-                <StudyAuthorImage src={characterImage} alt="작성자" />
-                {/* 임시로 주석처리 - 백엔드 작성자 API 확인 후 구현
-                <AuthorName className="H4">
-                  작성자 이름 / 닉네임
-                </AuthorName>
-                */}
-              </StudyAuthorSection>
-              
-              <StudyInfo>
-                <StudyMetaInfo>
-                  <StatusBadge $status={studyData.status as '모집중' | '마감'} className="Button2">
-                    {studyData.status}
-                  </StatusBadge>
-
-                  <ParticipantInfo className="Body2">
-                    <img src={ParticipantImg} alt="참여자" />
-                    {studyData.currentParticipants || 0}명 / {studyData.capacity}명
-                  </ParticipantInfo>
-
-                  <TagContainer>
-                    {tags.map((tag, index) => (
-                      <Tag key={index} className="Button2"># {tag}</Tag>
-                    ))}
-                  </TagContainer>
-                </StudyMetaInfo>
+            try {
+                const response: StudyDetailResponse = await getStudyDetail(studyId);
                 
-                <StudyTitle className="H2">{studyData.title}</StudyTitle>
-              </StudyInfo>
-            </StudyHeader>
+                setStudyDetail(response.data); 
+                setError(null);
+                fetchComments(); 
+            } catch (err) {
+                const errorMessage = handleApiError(err);
+                setError(`게시글 정보를 불러오는데 실패했습니다: ${errorMessage}`);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-            <StudyContent className="Body1">
-              {studyData.content}
-            </StudyContent>
+        fetchStudyDetail();
+    }, [studyId, fetchComments]);
 
-            <JoinButton className="Button1" onClick={handleJoinStudy}>
-              가입하기
-            </JoinButton>
-          </StudyDetailCard>
 
-          <CommentSection 
-            studyId={parseInt(id!)}
-            comments={comments}
-            currentUserId={mockUserData.id} // 😭api에서 받아온 현재 사용자 ID로 대체 필요함
-            onAddComment={handleAddComment}
-            onEditComment={handleEditComment}
-            onDeleteComment={handleDeleteComment}
-          />
-        </RightPanel>
-      </ContentWrapper>
-    </Container>
-  );
+    // 게시글 삭제
+    const handleDeleteStudy = async () => {
+        if (!studyDetail || !window.confirm(`"${studyDetail.title}" 게시글을 정말 삭제하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            await deleteStudy(studyId);
+            alert("게시글이 성공적으로 삭제되었습니다.");
+            navigate('/study');
+        } catch (err) {
+            const errorMessage = handleApiError(err);
+            alert(`게시글 삭제에 실패했습니다: ${errorMessage}`);
+        }
+    };
+
+    // 댓글 추가
+    const handleAddComment = async (content: string) => {
+        if (!studyId || !content.trim()) return false;
+
+        try {
+            const data: CommentRequest = { content };
+            await addCommentToStudy(studyId, data); 
+            await fetchComments();
+            return true;
+        } catch (err) {
+            const errorMessage = handleApiError(err);
+            alert(`댓글 작성에 실패했습니다: ${errorMessage}`);
+            return false;
+        }
+    };
+
+    // 댓글 수정
+    const handleEditComment = async (commentId: number, content: string) => {
+        if (!content.trim()) return false;
+        
+        try {
+            const data: CommentRequest = { content };
+            await updateComment(commentId, data);
+            await fetchComments(); 
+            return true; 
+        } catch (err) {
+            const errorMessage = handleApiError(err);
+            alert(`댓글 수정에 실패했습니다: ${errorMessage}`);
+            return false;
+        }
+    };
+
+    // 댓글 삭제 
+    const handleDeleteComment = async (commentId: number) => {
+        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+
+        try {
+            await deleteComment(commentId);
+            await fetchComments(); 
+        } catch (err) {
+            const errorMessage = handleApiError(err);
+            alert(`댓글 삭제에 실패했습니다: ${errorMessage}`);
+        }
+    };
+
+
+    // 마이페이지/게시글 이동
+    const handleMyPostsClick = () => { navigate("/mypage"); };
+    const handleMyCommentsClick = () => { navigate("/mypage"); };
+    const handleCreatePostClick = () => { navigate("/study/post"); };
+    const handleJoinStudy = () => { /* 가입 API 연동 필요 */ alert("스터디 가입 요청을 보냈습니다."); };
+
+
+    // 로딩 및 에러 처리 UI
+    if (isLoading) {
+        return (
+            <Container>
+                <ContentWrapper>
+                    <div className="Body1">게시글을 불러오는 중...</div>
+                </ContentWrapper>
+            </Container>
+        );
+    }
+    if (error) {
+        return (
+            <Container>
+                <ContentWrapper>
+                    <div className="Body1" style={{ color: 'red' }}>오류: {error}</div>
+                </ContentWrapper>
+            </Container>
+        );
+    }
+    
+    const studyData = studyDetail!;
+// 데이터 가공
+    const isAuthor = studyData.authorId === mockUserData.id;
+    
+    const characterImage = studyData.authorProfileImageUrl || 
+        countryCharacterImages[studyData.campus] || // 임시로 campus를 기반으로 이미지 선택
+        KoreaProfileImg;
+
+    // 캠퍼스 및 언어 매핑 (기존 로직 유지)
+    const campusMap: { [key: string]: string } = { 'GLOBAL': '글로벌캠퍼스', 'SEOUL': '서울캠퍼스' };
+    const languageMap: { [key: string]: string } = { '한국어': '한국어', '영어': '영어', '일본어': '일본어', '중국어': '중국어', '아랍어': '아랍어' };
+
+    const tags = [];
+    if (studyData.campus) tags.push(campusMap[studyData.campus] || studyData.campus);
+    if (studyData.language) tags.push(languageMap[studyData.language] || studyData.language);
+    // studyData.tags는 StudyItem에 없으므로 제거
+
+
+    return (
+        <Container>
+            <ContentWrapper>
+                <LeftPanel>
+                    <UserProfileCard>
+                        <ProfileImage 
+                            src={mockUserData.profileImage || "/placeholder-profile.png"} 
+                            alt="프로필"
+                        />
+                        <UserInfo>
+                            <UserName className="H4">
+                                {mockUserData.username} / {mockUserData.nickname}
+                            </UserName>
+                            <UserEmail className="Body2">
+                                {mockUserData.email}
+                            </UserEmail>
+                        </UserInfo>
+                        <ButtonGroup>
+                            <ActionButton $variant="secondary" className="Button1" onClick={handleMyPostsClick}>작성한 게시글</ActionButton>
+                            <ActionButton $variant="secondary" className="Button1" onClick={handleMyCommentsClick}>작성한 댓글</ActionButton>
+                            <ActionButton $variant="primary" className="Button1" onClick={handleCreatePostClick}>게시글 작성</ActionButton>
+                        </ButtonGroup>
+                    </UserProfileCard>
+                </LeftPanel>
+
+                <RightPanel>
+                    <PageTitle className="H1">스터디 모집</PageTitle>
+                    
+                    <StudyDetailCard>
+                        <StudyHeader>
+                            <StudyAuthorSection>
+                                <StudyAuthorImage src={characterImage} alt="작성자" />
+                                <AuthorName className="H4">
+                                    {studyData.authorNickname}
+                                </AuthorName>
+                            </StudyAuthorSection>
+                            
+                            <StudyInfo>
+                                <StudyMetaInfo>
+                                    <StatusBadge $status={studyData.status} className="Button2">
+                                        {studyData.status}
+                                    </StatusBadge>
+
+                                    <ParticipantInfo className="Body2">
+                                        <img src={ParticipantImg} alt="참여자" />
+                                        {/* API에 currentParticipants 필드가 없으므로 임시로 0으로 표시 - pr하시면 다시 수정 */}
+                                        0명 / {studyData.capacity}명
+                                    </ParticipantInfo>
+
+                                    <TagContainer>
+                                        {tags.map((tag, index) => (
+                                            <Tag key={index} className="Button2"># {tag}</Tag>
+                                        ))}
+                                    </TagContainer>
+                                </StudyMetaInfo>
+                                
+                                <StudyTitle className="H2">{studyData.title}</StudyTitle>
+                            </StudyInfo>
+                        </StudyHeader>
+
+                        <StudyContent className="Body1">
+                            {studyData.content}
+                        </StudyContent>
+                        
+                        
+                        {isAuthor && (
+                            <ButtonGroup style={{ flexDirection: 'row', marginTop: '1rem', justifyContent: 'flex-end' }}>
+                                <ActionButton $variant="secondary" className="Button1" onClick={() => navigate(`/study/edit/${studyId}`)}>
+                                    수정
+                                </ActionButton>
+                                <ActionButton $variant="primary" className="Button1" onClick={handleDeleteStudy}>
+                                    삭제
+                                </ActionButton>
+                            </ButtonGroup>
+                        )}
+
+                        <JoinButton className="Button1" onClick={handleJoinStudy} style={{ marginTop: '1rem' }}>
+                            가입하기
+                        </JoinButton>
+                    </StudyDetailCard>
+
+                    <CommentSection 
+                        studyId={studyId}
+                        comments={comments}
+                        currentUserId={mockUserData.id}
+                        onAddComment={handleAddComment}
+                        onEditComment={handleEditComment}
+                        onDeleteComment={handleDeleteComment}
+                        isCommentsLoading={isCommentsLoading}
+                    />
+                </RightPanel>
+            </ContentWrapper>
+        </Container>
+    );
 };
 
 export default StudyDetail;

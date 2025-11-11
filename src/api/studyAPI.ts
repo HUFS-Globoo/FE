@@ -3,32 +3,30 @@ import {
   StudyRequest, 
   StudyListResponse, 
   StudyDetailResponse, 
-  StudyFilterParams 
+  StudyFilter 
 } from '../types/study.types';
 
 // GET /api/studies - 스터디 목록 조회 (필터링 포함시킴  - 필요없으면 빼기)
-export const getStudies = async (filters?: StudyFilterParams): Promise<StudyListResponse> => {
-  try {
-    const params = new URLSearchParams();
-    
-    if (filters?.campus) params.append('campus', filters.campus);
-    if (filters?.language) params.append('language', filters.language);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.size) params.append('size', filters.size.toString());
+export const getStudies = async (filters: StudyFilter): Promise<StudyListResponse> => {
+  const params = {
+    page: filters.page,
+    size: filters.size,
+    status: filters.status,
+    searchKeyword: filters.searchKeyword,
+    campus: filters.campus, 
+    language: filters.language,
+  };
 
-    const response = await axiosInstance.get(`/studies?${params.toString()}`);
-    return response.data;
-  } catch (error) {
-    console.error('스터디 목록 조회 실패:', error);
-    throw error;
-  }
+  const response = await axiosInstance.get<StudyListResponse>('/api/studies', { 
+    params 
+  });
+  return response.data;
 };
 
 // GET /api/studies/{postId} - 스터디 상세 조회
 export const getStudyDetail = async (postId: number): Promise<StudyDetailResponse> => {
   try {
-    const response = await axiosInstance.get(`/studies/${postId}`);
+    const response = await axiosInstance.get(`/api/studies/${postId}`);
     return response.data;
   } catch (error) {
     console.error('스터디 상세 조회 실패:', error);

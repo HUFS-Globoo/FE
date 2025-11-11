@@ -113,6 +113,37 @@ const ProfileName = styled.div`
   padding-top: 1.12rem;
 `;
 
+const LanguageBox = styled.div`
+  padding-top: 0.94rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.87rem;
+`
+
+
+const LanguageContent = styled.div`
+  font-size: 1rem;
+  font-weight: 300;
+  text-align: center;
+`
+
+const KeywordContainer = styled.div`
+  display: grid;
+  padding-top: 1.94rem;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1.5rem 1.94rem;
+  justify-content: center;
+  margin: 0 auto;
+`
+const KeywordBox = styled.div`
+  display: flex;
+  background: var(--white);
+  justify-content: center;
+  align-items: center;
+`
+
 const ButtonContainer = styled.div`
   display: flex;
   gap: 1.06rem;
@@ -138,6 +169,7 @@ export default function RandomMatchCard() {
   const location = useLocation();
   const userId = location.state?.userId || Number(localStorage.getItem("userId"));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [partner, setPartner] = useState<any>(null);
 
   const [stage, setStage] = useState<"loading" | "matched" | "chat">("loading");
   const [matchId, setMatchId] = useState<string | null>(null);
@@ -213,6 +245,28 @@ export default function RandomMatchCard() {
     }
   };
 
+  const languageMap: Record<string, string> = {
+    zh: "Chinese",
+    en: "English",
+    fr: "French",
+    de: "German",
+    ja: "Japanese",
+    ko: "Korean",
+    es: "Spanish",
+  };
+
+  const countryMap: Record<string, string> = {
+    KR: "대한민국",
+    US: "미국",
+    JP: "일본",
+    CN: "중국",
+    FR: "프랑스",
+    DE: "독일",
+    UK: "영국",
+    CA: "캐나다",
+    AU: "호주",
+  };
+
   return (
     <Wrapper>
       <ColorBackground stage={stage} />
@@ -231,8 +285,24 @@ export default function RandomMatchCard() {
           <>
             <MatchedTitle>매칭에 성공했습니다!</MatchedTitle>
             <MatchedProfile>
-              <ProfileImg src={MockImg} alt="프로필 이미지" />
-              <ProfileName>상대방을 찾았습니다</ProfileName>
+              <ProfileImg src={partner?.profileImage || MockImg} alt="프로필 이미지" />
+              <ProfileName>{partner.nickname}</ProfileName>
+              <LanguageBox>
+                <LanguageContent>
+                  사용 언어: {languageMap[partner.nativeLanguages?.[0]]}
+                </LanguageContent>
+                <LanguageContent>
+                  선호 언어: {languageMap[partner.learnLanguages?.[0]]}
+                </LanguageContent>
+                <LanguageContent>
+                  국적: {countryMap[partner.country]}
+                </LanguageContent>
+              </LanguageBox>
+              <KeywordContainer>
+                {[...(partner.keywords || []), partner.mbti].map((word, idx) => (
+                  <KeywordBox key={idx}>#{word}</KeywordBox>
+                ))}
+              </KeywordContainer>
               <ButtonContainer>
                 <Button onClick={handleAcceptMatch}>채팅 시작하기</Button>
                 <Button onClick={handleFindAnother}>다른 상대 찾기</Button>
@@ -244,3 +314,4 @@ export default function RandomMatchCard() {
     </Wrapper>
   );
 }
+

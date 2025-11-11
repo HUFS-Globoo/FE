@@ -148,7 +148,7 @@ export default function RandomMatchCard() {
 
     intervalRef.current = setInterval(async () => {
       try {
-        const res = await axiosInstance.get(`/api/matching/active/${userId}`);
+        const res = await axiosInstance.get(`/api/matching/active`);
         const data = res.data;
         console.log("매칭 상태:", data);
 

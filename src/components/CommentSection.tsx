@@ -7,7 +7,7 @@ import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
 import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../assets/img-profile1-China.svg";
 import MiniBooImg from "../assets/img-miniBoo.svg";
-
+import { useEffect } from "react";
 interface CommentSectionProps {
   studyId: number;
   comments: StudyComment[]; 
@@ -149,6 +149,7 @@ const CommentText = styled.p`
 const CommentActions = styled.div`
   display: flex;
   gap: 0.5rem;
+  justify-content: flex-end;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'delete' | 'edit' }>`
@@ -169,7 +170,7 @@ const ActionButton = styled.button<{ $variant?: 'delete' | 'edit' }>`
 const CommentSection = ({ 
   studyId, 
   comments, 
-  currentUserId, // 추가: 현재 사용자 ID
+  currentUserId, 
   onAddComment, 
   onEditComment, 
   onDeleteComment,
@@ -201,6 +202,15 @@ const CommentSection = ({
       }
     }
   };
+
+useEffect(() => {
+  console.log("현재 로그인한 유저 ID:", currentUserId);
+  console.log("댓글 리스트:", comments.map(c => ({
+    commentId: c.id,
+    authorId: c.author.id,
+    authorNickname: c.author.nickname
+  })));
+}, [comments, currentUserId]);
 
   return (
     <CommentContainer>

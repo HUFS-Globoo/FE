@@ -59,19 +59,19 @@ export interface StudyDetailResponse extends ApiResponse<StudyItem> {}
 
 // 댓글 작성자 
 export interface CommentAuthor {
-  id: number;
+  id: number; 
   nickname: string;
   profileImageUrl: string | null;
 }
 
 // 댓글 
+// 댓글 
 export interface StudyComment {
-  id: number;
-  // postId: number;
+  id: number; 
   content: string;
   createdAt: string;
   updatedAt: string;
-  author: CommentAuthor;
+  author: CommentAuthor; /
 }
 
 // 댓글 리스트 응답 (GET /api/study/posts/{postId}/comments)

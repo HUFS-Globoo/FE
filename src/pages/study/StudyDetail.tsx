@@ -1,10 +1,9 @@
 // src/components/study/StudyDetail.tsx
-
+import type { UserMeResponse } from "../../types/mypage&profile.types";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import CommentSection from "../../components/CommentSection";
-
 import { 
     getStudyDetail, deleteStudy, handleApiError 
 } from "../../api/studyAPI"; 
@@ -24,6 +23,7 @@ import type {
     StudyStatus
 } from "../../types/study.types";
 
+
 // 목데이터 (인증 구현 전까지 현재 로그인 사용자 정보로 사용)
 const mockUserData = {
     id: 1, // 현재 로그인 사용자의 ID
@@ -40,6 +40,7 @@ import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
 import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
 import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
+import axiosInstance from "../../../axiosInstance";
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -246,6 +247,20 @@ const StudyDetail = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCommentsLoading, setIsCommentsLoading] = useState(false); 
+    const [currentUser, setCurrentUser] = useState<UserMeResponse | null>(null);
+    
+    // 현재 로그인 사용자 정보 불러오기
+    useEffect(() => {
+      const fetchUserMe = async () => {
+        try {
+          const res = await axiosInstance.get<UserMeResponse>("/api/users/me");
+          setCurrentUser(res.data);
+        } catch (error) {
+          console.error("사용자 정보 조회 실패:", error);
+        }
+      };
+      fetchUserMe();
+    }, []);
 
 
     // 댓글 commeeent
@@ -314,6 +329,7 @@ const StudyDetail = () => {
         try {
             const data: CommentRequest = { content };
             await addCommentToStudy(studyId, data); 
+            alert("댓글이 달렸습니다!");
             await fetchComments();
             return true;
         } catch (err) {
@@ -329,7 +345,7 @@ const StudyDetail = () => {
         
         try {
             const data: CommentRequest = { content };
-            await updateComment(commentId, data);
+            await updateComment(studyId, commentId, data);
             await fetchComments(); 
             return true; 
         } catch (err) {
@@ -344,7 +360,8 @@ const StudyDetail = () => {
         if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
 
         try {
-            await deleteComment(commentId);
+            await deleteComment(studyId, commentId);
+            alert("댓글이 삭제되었습니다!");
             await fetchComments(); 
         } catch (err) {
             const errorMessage = handleApiError(err);
@@ -382,7 +399,8 @@ const StudyDetail = () => {
     
     const studyData = studyDetail!;
 // 데이터 가공
-    const isAuthor = studyData.authorId === mockUserData.id;
+    const isAuthor = currentUser && studyData.authorId === currentUser.userId;
+
     
     const characterImage = studyData.authorProfileImageUrl || 
         countryCharacterImages[studyData.campus] || // 임시로 campus를 기반으로 이미지 선택
@@ -482,7 +500,7 @@ const StudyDetail = () => {
                     <CommentSection 
                         studyId={studyId}
                         comments={comments}
-                        currentUserId={mockUserData.id}
+                        currentUserId={Number(localStorage.getItem("userId"))}
                         onAddComment={handleAddComment}
                         onEditComment={handleEditComment}
                         onDeleteComment={handleDeleteComment}

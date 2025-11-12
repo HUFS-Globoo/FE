@@ -1,19 +1,18 @@
 import axiosInstance from '../../axiosInstance';
 import type { 
-    StudyComment, 
-    CommentRequest,
-    CommentListResponse // 댓글 목록 조회 응답 타입
+  StudyComment, 
+  CommentRequest,
+  CommentListResponse
 } from "../types/study.types";
 
 const COMMENT_BASE_URL = '/api/comments'; // 댓글 단일 처리 경로
 
 /**
- * GET /api/studies/{studyId}/comments
- * @param studyId 스터디 게시글 ID
+ * GET /api/study/posts/{postId}/comments
  */
-export const getCommentsByStudyId = async (studyId: number): Promise<CommentListResponse> => {
+export const getCommentsByStudyId = async (postId: number): Promise<CommentListResponse> => {
   try {
-    const response = await axiosInstance.get<CommentListResponse>(`/api/studies/${studyId}/comments`);
+    const response = await axiosInstance.get<CommentListResponse>(`/api/study/posts/${postId}/comments`);
     return response.data;
   } catch (error) {
     console.error('댓글 목록 조회 실패:', error);
@@ -22,29 +21,34 @@ export const getCommentsByStudyId = async (studyId: number): Promise<CommentList
 };
 
 /**
- * POST /api/studies/{studyId}/comments
- * @param studyId 스터디 게시글 ID
- * @param data 댓글 내용 
+ * POST /api/study/posts/{postId}/comments
  */
-export const addCommentToStudy = async (studyId: number, data: CommentRequest): Promise<StudyComment> => {
-  const response = await axiosInstance.post<StudyComment>(`/api/studies/${studyId}/comments`, data);
+export const addCommentToStudy = async (postId: number, data: CommentRequest): Promise<StudyComment> => {
+  const response = await axiosInstance.post<StudyComment>(
+    `/api/study/posts/${postId}/comments`,
+    data
+  );
   return response.data;
 };
 
 /**
- * PATCH /api/comments/{commentId}
- * @param commentId // 댓글 id
- * @param data 수정할 내용
+ * PATCH /api/study/posts/{postId}/comments/{commentId}
  */
-export const updateComment = async (commentId: number, data: CommentRequest): Promise<StudyComment> => {
-  const response = await axiosInstance.patch<StudyComment>(`${COMMENT_BASE_URL}/${commentId}`, data);
+export const updateComment = async (
+  postId: number,
+  commentId: number,
+  data: CommentRequest
+) => {
+  const response = await axiosInstance.patch(
+    `/api/study/posts/${postId}/comments/${commentId}`,
+    data
+  );
   return response.data;
 };
 
 /**
- * DELETE /api/comments/{commentId}
- * @param commentId 
+ * DELETE /api/study/posts/{postId}/comments/{commentId}
  */
-export const deleteComment = async (commentId: number): Promise<void> => {
-  await axiosInstance.delete<void>(`${COMMENT_BASE_URL}/${commentId}`);
+export const deleteComment = async (postId: number, commentId: number): Promise<void> => {
+  await axiosInstance.delete<void>(`/api/study/posts/${postId}/comments/${commentId}`);
 };

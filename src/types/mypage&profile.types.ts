@@ -1,27 +1,33 @@
 // 마이페이지 & 프로필(상단 컴포넌트 해당) 관련 타입 정의 파일
 export interface UserMeResponse {
-  id: number;
+  userId: number;
+
   email: string;
-  username: string;
-  profile: {
-    nickname: string;
-    campus: 'SEOUL' | 'GLOBAL';
-    mbti: string;
-    country: string;
-    profileImage: string | null;
-    infoTitle: string | null;
-    infoContent: string | null;
-  };
-  languages: Language[];
-  keywords: Keyword[];
+  nickname: string; //최상위로 변경 
+  name: string; 
+  campus: 'SEOUL' | 'GLOBAL';
+  mbti: string;
+  country: string;
+
+  profileImageUrl: string | null;
+
+  infoTitle: string | null;
+  infoContent: string | null;
+  birthDate: string;
+  gender: 'MALE' | 'FEMALE';
+
+  nativeLanguages: LanguageItem[];
+  learnLanguages: LanguageItem[];
+
+  keywords: KeywordItem[];
 }
 
-export interface Language {
+export interface LanguageItem {
   code: string;
   type: 'NATIVE' | 'LEARN';
 }
 
-export interface Keyword {
+export interface KeywordItem {
   id: number;
   name: string;
 }
@@ -39,9 +45,9 @@ export interface LanguagesUpdateRequest {
 
 // 키워드 조회 타입
 export interface KeywordsResponse {
-  PERSONALITY: Keyword[];
-  HOBBY: Keyword[];
-  TOPIC: Keyword[];
+  PERSONALITY: KeywordItem[];
+  HOBBY: KeywordItem[];
+  TOPIC: KeywordItem[];
 }
 
 export interface KeywordsUpdateRequest {

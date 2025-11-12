@@ -37,7 +37,16 @@ export const getStudyDetail = async (postId: number): Promise<StudyDetailRespons
 // POST /api/studies - 스터디 생성
 export const createStudy = async (studyData: StudyRequest): Promise<StudyDetailResponse> => {
   try {
-    const response = await axiosInstance.post('/studies', studyData);
+    const payload = {
+      title: studyData.title,
+      content: studyData.content,
+      status: studyData.status,
+      campuses: [studyData.campus],    
+      languages: [studyData.language], 
+      capacity: studyData.capacity,
+    };
+
+    const response = await axiosInstance.post('/api/studies', payload);
     return response.data;
   } catch (error) {
     console.error('스터디 생성 실패:', error);
@@ -48,7 +57,7 @@ export const createStudy = async (studyData: StudyRequest): Promise<StudyDetailR
 // PATCH /api/studies/{postId} - 스터디 수정
 export const updateStudy = async (postId: number, studyData: Partial<StudyRequest>): Promise<StudyDetailResponse> => {
   try {
-    const response = await axiosInstance.patch(`/studies/${postId}`, studyData);
+    const response = await axiosInstance.patch(`/api/studies/${postId}`, studyData);
     return response.data;
   } catch (error) {
     console.error('스터디 수정 실패:', error);
@@ -59,7 +68,7 @@ export const updateStudy = async (postId: number, studyData: Partial<StudyReques
 // DELETE /api/studies/{postId} - 스터디 삭제
 export const deleteStudy = async (postId: number): Promise<void> => {
   try {
-    await axiosInstance.delete(`/studies/${postId}`);
+    await axiosInstance.delete(`/api/studies/${postId}`);
   } catch (error) {
     console.error('스터디 삭제 실패:', error);
     throw error;

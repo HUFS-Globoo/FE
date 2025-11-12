@@ -432,26 +432,34 @@ const ProfileCard = ({
   const characterImage =
     profileImage || countryCharacterImages[country] || "https://via.placeholder.com/200";
 
-  const processedKeywords = [
-    ...(Array.isArray((keywords as any)?.personalityKeywords)
-      ? (keywords as any).personalityKeywords.map((k: string) => ({
-          name: k,
-          category: "PERSONALITY",
-        }))
-      : []),
-    ...(Array.isArray((keywords as any)?.hobbyKeywords)
-      ? (keywords as any).hobbyKeywords.map((k: string) => ({
-          name: k,
-          category: "HOBBY",
-        }))
-      : []),
-    ...(Array.isArray((keywords as any)?.topicKeywords)
-      ? (keywords as any).topicKeywords.map((k: string) => ({
-          name: k,
-          category: "TOPIC",
-        }))
-      : []),
-  ];
+
+const processedKeywords = Array.isArray(keywords)
+  ? keywords.map((k: any) => {
+      const name = typeof k === "string" ? k : k.name;
+
+      const personalityList = [
+        "활발한", "솔직한", "차분한", "유쾌한", "친절한", "도전적", "신중한", "긍정적", "냉정한", "열정적인"
+      ];
+
+      const hobbyList = [
+        "영화 시청", "음악 감상", "요리", "독서", "카페가기", "운동", "산책", "사진 촬영", "게임", "여행",
+      ];
+
+      const topicList = [
+        "음악", "아이돌", "패션/뷰티", "스포츠", "영화/드라마", "공부", "자기계발", "책", "환경", "동물"
+      ];
+
+      let category = "DEFAULT";
+      if (personalityList.includes(name)) category = "PERSONALITY";
+      else if (hobbyList.includes(name)) category = "HOBBY";
+      else if (topicList.includes(name)) category = "TOPIC";
+
+      return { name, category };
+    })
+  : [];
+
+
+
 
 const [isEditingMbti, setIsEditingMbti] = useState(false);
 const [editedMbti, setEditedMbti] = useState(mbti);

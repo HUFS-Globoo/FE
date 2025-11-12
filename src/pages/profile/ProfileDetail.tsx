@@ -80,11 +80,23 @@ const MessageButton = styled.button`
   }
 `;
 
+
 const ProfileDetail = () => {
   const { userId } = useParams<{ userId: string }>();
   const [userData, setUserData] = useState<ProfileDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+
+  const LANGUAGE_MAP: Record<string, string> = {
+    ko: "한국어",
+    en: "영어",
+    es: "스페인어",
+    fr: "프랑스어",
+    ja: "일본어",
+    zh: "중국어",
+    de: "독일어",
+    it: "이탈리아어",
+  };
 
   useEffect(() => {
     const fetchProfileDetail = async () => {
@@ -132,8 +144,8 @@ const ProfileDetail = () => {
           introContent: data.infoContent,
           keywords: data.keywords.map((k: any) => k.name),
           languages: {
-            native: data.nativeLanguages.map((l: any) => l.name),
-            learn: data.learnLanguages.map((l: any) => l.name),
+            native: data.nativeLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),
+            learn: data.learnLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),
           },
         };
   

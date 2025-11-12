@@ -204,24 +204,47 @@ const ProfileList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const profilesPerPage = 8;
+  const [filters, setFilters] = useState({
+    campus: "",
+    nativeLang: "",
+    learnLang: "",
+    personalityKeyword: "",
+    hobbyKeyword: "",
+    topicKeyword: "",
+  });
 
-  // 필터 없이 전체 조회
+
+  // 프로필 조회 (필터 적용)
   const fetchProfiles = async (page = 0) => {
     try {
-      const res = await axiosInstance.get("/api/profiles", {
-        params: { page, size: profilesPerPage },
-      });
+      const params: any = { page, size: profilesPerPage };
+
+      if (filters.campus) params.campus = filters.campus.toUpperCase();
+      if (filters.nativeLang) params.nativeLang = filters.nativeLang;
+      if (filters.learnLang) params.learnLang = filters.learnLang;
+
+      const keywordArray = [
+        filters.personalityKeyword,
+        filters.hobbyKeyword,
+        filters.topicKeyword,
+      ]
+        .filter((v) => v) 
+        .map((v) => Number(v)); 
+
+      if (keywordArray.length > 0) params.keywordId = keywordArray;
+
+      const res = await axiosInstance.get("/api/profiles", { params });
       setProfiles(res.data.content);
       setTotalPages(res.data.totalPages);
-      console.log("프로필 불러오기 성공:", res.data);
+      console.log("프로필 조회 성공:", res.data);
     } catch (error) {
       console.error("프로필 조회 실패:", error);
     }
   };
 
-  useEffect(() => {
-    fetchProfiles(currentPage);
-  }, [currentPage]);
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleProfileClick = (userId: number) => {
     navigate(`/profile/${userId}`);
@@ -231,6 +254,10 @@ const ProfileList: React.FC = () => {
     setCurrentPage(pageNumber);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  useEffect(() => {
+    fetchProfiles(0); 
+  }, []);
 
   return (
     <PageContainer>
@@ -251,9 +278,12 @@ const ProfileList: React.FC = () => {
 
             <FilterContainer>
               <span>캠퍼스</span>
-              <FilterSelect>
-                <option value="" disabled>
-                  캠퍼스 선택
+              <FilterSelect
+                value={filters.campus}
+                onChange={(e) => handleFilterChange("campus", e.target.value)}
+              >
+                <option value="">
+                  전체
                 </option>
                 <option value="global">글로벌캠퍼스</option>
                 <option value="seoul">서울캠퍼스</option>
@@ -262,9 +292,12 @@ const ProfileList: React.FC = () => {
 
             <FilterContainer>
               <span>사용 언어</span>
-              <FilterSelect>
-                <option value="" disabled>
-                  캠퍼스 선택
+              <FilterSelect
+                value={filters.nativeLang}
+                onChange={(e) => handleFilterChange("nativeLang", e.target.value)}
+              >
+                <option value="">
+                  전체
                 </option>
                 <option value="Korean">한국어</option>
                 <option value="English">영어</option>
@@ -278,21 +311,68 @@ const ProfileList: React.FC = () => {
             </FilterContainer>
 
             <FilterContainer>
-              <span>키워드</span>
-              <FilterSelect>
-                <option value="" disabled>
-                  캠퍼스 선택
+              <span>성격 키워드</span>
+              <FilterSelect
+                value={filters.personalityKeyword}
+                onChange={(e) => handleFilterChange("personalityKeyword", e.target.value)}
+              >
+                <option value="">
+                  전체
                 </option>
-                <option value="global">활발한</option>
-                <option value="seoul">솔직한</option>
-                <option value="seoul">차분한</option>
-                <option value="seoul">유쾌한</option>
-                <option value="seoul">친절한</option>
-                <option value="seoul">도전적</option>
-                <option value="seoul">신중한</option>
-                <option value="seoul">긍정적</option>
-                <option value="seoul">냉정한</option>
-                <option value="seoul">열정적인</option>
+                <option value="1">활발한</option>
+                <option value="2">솔직한</option>
+                <option value="3">차분한</option>
+                <option value="4">유쾌한</option>
+                <option value="5">친절한</option>
+                <option value="6">도전적</option>
+                <option value="7">신중한</option>
+                <option value="8">긍정적</option>
+                <option value="9">냉정한</option>
+                <option value="10">열정적인</option>
+              </FilterSelect>
+            </FilterContainer>
+
+            <FilterContainer>
+              <span>취미 키워드</span>
+              <FilterSelect
+                value={filters.hobbyKeyword}
+                onChange={(e) => handleFilterChange("hobbyKeyword", e.target.value)}
+              >
+                <option value="">
+                  전체
+                </option>
+                <option value="11">영화 시청</option>
+                <option value="12">음악 감상</option>
+                <option value="13">요리</option>
+                <option value="14">독서</option>
+                <option value="15">카페가기</option>
+                <option value="16">운동</option>
+                <option value="17">산책</option>
+                <option value="18">사진 촬영</option>
+                <option value="19">게임</option>
+                <option value="20">여행</option>
+              </FilterSelect>
+            </FilterContainer>
+
+            <FilterContainer>
+              <span>주제 키워드</span>
+              <FilterSelect
+                value={filters.topicKeyword}
+                onChange={(e) => handleFilterChange("topicKeyword", e.target.value)}
+              >
+                <option value="">
+                  전체
+                </option>
+                <option value="21">음악</option>
+                <option value="22">아이돌</option>
+                <option value="23">패션/뷰티</option>
+                <option value="24">스포츠</option>
+                <option value="25">영화/드라마</option>
+                <option value="26">공부</option>
+                <option value="27">자기계발</option>
+                <option value="28">책</option>
+                <option value="29">환경</option>
+                <option value="30">동물</option>
               </FilterSelect>
             </FilterContainer>
 

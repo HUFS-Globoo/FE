@@ -282,12 +282,12 @@ const StudyList = () => {
           <UserProfileCard>
             <ProfileImage 
               // profile이 없으면 undefined를 반환하므로 TypeError 방지
-              src={userMe.profile?.profileImage || "/placeholder-profile.png"} 
+              src={userMe.profileImageUrl || "/placeholder-profile.png"} 
               alt="프로필"
             />
             <UserInfo>
               <UserName className="H4">
-                {userMe.username} / {userMe.profile?.nickname} 
+                {userMe.name} / {userMe.nickname} 
               </UserName>
               <UserEmail className="Body2">
                 {userMe.email}

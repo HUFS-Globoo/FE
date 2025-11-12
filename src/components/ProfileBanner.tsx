@@ -155,7 +155,8 @@ const Nickname = styled.h3`
 `;
 
 const MBTIBadge = styled.div`
-  padding: 4px 2px;
+  padding: 0.125rem 0.5rem;
+  box-sizing: border-box;
   border-radius: 50px;
   background-color: var(--white);
   color: var(--skyblue);

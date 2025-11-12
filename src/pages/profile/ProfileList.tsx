@@ -29,9 +29,11 @@ export interface ProfileCardItem {
 }
 
 const PageContainer = styled.div`
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 3rem 6.38rem;
+  box-sizing: border-box;
+  background-color: var(--gray-text-filled);
 `;
 
 const HeaderSection = styled.div`
@@ -47,9 +49,10 @@ const HeaderTextArea = styled.div`
 `;
 
 const HeaderImage = styled.img`
-  width: 60px;
-  height: 60px;
+  width: 2.31794rem;
+  height: 1.58788rem;
   object-fit: contain;
+  padding-top: 0.8rem;
 `;
 
 const HeaderTitle = styled.h2`
@@ -62,7 +65,6 @@ const HeaderTitle = styled.h2`
 const SubText = styled.p`
   font-size: 1rem;
   color: var(--gray-600);
-  margin-bottom: 30px;
 `;
 
 const FilterSection = styled.div`
@@ -72,18 +74,16 @@ const FilterSection = styled.div`
   padding: 20px 24px;
   margin-bottom: 40px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  flex-direction: column;
 `;
 
 const FilterPlaceholder = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 1.5rem;
   align-items: center;
-  flex-wrap: wrap;
-  color: var(--gray-500);
+  color: var(--black);
   font-size: 0.9rem;
+  justify-content: space-between;
 
   span {
     padding: 8px 12px;
@@ -94,7 +94,7 @@ const FilterPlaceholder = styled.div`
 
 const SearchButton = styled.button`
   padding: 10px 24px;
-  background-color: var(--primary);
+  background-color: var(--skyblue);
   color: var(--white);
   border: none;
   border-radius: 8px;
@@ -104,7 +104,7 @@ const SearchButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary);
   }
 `;
 
@@ -112,18 +112,19 @@ const SectionTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--gray-400);
-  margin-bottom: 20px;
+  padding-left: 2rem;
 `;
 
 const ProfileGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+  gap: 2.5rem;
+  padding-left: 2.38rem;
+  padding-right: 2.38rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  box-sizing: border-box;
+  margin: 0 auto;
 `;
 
 const PaginationContainer = styled.div`
@@ -145,6 +146,57 @@ const PageButton = styled.button<{ $active?: boolean }>`
   font-weight: ${(props) => (props.$active ? "600" : "400")};
   transition: all 0.2s;
 `;
+
+const ContentTitle = styled.div`
+  display: flex;
+  gap: 1rem;
+`
+
+const ContentContainer = styled.div`
+
+  border-radius: 0.75rem;
+  border: 1px solid var(--gray, #E0E0E0);
+  background: var(--white, #FFFEFB);
+`
+
+const FilterWraaper = styled.div`
+  display: flex;
+  gap: 1.5rem;
+`
+
+const FilterContainer = styled.div`
+  width: 8.38rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+`
+
+const FilterSelect = styled.select`
+  width: 100%;
+  border: none;
+  font-family: 'SchoolSafetyRoundedSmile';
+
+  &:focus {
+
+    outline: none;
+  }
+
+  &:hover {
+    border-color: var(--Primary-400);
+  }
+
+  &:disabled {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    cursor: not-allowed;
+  }
+
+  option {
+    color: var(--black);
+    background: var(--white);
+  }
+`
 
 const ProfileList: React.FC = () => {
   const navigate = useNavigate();
@@ -183,48 +235,102 @@ const ProfileList: React.FC = () => {
   return (
     <PageContainer>
       <HeaderSection>
-        <HeaderImage src={HeaderImg} alt="프로필 조회" />
         <HeaderTextArea>
-          <HeaderTitle>프로필 조회</HeaderTitle>
-          <SubText>나와 Fit이 맞는 친구 찾기</SubText>
+          <HeaderTitle className="H1">프로필 조회</HeaderTitle>
         </HeaderTextArea>
       </HeaderSection>
 
       <FilterSection>
-        <FilterPlaceholder>
-          <span>캠퍼스</span>
-          <span>사용 언어</span>
-          <span>키워드</span>
+        <ContentTitle>
+          <HeaderImage src={HeaderImg} alt="프로필 조회" />
+          <SubText className="H4">나와 Fit이 맞는 친구 찾기</SubText>
+        </ContentTitle>
+
+        <FilterPlaceholder className="H5">
+          <FilterWraaper>
+
+            <FilterContainer>
+              <span>캠퍼스</span>
+              <FilterSelect>
+                <option value="" disabled>
+                  캠퍼스 선택
+                </option>
+                <option value="global">글로벌캠퍼스</option>
+                <option value="seoul">서울캠퍼스</option>
+              </FilterSelect>
+            </FilterContainer>
+
+            <FilterContainer>
+              <span>사용 언어</span>
+              <FilterSelect>
+                <option value="" disabled>
+                  캠퍼스 선택
+                </option>
+                <option value="Korean">한국어</option>
+                <option value="English">영어</option>
+                <option value="Japanese">일본어</option>
+                <option value="Chinese">중국어</option>
+                <option value="French">프랑스어</option>
+                <option value="Spanish">스페인어</option>
+                <option value="Arabic">아랍어</option>
+                <option value="Italian">이탈리아어</option>
+              </FilterSelect>
+            </FilterContainer>
+
+            <FilterContainer>
+              <span>키워드</span>
+              <FilterSelect>
+                <option value="" disabled>
+                  캠퍼스 선택
+                </option>
+                <option value="global">활발한</option>
+                <option value="seoul">솔직한</option>
+                <option value="seoul">차분한</option>
+                <option value="seoul">유쾌한</option>
+                <option value="seoul">친절한</option>
+                <option value="seoul">도전적</option>
+                <option value="seoul">신중한</option>
+                <option value="seoul">긍정적</option>
+                <option value="seoul">냉정한</option>
+                <option value="seoul">열정적인</option>
+              </FilterSelect>
+            </FilterContainer>
+
+          </FilterWraaper>
+
+          <SearchButton onClick={() => fetchProfiles(0)}>조회</SearchButton>
+
         </FilterPlaceholder>
-        <SearchButton onClick={() => fetchProfiles(0)}>조회</SearchButton>
       </FilterSection>
 
-      <SectionTitle>친구들의 프로필 보기</SectionTitle>
 
-      <ProfileGrid>
-        {profiles.map((profile) => (
-          <ProfileBanner
-            key={profile.userId}
-            userId={profile.userId}
-            nickname={profile.nickname}
-            campus={profile.campus}
-            country={profile.country}
-            mbti={profile.mbti}
-            profileImage={profile.profileImage}
-            languages={{
-              native: profile.nativeLanguages.map((l) => l.code),
-              learn: profile.learnLanguages.map((l) => l.code),
-            }}
-            keywords={profile.keywords.map((k) => k.name)}
-            intro={
-              profile.infoTitle && profile.infoContent
-                ? `${profile.infoTitle}\n${profile.infoContent}`
-                : ""
-            }
-            onClick={() => handleProfileClick(profile.userId)}
-          />
-        ))}
-      </ProfileGrid>
+      <ContentContainer>
+        <SectionTitle className="H4">친구들의 프로필 보기</SectionTitle>
+        <ProfileGrid>
+          {profiles.map((profile) => (
+            <ProfileBanner
+              key={profile.userId}
+              userId={profile.userId}
+              nickname={profile.nickname}
+              campus={profile.campus}
+              country={profile.country}
+              mbti={profile.mbti}
+              profileImage={profile.profileImage}
+              languages={{
+                native: profile.nativeLanguages.map((l) => l.code),
+                learn: profile.learnLanguages.map((l) => l.code),
+              }}
+              keywords={profile.keywords.map((k) => k.name)}
+              intro={
+                profile.infoTitle && profile.infoContent
+                  ? `${profile.infoTitle}\n${profile.infoContent}`
+                  : ""
+              }
+              onClick={() => handleProfileClick(profile.userId)}
+            />
+          ))}
+        </ProfileGrid>
+      </ContentContainer>
 
       {totalPages > 1 && (
         <PaginationContainer>

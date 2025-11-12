@@ -10,11 +10,12 @@ import MiniBooImg from "../assets/img-miniBoo.svg";
 
 interface CommentSectionProps {
   studyId: number;
-  comments: StudyComment[]; // 누락된 prop 추가
-  currentUserId: number; // 오타 수정 (commegnt → current)
-  onAddComment: (content: string) => void;
-  onEditComment: (commentId: number, content: string) => void;
+  comments: StudyComment[]; 
+  currentUserId: number;
+  onAddComment: (content: string) => Promise<boolean>;
+  onEditComment: (commentId: number, content: string) => Promise<boolean>;
   onDeleteComment: (commentId: number) => void;
+  isCommentsLoading: boolean;
 }
 
 // 국가별 캐릭터 이미지 매핑 (추후 실제 프로필 이미지로 교체)
@@ -171,14 +172,17 @@ const CommentSection = ({
   currentUserId, // 추가: 현재 사용자 ID
   onAddComment, 
   onEditComment, 
-  onDeleteComment 
+  onDeleteComment,
+  isCommentsLoading
 }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState("");
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (newComment.trim()) {
-      onAddComment(newComment.trim());
-      setNewComment("");
+        const success = await onAddComment(newComment.trim()); 
+        if (success) { 
+            setNewComment("");
+        }
     }
   };
 
@@ -188,15 +192,15 @@ const CommentSection = ({
     }
   };
 
-  const handleEditComment = (commentId: number) => {
-    const comment = comments.find(c => c.id === commentId);
-    if (comment) {
-      const newContent = prompt("댓글을 수정하세요:", comment.content);
-      if (newContent && newContent.trim() !== comment.content) {
-        onEditComment(commentId, newContent.trim());
-      }
-    }
-  };
+  const handleEditComment = async (commentId: number) => { // async 추가
+    const comment = comments.find(c => c.id === commentId);
+    if (comment) {
+      const newContent = prompt("댓글을 수정하세요:", comment.content);
+      if (newContent && newContent.trim() !== comment.content) {
+        await onEditComment(commentId, newContent.trim()); // await 추가
+      }
+    }
+  };
 
   return (
     <CommentContainer>
@@ -229,41 +233,47 @@ const CommentSection = ({
       {comments.length > 0 && (
         <>
           <CommentsListTitle className="H4">댓글</CommentsListTitle>
-          <CommentsList>
-            {comments.map((comment) => (
-              <CommentItem key={comment.id}>
-                <CommentAvatar 
-                  src={comment.author.profileImageUrl || KoreaProfileImg} 
-                  alt={comment.author.nickname}
-                />
-                
-                <CommentContent>
-                  <CommentAuthor className="H5">{comment.author.nickname}</CommentAuthor>
-                  <CommentText className="Body2">{comment.content}</CommentText>
+          {isCommentsLoading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--skyblue)' }}>
+              댓글을 불러오는 중...
+            </div>
+          ) : (
+            <CommentsList>
+              {comments.map((comment) => (
+                <CommentItem key={comment.id}>
+                  <CommentAvatar 
+                    src={comment.author.profileImageUrl || KoreaProfileImg} 
+                    alt={comment.author.nickname}
+                  />
                   
-                  {/* 본인이 작성한 댓글만 수정/삭제 버튼 표시 */}
-                  {comment.author.id === currentUserId && (
-                    <CommentActions>
-                      <ActionButton 
-                        $variant="delete" 
-                        className="Button2"
-                        onClick={() => handleDeleteComment(comment.id)}
-                      >
-                        삭제하기
-                      </ActionButton>
-                      <ActionButton 
-                        $variant="edit" 
-                        className="Button2"
-                        onClick={() => handleEditComment(comment.id)}
-                      >
-                        수정하기
-                      </ActionButton>
-                    </CommentActions>
-                  )}
-                </CommentContent>
-              </CommentItem>
-            ))}
-          </CommentsList>
+                  <CommentContent>
+                    <CommentAuthor className="H5">{comment.author.nickname}</CommentAuthor>
+                    <CommentText className="Body2">{comment.content}</CommentText>
+                    
+                    {/* 본인이 작성한 댓글만 수정/삭제 버튼 표시 */}
+                    {comment.author.id === currentUserId && (
+                      <CommentActions>
+                        <ActionButton 
+                          $variant="delete" 
+                          className="Button2"
+                          onClick={() => handleDeleteComment(comment.id)}
+                        >
+                          삭제하기
+                        </ActionButton>
+                        <ActionButton 
+                          $variant="edit" 
+                          className="Button2"
+                          onClick={() => handleEditComment(comment.id)}
+                        >
+                          수정하기
+                        </ActionButton>
+                      </CommentActions>
+                    )}
+                  </CommentContent>
+                </CommentItem>
+              ))}
+            </CommentsList>
+          )}
         </>
       )}
     </CommentContainer>

@@ -1,106 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import StudyCard from "../../components/StudyCard";
-import type { StudyCardItem, StudyFilterParams } from "../../types/study.types";
+import type { StudyItem, StudyFilter, StudyListResponse } from "../../types/study.types";
+import { getStudies } from "../../api/studyAPI";
+import type {UserMeResponse } from "../../types/mypage&profile.types";
+import axiosInstance from "../../../axiosInstance";
 
-// 목데이터 - 나중에 API로 교체 (새로운 API 구조에 맞춤)
-const mockStudyData: StudyCardItem[] = [
-  {
-    id: 1,
-    title: "2025-2 영어 회화 스터디 참여자 모집합니다.(비대면 가능)",
-    content: "영어 회화 실력 향상을 위한 스터디입니다...",
-    status: "모집중",
-    campus: "GLOBAL", 
-    language: "영어", 
-    capacity: 15,
-    createdAt: "2025-10-20T00:00:00Z",
-    updatedAt: "2025-10-20T00:00:00Z",
-    // UI용 추가 정보
-    currentParticipants: 3,
-    authorId: 1,
-    authorNickname: "홍길동",
-    authorProfileImage: null,
-    authorCountry: "KR",
-    tags: ["영어", "회화"]
-  },
-  {
-    id: 2,
-    title: "Join our free talking class(due to January)",
-    content: "Free English conversation class...",
-    status: "마감",
-    campus: "GLOBAL",
-    language: "영어",
-    capacity: 15,
-    createdAt: "2025-10-18T00:00:00Z",
-    updatedAt: "2025-10-18T00:00:00Z",
-    currentParticipants: 15,
-    authorId: 2,
-    authorNickname: "Justin M.",
-    authorProfileImage: null,
-    authorCountry: "US",
-    tags: ["영어"]
-  },
-  {
-    id: 3,
-    title: "중인대상과 함께 배우는 아랍어 교실",
-    content: "아랍어를 함께 배워봅시다...",
-    status: "모집중",
-    campus: "GLOBAL",
-    language: "아랍어",
-    capacity: 15,
-    createdAt: "2025-10-15T00:00:00Z",
-    updatedAt: "2025-10-15T00:00:00Z",
-    currentParticipants: 11,
-    authorId: 3,
-    authorNickname: "Ramses",
-    authorProfileImage: null,
-    authorCountry: "EG",
-    tags: ["아랍어"]
-  },
-  {
-    id: 4,
-    title: "같이 소통해요(간단한 한국어 회화를 배우고 싶어요)",
-    content: "한국어 회화를 배우고 싶습니다...",
-    status: "모집중",
-    campus: "GLOBAL",
-    language: "한국어",
-    capacity: 13,
-    createdAt: "2025-10-12T00:00:00Z",
-    updatedAt: "2025-10-12T00:00:00Z",
-    currentParticipants: 3,
-    authorId: 4,
-    authorNickname: "Li Wei",
-    authorProfileImage: null,
-    authorCountry: "CN",
-    tags: ["한국어", "중국어"]
-  },
-  {
-    id: 5,
-    title: "2025-2 영어 회화 스터디 참여자 모집합니다.(비대면 가능)",
-    content: "추가 영어 스터디 모집...",
-    status: "모집중",
-    campus: "SEOUL",
-    language: "영어",
-    capacity: 15,
-    createdAt: "2025-10-10T00:00:00Z",
-    updatedAt: "2025-10-10T00:00:00Z",
-    currentParticipants: 3,
-    authorId: 1,
-    authorNickname: "홍길동",
-    authorProfileImage: null,
-    authorCountry: "KR",
-    tags: ["영어", "회화"]
-  }
-];
-
-const mockUserData = {
-  id: 1,
-  username: "홍길동",
-  nickname: "멋쟁이",
-  email: "likelion@hufs.ac.kr",
-  profileImage: null,
-  country: "KR"
+const initialFilters: StudyFilter = {
+  page: 0,
+  size: 10,
+  campus: undefined,
+  language: undefined,
+  status: undefined,
+  // keyword: '', // 필요시 추가(확인ㄴ 필요)
 };
 
 const Container = styled.div`
@@ -246,39 +159,76 @@ const StudyListContainer = styled.div`
 
 const StudyList = () => {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<StudyFilterParams>({
-    campus: undefined,
-    language: undefined,
-    status: undefined
-  });
-  
-  const [filteredStudies, setFilteredStudies] = useState<StudyCardItem[]>(mockStudyData);
+  const [studies, setStudies] = useState<StudyItem[]>([]); // API 응답의 실제 목록 데이터
+  const [filters, setFilters] = useState<StudyFilter>(initialFilters); // 필터 및 페이지 상태
+  const [userMe, setUserMe] = useState<UserMeResponse | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true); // 
+  const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
+  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
+  const [error, setError] = useState<string | null>(null); // 에러 메시지
 
-  const handleFilterChange = (key: keyof StudyFilterParams, value: any) => {
+  const fetchStudies = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response: any = await getStudies(filters); 
+      
+      setStudies(response.data || []); 
+      
+      setTotalPages(1); 
+      
+    } catch (err) {
+      console.error('스터디 목록 조회 실패:', err);
+      const status = (err as any)?.response?.status;
+      setError(`목록을 불러오지 못했습니다. (오류 코드: ${status || 'API 통신 오류'})`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchStudies();
+  }, [fetchStudies]);
+
+  const fetchUserMe = async () => {
+    try {
+      setIsProfileLoading(true);
+      // 내 정보 조회 API 호출
+      const res = await axiosInstance.get('/api/users/me'); 
+      const data: UserMeResponse = res.data; 
+      
+      setUserMe(data);
+    } catch (error) {
+      console.error("내 정보 조회 실패 (로그인 필요):", error);
+      setUserMe(null); 
+    } finally {
+      setIsProfileLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudies();
+    fetchUserMe(); // 내 정보 조회 호출
+  }, [fetchStudies]);
+
+  const handleFilterChange = (key: keyof Omit<StudyFilter, 'page' | 'size'>, value: string | undefined) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value
+      [key]: value === '' ? undefined : value, // '전체' 선택 시 undefined로 설정
+      page: 0, 
     }));
   };
 
   const handleSearch = () => {
-    // 필터링 로직 (나중에 API 호출로 교체)
-    let filtered = mockStudyData;
-
-    if (filters.campus && filters.campus !== '') {
-      filtered = filtered.filter(study => study.campus === filters.campus);
-    }
-
-    if (filters.status && filters.status !== '') {
-      filtered = filtered.filter(study => study.status === filters.status);
-    }
-
-    if (filters.language && filters.language !== '') {
-      filtered = filtered.filter(study => study.language === filters.language);
-    }
-
-    setFilteredStudies(filtered);
+    console.log("새로운 필터 적용:", filters);
   };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setFilters(prev => ({ ...prev, page: newPage }));
+    }
+  };
+
 
   const handleStudyClick = (studyId: number) => {
     navigate(`/study/${studyId}`);
@@ -296,23 +246,53 @@ const StudyList = () => {
     navigate("/study/post");
   };
 
+
+  if (isLoading || isProfileLoading) {
+    return (
+      <Container>
+        <ContentWrapper>
+          <RightPanel>
+            <PageTitle className="H1">스터디 모집</PageTitle>
+            <div style={{ padding: '4rem', textAlign: 'center' }}>데이터를 불러오는 중입니다...</div>
+          </RightPanel>
+        </ContentWrapper>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ContentWrapper>
+          <RightPanel>
+            <PageTitle className="H1">스터디 모집</PageTitle>
+            <div style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>{error}</div>
+          </RightPanel>
+        </ContentWrapper>
+      </Container>
+    );
+  }
+
+
   return (
     <Container>
       <ContentWrapper>
         <LeftPanel>
-          <UserProfileCard>
-            <ProfileImage 
-              src={mockUserData.profileImage || "/placeholder-profile.png"} 
-              alt="프로필"
-            />
-            <UserInfo>
-              <UserName className="H4">
-                {mockUserData.username} / {mockUserData.nickname}
-              </UserName>
-              <UserEmail className="Body2">
-                {mockUserData.email}
-              </UserEmail>
-            </UserInfo>
+          {userMe ? (
+          <UserProfileCard>
+            <ProfileImage 
+              // profile이 없으면 undefined를 반환하므로 TypeError 방지
+              src={userMe.profile?.profileImage || "/placeholder-profile.png"} 
+              alt="프로필"
+            />
+            <UserInfo>
+              <UserName className="H4">
+                {userMe.username} / {userMe.profile?.nickname} 
+              </UserName>
+              <UserEmail className="Body2">
+                {userMe.email}
+              </UserEmail>
+            </UserInfo>
             <ButtonGroup>
               <ActionButton 
                 $variant="secondary" 
@@ -337,6 +317,11 @@ const StudyList = () => {
               </ActionButton>
             </ButtonGroup>
           </UserProfileCard>
+          ) : (
+            <UserProfileCard>
+              <div className="Body1">로그인 후 내 정보를 볼 수 있습니다.</div>
+            </UserProfileCard>
+          )}
         </LeftPanel>
 
         <RightPanel>
@@ -394,14 +379,27 @@ const StudyList = () => {
           </FilterSection>
 
           <StudyListContainer>
-            {filteredStudies.map((study) => (
-              <StudyCard 
-                key={study.id} 
-                study={study}
-                onClick={() => handleStudyClick(study.id)}
-              />
-            ))}
+            {studies.length === 0 && !isLoading ? (
+              <div style={{ padding: '4rem', textAlign: 'center' }}>검색 결과가 없습니다.</div>
+            ) : (
+              studies.map((study) => (
+                <StudyCard 
+                  key={study.id} 
+                  study={study}
+                  onClick={() => handleStudyClick(study.id)}
+                />
+              ))
+            )}
           </StudyListContainer>
+
+          {totalPages > 1 && ( 
+            <Pagination
+              currentPage={filters.page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+{/*토탈 페이지가 1이면 렌더링 안하게끔 설정함*/}
         </RightPanel>
       </ContentWrapper>
     </Container>
@@ -409,3 +407,14 @@ const StudyList = () => {
 };
 
 export default StudyList;
+
+
+const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
+      <SearchButton onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}>이전</SearchButton>
+      <span>페이지 {currentPage + 1} / {totalPages}</span>
+      <SearchButton onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1}>다음</SearchButton>
+    </div>
+  );
+};

@@ -195,22 +195,22 @@ const Main = () => {
           <ServiceCard>
             <Icon src={RandomMatch} />
             <CardTitle>친구 랜덤 매칭</CardTitle>
-            <CardContent>취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭합니다.</CardContent>
+            <CardContent>취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭해 대화까지!</CardContent>
             <Button onClick={handleStartMatching}>시작하기</Button>
           </ServiceCard>
 
           <ServiceCard>
             <Icon src={Study} />
             <CardTitle>스터디 모집</CardTitle>
-            <CardContent>언어 교환부터 전공 스터디까지,<br /> 관심 분야별 팀을 쉽게 만들 수 있습니다.</CardContent>
+            <CardContent>언어 교환부터 전공 스터디까지,<br /> 관심 분야별 팀을 만들어보세요!</CardContent>
             <Button  onClick={() => navigate("/study")}>시작하기</Button>
           </ServiceCard>
 
           <ServiceCard>
             <Icon src={Message} />
-            <CardTitle>채팅</CardTitle>
-            <CardContent>매칭된 친구와 실시간으로 대화하며<br /> 자연스럽게 언어와 문화를 교류합니다.</CardContent>
-            <Button  onClick={() => navigate("/message")}>시작하기</Button>
+            <CardTitle>쪽지</CardTitle>
+            <CardContent>친구들의 프로필을 구경하고<br /> 친해지고 싶은 친구에게 쪽지를 보내세요!</CardContent>
+            <Button  onClick={() => navigate("/profile")}>시작하기</Button>
           </ServiceCard>
         </ServiceContainer>
       </ContentContainer>

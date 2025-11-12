@@ -25,6 +25,8 @@ export type Language = string;
 
 // 스터디 게시글 기본 정보
 export interface StudyItem {
+  tags: any;
+  authorCountry: string;
   id: number;
   title: string;
   content: string;

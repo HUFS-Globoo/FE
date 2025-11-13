@@ -19,13 +19,11 @@ export interface ApiResponse<T> {
 
 // ===== 스터디 관련 타입 =====
 
-export type StudyStatus = '모집중' | '마감';
+export type StudyStatus = string;
 export type Campus = 'SEOUL' | 'GLOBAL';
 export type Language = string;
 
 export interface StudyItem {
-  tags: any;
-  authorCountry: string;
   id: number;
   title: string;
   content: string;
@@ -42,15 +40,18 @@ export interface StudyItem {
   updatedAt: string;
 
   currentParticipants: number;
+
+  tags: any;
+  authorCountry: string;
+
 }
 
 //  StudyDetail에서 authorUsername: string; 해당 부분(현재는 목데이터) 주석처리함
 
 
 // 스터디 리스트 응답 (GET /api/studies)
-export interface StudyListResponse {
-  data: StudyItem[];
-}
+export interface StudyListResponse extends ApiResponse<StudyItem[]> {}
+
 
 // 스터디 상세 응답 (GET /api/studies/{postId})
 export interface StudyDetailResponse extends ApiResponse<StudyItem> {}

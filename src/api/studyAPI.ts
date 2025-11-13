@@ -3,12 +3,13 @@ import {
   StudyRequest, 
   StudyListResponse, 
   StudyDetailResponse, 
-  StudyFilter 
+  StudyFilter, 
+  ApiResponse
 } from '../types/study.types';
 import * as qs from "qs";
 
 
-// GET /api/studies - 스터디 목록 조회 (필터링 포함시킴  - 필요없으면 빼기)
+// GET /api/studies - 스터디 목록 조회
 export const getStudies = async (filters: StudyFilter): Promise<StudyListResponse> => {
   const params = {
     page: filters.page,
@@ -59,22 +60,44 @@ export const createStudy = async (studyData: StudyRequest): Promise<StudyDetailR
 };
 
 // POST /api/studies/{postId}/join - 스터디 가입 요청
-export const joinStudy = async (postId: number): Promise<void> => {
-  try {
-    await axiosInstance.post(`/studies/${postId}/join`); 
-  } catch (error) {
-    console.error('스터디 가입 요청 실패:', error);
-    throw error;
-  }
+export const joinStudy = async (postId: number): Promise<ApiResponse<string>> => {
+  try {
+    const res = await axiosInstance.post<ApiResponse<string>>(
+      `/api/studies/${postId}/join`
+    );
+    return res.data;
+  } catch (error) {
+    console.error("스터디 가입 요청 실패:", error);
+    throw error;
+  }
 };
 
+
 // PATCH /api/studies/{postId} - 스터디 수정
+// creatStudy와 유사하게, partial 업데이트 지원하도록 수정함
 export const updateStudy = async (postId: number, studyData: Partial<StudyRequest>): Promise<StudyDetailResponse> => {
   try {
-    const response = await axiosInstance.patch(`/api/studies/${postId}`, studyData);
+    const payload: any = {
+      title: studyData.title,
+      content: studyData.content,
+      status: studyData.status,
+      capacity: studyData.capacity,
+    };
+
+    if (studyData.campus) {
+      payload.campuses = [studyData.campus];
+    }
+    if (studyData.language) {
+      payload.languages = [studyData.language];
+    }
+
+    const response = await axiosInstance.patch<StudyDetailResponse>(
+      `/api/studies/${postId}`,
+      payload
+    );
     return response.data;
   } catch (error) {
-    console.error('스터디 수정 실패:', error);
+    console.error("스터디 수정 실패:", error);
     throw error;
   }
 };

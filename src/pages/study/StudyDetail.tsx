@@ -127,6 +127,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
+const EditButton = styled(ActionButton)`
+  background-color: var(--skyblue);
+  color: var(--white);
+`;
+
+const DeleteButton = styled(ActionButton)`
+  border-color: var(--skyblue);
+  background-color: var(--white);
+  color: var(--skyblue);
+`;
+
+
 // 스터디 상세 정보 카드
 const StudyDetailCard = styled.div`
   background-color: var(--white);
@@ -552,20 +564,20 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
                             justifyContent: "flex-end",
                             }}
                         >
-                            <ActionButton
-                            $variant="secondary"
+                            <EditButton
+                            $variant="white"
                             className="Button1"
-                            onClick={() => navigate(`/study/edit/${studyId}`)}
+                            onClick={() => navigate(`/study/post/${studyId}`)}
                             >
                             수정하기
-                            </ActionButton>
-                            <ActionButton
+                            </EditButton>
+                            <DeleteButton
                             $variant="primary"
                             className="Button1"
                             onClick={handleDeleteStudy}
                             >
                             삭제하기
-                            </ActionButton>
+                            </DeleteButton>
                         </ButtonGroup>
                         ) : (
                         <JoinButton
@@ -578,15 +590,6 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
                         )}
                     </StudyDetailCard>
 
-                    {/* <CommentSection 
-                        studyId={studyId}
-                        comments={comments}
-                        currentUserId={Number(localStorage.getItem("userId"))}
-                        onAddComment={handleAddComment}
-                        onEditComment={handleEditComment}
-                        onDeleteComment={handleDeleteComment}
-                        isCommentsLoading={isCommentsLoading}
-                    /> */}
                     <CommentSection
                         studyId={studyId}
                         comments={comments}

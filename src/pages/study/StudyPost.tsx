@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { StudyRequest } from "../../types/study.types";
-import { createStudy, handleApiError } from "../../api/studyAPI";
+import { createStudy, handleApiError, getStudyDetail, updateStudy } from "../../api/studyAPI";
 import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
 
@@ -207,6 +207,9 @@ const SubmitButton = styled.button`
 
 const StudyPost = () => {
   const navigate = useNavigate();
+  const {id} = useParams<{id?: string}>(); // url에서 id 갖고옴(수정모드에 필요)
+  const isEditMode = !!id; // id 있으면 수정모드로
+  const studyId = isEditMode ? Number(id) : null; // 숫자로 변환
   const [userMe, setUserMe] = useState<UserMeResponse | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   
@@ -231,6 +234,37 @@ const StudyPost = () => {
     };
     loadUserMe();
   }, []);
+
+  // 수정 모드 -> 기존 글 데이터 가져와서 post 텍스트 폼에 채워져 있음
+  // getStudyDetail api 사용
+  // useEffect로 컴포넌트 마운트 시점에 불러옴
+  // /study/post/3 일 경우 isEditMode는 true, getStudyDetail(3) 호출함
+  useEffect(() => {
+    const loadStudyForEdit = async () => {
+      if (!isEditMode || !studyId) return;
+
+      try {
+        const res = await getStudyDetail(studyId);
+        const data = res.data;
+
+        setFormData({
+          title: data.title,
+          content: data.content,
+          status: data.status,
+          campus: (data.campuses?.[0] as 'SEOUL' | 'GLOBAL' | '') ?? "",
+          language: data.languages?.[0] ?? "",
+          capacity: data.capacity,
+        });
+      } catch (error) {
+        console.error("수정용 스터디 데이터 불러오기 실패:", error);
+        alert("게시글 정보를 불러오지 못했습니다.");
+        navigate(`/study/${studyId}`);
+      }
+    };
+
+    loadStudyForEdit();
+  }, [isEditMode, studyId, navigate]);
+
 
   const handleInputChange = (field: keyof StudyRequest, value: string | number) => {
     setFormData(prev => ({
@@ -275,39 +309,48 @@ const StudyPost = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    if (!userMe) {
-        alert('게시글 작성을 위해 로그인이 필요합니다.');
-        navigate('/login'); 
-        return;
-    }
+  if (!userMe) {
+    alert('게시글 작성을 위해 로그인이 필요합니다.');
+    navigate('/login'); 
+    return;
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    try {
-     const response = await createStudy(formData);
-
-    console.log("게시글 작성 성공:", response);
+  try {
+    if (isEditMode && studyId) {
+      // 수정 모드 > PATCH /api/studies/{postId}
+      const response = await updateStudy(studyId, formData);
+      console.log("게시글 수정 성공:", response);
+      alert(`"${formData.title}" 게시글이 수정되었습니다!`);
+      navigate(`/study/${studyId}`);
+    } else {
+      // 작성 모드 -> POST /api/studies
+      const response = await createStudy(formData);
+      console.log("게시글 작성 성공:", response);
       const newPostId = response.data?.id;
-    alert(`"${formData.title}" 게시글이 성공적으로 작성되었습니다!`);
+      alert(`"${formData.title}" 게시글이 성공적으로 작성되었습니다!`);
       if (newPostId) {
-          navigate(`/study/${newPostId}`);
+        navigate(`/study/${newPostId}`);
       } else {
         console.error("API 응답에서 새로운 게시글 ID를 찾을 수 없습니다:", response);
         navigate('/study');
       }
+    }
 
-    } catch (error) {
+  } catch (error) {
     const errorMessage = handleApiError(error);
-    console.error('게시글 작성 실패:', error);
-    alert(`게시글 작성에 실패했습니다: ${errorMessage}`);
-   } finally {
-     setIsSubmitting(false);
+    console.error(isEditMode ? '게시글 수정 실패:' : '게시글 작성 실패:', error);
+    alert(`${isEditMode ? '게시글 수정' : '게시글 작성'}에 실패했습니다: ${errorMessage}`);
+  } finally {
+    setIsSubmitting(false);
   }
 };
+
 
   const handleMyPostsClick = () => {
     navigate("/mypage");
@@ -333,7 +376,6 @@ const StudyPost = () => {
       <ContentWrapper>
         <LeftPanel>
           <UserProfileCard>
-            {/* 💡 5. 사용자 정보 표시 로직 */}
             {isUserLoading ? (
                 <p>사용자 정보 로딩 중...</p>
             ) : userMe ? (
@@ -382,7 +424,7 @@ const StudyPost = () => {
         </LeftPanel>
 
         <RightPanel>
-          <PageTitle className="H1">게시글 작성</PageTitle>
+          <PageTitle className="H1">{isEditMode ? "게시글 수정" : "게시글 작성"}</PageTitle>
           
           <PostFormCard>
             <FormRow>
@@ -466,7 +508,9 @@ const StudyPost = () => {
               onClick={handleSubmit}
               disabled={!isFormValid || isSubmitting || !userMe}
             >
-              {isSubmitting ? "작성 중..." : "게시글 올리기"}
+              {isSubmitting 
+              ? (isEditMode ? "게시글 수정 중..." : "게시글 작성 중...")
+              : (isEditMode ? "수정완료" : "게시글 올리기")}
             </SubmitButton>
           </PostFormCard>
         </RightPanel>

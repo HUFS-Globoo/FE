@@ -52,6 +52,8 @@ function App() {
           <Route path="/study" element={<StudyList />} />
           <Route path="/study/:id" element={<StudyDetail />} />
           <Route path="/study/post" element={<StudyPost />} />
+          <Route path="/study/post/:id" element={<StudyPost />} />
+
 
           <Route path="/profile" element={<ProfileList />} />
           <Route path="/profile/:userId" element={<ProfileDetail />} />

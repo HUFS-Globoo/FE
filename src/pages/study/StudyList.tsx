@@ -438,10 +438,7 @@ useEffect(() => {
               <option value="">전체</option>  
               <option value="한국어">한국어</option>
               <option value="영어">영어</option>
-              <option value="일본어">일본어</option>
               <option value="중국어">중국어</option>
-              <option value="프랑스어">프랑스어</option>
-              <option value="스페인어">스페인어</option>
               <option value="아랍어">아랍어</option>
               <option value="이탈리아어">이탈리아어</option>
               ...

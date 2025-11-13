@@ -301,10 +301,7 @@ const ProfileList: React.FC = () => {
                 </option>
                 <option value="Korean">한국어</option>
                 <option value="English">영어</option>
-                <option value="Japanese">일본어</option>
                 <option value="Chinese">중국어</option>
-                <option value="French">프랑스어</option>
-                <option value="Spanish">스페인어</option>
                 <option value="Arabic">아랍어</option>
                 <option value="Italian">이탈리아어</option>
               </FilterSelect>

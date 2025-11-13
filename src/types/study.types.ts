@@ -46,8 +46,6 @@ export interface StudyItem {
 
 }
 
-//  StudyDetail에서 authorUsername: string; 해당 부분(현재는 목데이터) 주석처리함
-
 
 // 스터디 리스트 응답 (GET /api/studies)
 export interface StudyListResponse extends ApiResponse<StudyItem[]> {}

@@ -60,15 +60,17 @@ export const createStudy = async (studyData: StudyRequest): Promise<StudyDetailR
 };
 
 // POST /api/studies/{postId}/join - 스터디 가입 요청
-export const joinStudy = async (postId: number): Promise<ApiResponse<string>> => {
+export const joinStudy = async (studyId: number) => {
   try {
-    const res = await axiosInstance.post<ApiResponse<string>>(
-      `/api/studies/${postId}/join`
-    );
+    const res = await axiosInstance.post(`/api/studies/${studyId}/join`, {});
     console.log("스터디 가입 요청 성공:", res.data);
     return res.data;
-  } catch (error) {
-    console.error("스터디 가입 요청 실패:", error);
+  } catch (error: any) {
+    console.error(
+      "스터디 가입 요청 실패:",
+      error.response?.status,
+      error.response?.data || error
+    );
     throw error;
   }
 };

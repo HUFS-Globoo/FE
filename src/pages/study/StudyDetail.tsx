@@ -247,14 +247,19 @@ const StudyDetail = () => {
     const { id: postId } = useParams<{ id: string }>();
     const studyId = Number(postId);
     const navigate = useNavigate();
+
     const [studyDetail, setStudyDetail] = useState<StudyItem | null>(null);
     const [comments, setComments] = useState<StudyComment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCommentsLoading, setIsCommentsLoading] = useState(false); 
+
  // StudyPost패턴 그대로 동일하게 수정
     const [userMe, setUserMe] = useState<UserMeResponse | null>(null);
     const [isUserLoading, setIsUserLoading] = useState(true);
+// 가입 여부, 가입 요청 중 여부 구분
+    const [hasJoined, setHasJoined] = useState(false);
+    const [isJoining, setIsJoining] = useState(false);
 
     
     useEffect(() => {
@@ -387,23 +392,70 @@ const StudyDetail = () => {
     const handleBackToList = () => { 
   navigate("/study");
 };
-    const handleJoinStudy = async () => {
-  if (
-    !studyDetail ||
-    !window.confirm(`"${studyDetail.title}" 스터디에 가입 요청을 하시겠습니까?`)
-  ) {
-    return;
-  }
 
-  try {
-    const res = await joinStudy(studyId);
-    alert(res.message || "스터디 가입 요청을 성공적으로 보냈습니다.");
-    await fetchStudyDetail();
-  } catch (err) {
-    const errorMessage = handleApiError(err);
-    alert(`스터디 가입 요청에 실패했습니다: ${errorMessage}`);
-  }
-};
+//중복 확인 및 처리
+// 이미 가입하기 했을 경우 API 호출 자체를 안 보내도록 
+//제발 좀 되길..죄송합니다..
+
+    const handleJoinStudy = async () => {
+    if (!studyDetail) return;
+
+    // ✅ 이미 한 번 가입한 상태 (이 페이지에서 한 번 성공한 이후)
+    if (hasJoined) {
+      alert("이미 이 스터디에 가입하셨습니다.\n마이페이지에서 참여한 스터디를 확인해 주세요.");
+      return;
+    }
+
+    // ✅ 이미 요청 보내는 중일 때(더블클릭, 연타 방지)
+    if (isJoining) {
+      alert("이미 가입 요청을 처리 중입니다.");
+      return;
+    }
+
+    // ✅ 정원 꽉 찼는지 체크
+    if (
+      typeof studyDetail.currentParticipants === "number" &&
+      studyDetail.currentParticipants >= studyDetail.capacity
+    ) {
+      alert("이미 정원이 가득 찬 스터디입니다.");
+      return;
+    }
+
+    // ✅ 최종 확인
+    if (
+      !window.confirm(
+        `"${studyDetail.title}" 스터디에 가입 요청을 하시겠습니까?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsJoining(true); // 🔹 요청 시작
+
+      const res = await joinStudy(studyId);
+      alert(res.message || "스터디 가입 요청을 성공적으로 보냈습니다.");
+
+      // 🔹 프론트 상태 즉시 반영
+      setHasJoined(true);
+      setStudyDetail((prev) =>
+        prev
+          ? {
+              ...prev,
+              currentParticipants: (prev.currentParticipants ?? 0) + 1,
+            }
+          : prev
+      );
+
+      // 🔹 필요하면 백엔드 최신 데이터로 다시 동기화
+      // await fetchStudyDetail();
+    } catch (err) {
+      const errorMessage = handleApiError(err);
+      alert(`스터디 가입 요청에 실패했습니다: ${errorMessage}`);
+    } finally {
+      setIsJoining(false); // 🔹 요청 끝
+    }
+  };
 
     // 로딩 및 에러 처리 UI
     if (isLoading) {
@@ -429,7 +481,6 @@ const StudyDetail = () => {
     const storedUserId = localStorage.getItem("userId");
 const currentUserId = storedUserId ? Number(storedUserId) : undefined;
 
-// 📌 현재 유저가 이 게시글 작성자인지 여부
 const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
    
     <CommentSection
@@ -536,7 +587,7 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
 
                                     <ParticipantInfo className="Body2">
                                         <img src={ParticipantImg} alt="참여자" />
-                                        {(studyData.currentParticipants ?? 2 )}명 / {studyData.capacity}명
+                                        {(studyData.currentParticipants)}명 / {studyData.capacity}명
                                     </ParticipantInfo>
 
                                     <TagContainer>
@@ -580,11 +631,12 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
                         </ButtonGroup>
                         ) : (
                         <JoinButton
-                            className="Button1"
-                            onClick={handleJoinStudy}
-                            style={{ marginTop: "1rem" }}
+                          className="Button1"
+                          onClick={handleJoinStudy}
+                          style={{ marginTop: "1rem" }}
+                          disabled={hasJoined || isJoining}
                         >
-                            가입하기
+                          {hasJoined ? "가입 완료" : "가입하기"}
                         </JoinButton>
                         )}
                     </StudyDetailCard>

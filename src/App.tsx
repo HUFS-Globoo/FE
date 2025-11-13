@@ -21,6 +21,7 @@ import StudyPost from "./pages/study/StudyPost";
 // 프로필 관련
 import ProfileList from "./pages/profile/ProfileList";
 import ProfileDetail from "./pages/profile/ProfileDetail";
+import ProfileLanding from "./pages/profile/ProfileLanding";
 
 // 컴포넌트
 import Header from "./components/Header";
@@ -54,7 +55,7 @@ function App() {
           <Route path="/study/post" element={<StudyPost />} />
           <Route path="/study/post/:id" element={<StudyPost />} />
 
-
+          <Route path="/profile/landing" element={<ProfileLanding />} />
           <Route path="/profile" element={<ProfileList />} />
           <Route path="/profile/:userId" element={<ProfileDetail />} />
         </Routes>

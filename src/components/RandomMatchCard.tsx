@@ -281,6 +281,29 @@ const SendInput = styled.input`
 
 `
 
+const ModalWrapper = styled.div`
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+`;
+
+const ModalBox = styled.div`
+  width: 18rem;
+  padding: 2rem;
+  border-radius: 1.2rem;
+  background: white;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+
 
 interface ChatMessage {
   id?: number;
@@ -295,109 +318,175 @@ export default function RandomMatchCard() {
   const userId = location.state?.userId || Number(localStorage.getItem("userId"));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [partner, setPartner] = useState<any>(null);
-  const [stage, setStage] = useState<"loading" | "matched" | "chat">("loading");
+  const [stage, setStage] = useState<"loading" | "matched" | "chat" | "waiting_accept">("loading");
   const [matchId, setMatchId] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const token = localStorage.getItem("accessToken");
   const [chatRoomId, setChatRoomId] = useState<number | null>(null);
+  const [waitingAccept, setWaitingAccept] = useState(false);
+  const [hasAccepted, setHasAccepted] = useState(false);
+
+
 
   
 
-  // 매칭 상태 확인 (폴링만 수행)
-  useEffect(() => {
-    if (!userId) return;
-  
-    const fetchMatchingStatus = async () => {
-      try {
-        const res = await axiosInstance.get(`/api/matching/active`);
-        const data = res.data;
-        console.log("매칭 상태:", data);
-  
-        if (data.status === "FOUND" || data.status === "ACCEPTED_BOTH") {
-          clearInterval(intervalRef.current!);
-          setStage("matched");
-          setMatchId(data.matchId);
-        
-          const chatRoomId = data.chatRoomId;
-          localStorage.setItem("chatRoomId", chatRoomId);
-          setChatRoomId(chatRoomId); 
-        
-          const opponentId =
-            data.userAId === userId ? data.userBId : data.userAId;
-        
-          const profileRes = await axiosInstance.get(`/api/profiles/${opponentId}`);
-          const opponentProfile = profileRes.data;
-          console.log("상대방 프로필:", opponentProfile);
-        
-          setPartner(opponentProfile);
-        }
-        
-        }
-       catch (err) {
-        console.error("매칭 상태 확인 오류:", err);
-      }
-    };
-  
-    intervalRef.current = setInterval(fetchMatchingStatus, 1000);
-  
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [userId]);
-  
+// 매칭 상태 확인
+useEffect(() => {
+  if (!userId) return;
 
-
-  const handleAcceptMatch = async () => {
-    const chatRoomId = localStorage.getItem("chatRoomId");
-    if (!chatRoomId) return alert("채팅방 ID가 없습니다.");
-
+  const fetchMatchingStatus = async () => {
     try {
-      await axiosInstance.post(
-        `/api/matching/${matchId}/accept`,
-        JSON.stringify({ userId }),
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("매칭 수락 완료");
-      setStage("chat");
-    } catch (error) {
-      console.error("매칭 수락 실패:", error);
-      alert("채팅 시작 중 오류가 발생했습니다.");
+      const res = await axiosInstance.get(`/api/matching/active`);
+      const apiData = res.data.data;
+      console.log("응답:", apiData);
+
+      if (!apiData) return;
+
+      const opponentId =
+        apiData.userAId === userId ? apiData.userBId : apiData.userAId;
+
+      // WAITING
+      if (apiData.status === "WAITING") {
+        setStage("loading");
+        setMatchId(null);
+        setPartner(null);
+        setChatRoomId(null);
+        setWaitingAccept(false);
+        setHasAccepted(false);
+        return;
+      }
+
+      // FOUND
+      if (apiData.status === "FOUND") {
+        setStage("matched");
+        if (!matchId) setMatchId(apiData.matchId);
+
+        if (!partner) {
+          const profileRes = await axiosInstance.get(`/api/profiles/${opponentId}`);
+          setPartner(profileRes.data);
+        }
+        return;
+      }
+
+      // ACCEPTED_ONE 유지
+      if (apiData.status === "ACCEPTED_ONE") {
+        setStage("matched");
+
+        if (!partner) {
+          const profileRes = await axiosInstance.get(`/api/profiles/${opponentId}`);
+          setPartner(profileRes.data);
+        }
+
+        return;
+      }
+
+      // ACCEPTED_BOTH → CHAT
+      if (apiData.status === "ACCEPTED_BOTH") {
+        console.log("🔥 ACCEPTED_BOTH — 채팅 입장합니다!");
+
+        clearInterval(intervalRef.current!);
+        setChatRoomId(apiData.chatRoomId);
+        localStorage.setItem("chatRoomId", apiData.chatRoomId);
+
+        setStage("chat");
+        setWaitingAccept(false);
+        return;
+      }
+    } catch (err) {
+      console.error("매칭 상태 확인 오류:", err);
     }
   };
 
-// 다른 상대 찾기
-const handleFindAnother = async () => {
-  try {
-    // 기존 대기열 삭제
-    await axiosInstance.delete("/api/matching/queue", { data: { userId } });
-    console.log("기존 대기열 삭제 완료");
+  intervalRef.current = setInterval(fetchMatchingStatus, 1000);
 
-    // 새 대기열 등록
-    const token = localStorage.getItem("accessToken");
-    const res = await axiosInstance.post(
-      "/api/matching/queue",
-      { userId },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+  return () => clearInterval(intervalRef.current!);
+}, [userId, matchId, partner]);
+
+
+
+const handleAcceptMatch = async () => {
+  console.log("handleAcceptMatch 실행됨, matchId:", matchId);
+
+  // matchId가 아직 null이면 active 정보 다시 받아오기
+  if (!matchId) {
+    console.log("⚠ matchId가 null → 서버에서 다시 불러옵니다.");
+
+    try {
+      const res = await axiosInstance.get(`/api/matching/active`);
+      const apiData = res.data.data;
+
+      if (apiData?.matchId) {
+        console.log("✔ matchId 재획득 성공:", apiData.matchId);
+        setMatchId(apiData.matchId);
+      } else {
+        alert("매칭 정보가 올바르지 않습니다.");
+        return;
       }
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+  }
+
+  // 이미 내가 수락 눌렀으면 중복 방지
+  if (hasAccepted) {
+    alert("상대방이 수락할 때까지 기다려 주세요.");
+    return;
+  }
+
+  try {
+    const res = await axiosInstance.post(
+      `/api/matching/${matchId}/accept`,
+      { userId },
+      { headers: { "Content-Type": "application/json" } }
     );
-    console.log("새 대기열 등록 완료:", res.data);
 
-    // 상태 초기화 후 다시 폴링
-    setStage("loading");
-    setMatchId(null);
-    setPartner(null);
-
+    console.log("✔ 매칭 수락 요청 성공");
+    setHasAccepted(true);
+    setWaitingAccept(true);
   } catch (error) {
-    console.error("다른 상대 찾기 오류:", error);
-    alert("다른 상대를 찾는 중 오류가 발생했습니다.");
+    console.error("❌ 매칭 수락 실패:", error);
+    alert("채팅 시작 중 오류가 발생했습니다.");
   }
 };
+
+
+
+
+
+  const handleFindAnother = async () => {
+    try {
+      if (!matchId) {
+        console.error("matchId가 없습니다.");
+        return;
+      }
+
+      await axiosInstance.post(`/api/matching/${matchId}/next`);
+      console.log("다음 상대 찾기 성공");
+
+      // 상태 초기화
+      setStage("loading");
+      setMatchId(null);
+      setPartner(null);
+      setChatRoomId(null);
+      setHasAccepted(false);
+      setWaitingAccept(false);
+      // 폴링은 그대로 돌아가고 있으니까, 서버에서
+      // 다시 WAITING → FOUND 되면 자동으로 새 매칭 붙음
+    } catch (error) {
+      console.error("다음 상대 찾기 오류:", error);
+      alert("다른 상대를 찾는 중 오류가 발생했습니다.");
+    }
+  };
+
+  
+  
+  
+  
+  
+  
 
 
   // 매칭 취소
@@ -486,19 +575,38 @@ const sendMessage = () => {
 
 
 
-  const handleEndChat = () => {
-    if (!ws.current || !chatRoomId) return;
-  
-    const payload = {
-      type: "LEAVE",
-      chatRoomId, 
-    };
-  
-    ws.current.send(JSON.stringify(payload));
-    ws.current.close();
-    setStage("matched");
-    navigate("/");
+const handleEndChat = () => {
+  if (!ws.current || !chatRoomId) return;
+
+  const leavePayload = {
+    type: "LEAVE",
+    roomId: chatRoomId,
   };
+
+  // 1) 서버에 LEAVE 전송
+  ws.current.send(JSON.stringify(leavePayload));
+
+  // 2) 잠시 기다렸다가 소켓 종료 (중요!)
+  setTimeout(() => {
+    if (ws.current) {
+      ws.current.close();
+      ws.current = null;
+    }
+
+    // 3) UI 초기화
+    setChatRoomId(null);
+    setMessages([]);
+    setPartner(null);
+
+    // 4) 상태 변경
+    setStage("loading"); // 또는 matched로 유지해도 됨
+
+    // 5) 홈으로 이동
+    navigate("/");
+  }, 100);
+};
+
+
 
   const languageMap: Record<string, string> = {
     zh: "중국어",
@@ -536,6 +644,14 @@ const sendMessage = () => {
     <Wrapper>
       <ColorBackground />
       <ColorBackground stage={stage}/>
+
+      {waitingAccept && (
+      <ModalWrapper>
+        <ModalBox>
+          상대방이 수락할 때까지 기다리는 중...
+        </ModalBox>
+      </ModalWrapper>
+      )}
       <Container>
       { stage === "matched" && (
           <>

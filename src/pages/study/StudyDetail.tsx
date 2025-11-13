@@ -536,7 +536,7 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
 
                                     <ParticipantInfo className="Body2">
                                         <img src={ParticipantImg} alt="참여자" />
-                                        {(studyData.currentParticipants ?? 2 )}명 / {studyData.capacity}명
+                                        {(studyData.currentParticipants)}명 / {studyData.capacity}명
                                     </ParticipantInfo>
 
                                     <TagContainer>

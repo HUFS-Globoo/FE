@@ -414,8 +414,21 @@ const StudyDetail = () => {
     }
     
     const studyData = studyDetail!;
-    const isAuthor = !!(userMe && studyData.authorId === userMe.userId);
+    const storedUserId = localStorage.getItem("userId");
+const currentUserId = storedUserId ? Number(storedUserId) : undefined;
 
+// 📌 현재 유저가 이 게시글 작성자인지 여부
+const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
+   
+    <CommentSection
+  studyId={studyId}
+  comments={comments}
+  currentUserId={currentUserId ?? 0}
+  onAddComment={handleAddComment}
+  onEditComment={handleEditComment}
+  onDeleteComment={handleDeleteComment}
+  isCommentsLoading={isCommentsLoading}
+/>
     const characterImage = studyData.authorProfileImageUrl || KoreaProfileImg;
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
@@ -577,7 +590,7 @@ const StudyDetail = () => {
                     <CommentSection
                         studyId={studyId}
                         comments={comments}
-                        currentUserId={userMe ? userMe.userId : 0}
+                        currentUserId={currentUserId ?? 0}
                         onAddComment={handleAddComment}
                         onEditComment={handleEditComment}
                         onDeleteComment={handleDeleteComment}

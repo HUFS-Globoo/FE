@@ -24,6 +24,8 @@ export type Campus = 'SEOUL' | 'GLOBAL';
 export type Language = string;
 
 export interface StudyItem {
+  tags: any;
+  authorCountry: string;
   id: number;
   title: string;
   content: string;

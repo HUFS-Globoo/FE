@@ -58,6 +58,16 @@ export const createStudy = async (studyData: StudyRequest): Promise<StudyDetailR
   }
 };
 
+// POST /api/studies/{postId}/join - 스터디 가입 요청
+export const joinStudy = async (postId: number): Promise<void> => {
+  try {
+    await axiosInstance.post(`/studies/${postId}/join`); 
+  } catch (error) {
+    console.error('스터디 가입 요청 실패:', error);
+    throw error;
+  }
+};
+
 // PATCH /api/studies/{postId} - 스터디 수정
 export const updateStudy = async (postId: number, studyData: Partial<StudyRequest>): Promise<StudyDetailResponse> => {
   try {

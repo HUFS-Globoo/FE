@@ -374,8 +374,19 @@ const StudyDetail = () => {
     const handleMyPostsClick = () => { navigate("/mypage"); };
     const handleMyCommentsClick = () => { navigate("/mypage"); };
     const handleCreatePostClick = () => { navigate("/study/post"); };
-    const handleJoinStudy = () => { /* 가입 API 연동 필요 */ alert("스터디 가입 요청을 보냈습니다."); };
+    const handleJoinStudy = async () => {
+    if (!studyDetail || !window.confirm(`"${studyDetail.title}" 스터디에 가입 요청을 하시겠습니까?`)) {
+        return;
+    }
 
+    try {
+        alert("스터디 가입 요청을 성공적으로 보냈습니다.");
+        // navigate(0); // 새로고침
+    } catch (err) {
+        const errorMessage = handleApiError(err);
+        alert(`스터디 가입 요청에 실패했습니다: ${errorMessage}`);
+    }
+};
 
     // 로딩 및 에러 처리 UI
     if (isLoading) {
@@ -481,16 +492,21 @@ const StudyDetail = () => {
                         </StudyContent>
                         
                         
-                        {isAuthor && (
+                        {isAuthor ? (
                             <ButtonGroup style={{ flexDirection: 'row', marginTop: '1rem', justifyContent: 'flex-end' }}>
                                 <ActionButton $variant="secondary" className="Button1" onClick={() => navigate(`/study/edit/${studyId}`)}>
-                                    수정
-                                </ActionButton>
-                                <ActionButton $variant="primary" className="Button1" onClick={handleDeleteStudy}>
-                                    삭제
-                                </ActionButton>
-                            </ButtonGroup>
-                        )}
+                                    수정
+                                </ActionButton>
+                                {/* 삭제하기 버튼: handleDeleteStudy 호출 */}
+                                <ActionButton $variant="primary" className="Button1" onClick={handleDeleteStudy}>
+                                    삭제
+                                </ActionButton>
+                            </ButtonGroup>
+                        ) : (
+                            <JoinButton className="Button1" onClick={handleJoinStudy} style={{ marginTop: '1rem' }}>
+                                가입하기
+                            </JoinButton>
+                        )}
 
                         <JoinButton className="Button1" onClick={handleJoinStudy} style={{ marginTop: '1rem' }}>
                             가입하기

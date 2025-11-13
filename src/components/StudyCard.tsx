@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import type { StudyCardItem } from "../types/study.types";
+import type { StudyItem } from "../types/study.types";
 import ParticipantImg from "../assets/img-participant.svg";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
@@ -8,7 +8,7 @@ import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../assets/img-profile1-China.svg";
 
 interface StudyCardProps {
-  study: StudyCardItem;
+  study: StudyItem;
   onClick?: () => void;
 }
 
@@ -117,7 +117,7 @@ const MoreButton = styled.span`
 `;
 
 const StudyCard = ({ study, onClick }: StudyCardProps) => {
-  const characterImage = study.authorProfileImage || 
+  const characterImage = study.authorProfileImageUrl || 
     countryCharacterImages[study.authorCountry || 'KR'] || 
     KoreaProfileImg;
 

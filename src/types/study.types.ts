@@ -23,25 +23,25 @@ export type StudyStatus = '모집중' | '마감';
 export type Campus = 'SEOUL' | 'GLOBAL';
 export type Language = string;
 
-// 스터디 게시글 기본 정보
 export interface StudyItem {
   id: number;
   title: string;
   content: string;
   status: StudyStatus;
-  campus: Campus; 
-  language: Language;
-  capacity: number; // 😭최대 인원(연동시 잘 되는지 확인 필요)
-  
+  campuses: string[];   
+  languages: string[]; 
+  capacity: number;
+
   authorId: number;
   authorNickname: string;
   authorProfileImageUrl: string | null;
-  
+
   createdAt: string;
   updatedAt: string;
 
-  currentParticipants: number; 
+  currentParticipants: number;
 }
+
 //  StudyDetail에서 authorUsername: string; 해당 부분(현재는 목데이터) 주석처리함
 
 
@@ -69,7 +69,7 @@ export interface StudyComment {
   content: string;
   createdAt: string;
   updatedAt: string;
-  author: CommentAuthor; /
+  author: CommentAuthor; 
 }
 
 // 댓글 리스트 응답 (GET /api/study/posts/{postId}/comments)
@@ -103,10 +103,9 @@ export interface CommentRequest {
 
 // 스터디 필터링()
 export interface StudyFilter {
-  campus?: Campus[]; 
-  language?: Language[]; 
+  campus?: string;     
+  language?: string;      
   status?: StudyStatus;
-  searchKeyword?: string;
   page?: number;
   size?: number;
 }

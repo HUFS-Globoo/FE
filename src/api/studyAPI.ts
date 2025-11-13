@@ -5,6 +5,8 @@ import {
   StudyDetailResponse, 
   StudyFilter 
 } from '../types/study.types';
+import * as qs from "qs";
+
 
 // GET /api/studies - 스터디 목록 조회 (필터링 포함시킴  - 필요없으면 빼기)
 export const getStudies = async (filters: StudyFilter): Promise<StudyListResponse> => {
@@ -12,14 +14,16 @@ export const getStudies = async (filters: StudyFilter): Promise<StudyListRespons
     page: filters.page,
     size: filters.size,
     status: filters.status,
-    searchKeyword: filters.searchKeyword,
-    campus: filters.campus, 
-    language: filters.language,
+    campus: filters.campus ? [filters.campus] : undefined,
+    language: filters.language ? [filters.language] : undefined,
   };
 
   const response = await axiosInstance.get<StudyListResponse>('/api/studies', { 
-    params 
+    params,
+    paramsSerializer: (params) => 
+      qs.stringify(params, { arrayFormat: "repeat" })
   });
+
   return response.data;
 };
 

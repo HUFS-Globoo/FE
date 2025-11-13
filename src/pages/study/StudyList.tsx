@@ -6,6 +6,7 @@ import type { StudyItem, StudyFilter, StudyListResponse } from "../../types/stud
 import { getStudies } from "../../api/studyAPI";
 import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
+import HeaderImg from "../../assets/img-miniBoo.svg";
 
 const initialFilters: StudyFilter = {
   page: 0,
@@ -98,19 +99,6 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
-// 필터 
-const FilterSection = styled.div`
-  background-color: var(--white);
-  border: 1px solid var(--gray);
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-`;
-
 const FilterText = styled.div`
   display: flex;
   align-items: center;
@@ -136,24 +124,115 @@ const FilterDropdown = styled.select`
   color: var(--gray-700);
 `;
 
+
+
+const StudyListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ContentTitle = styled.div`
+  display: flex;
+  gap: 1rem;
+`
+const HeaderTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+`;
+
+const SubText = styled.p`
+  font-size: 1rem;
+  color: var(--gray-600);
+`;
+
+const FilterSection = styled.div`
+  background-color: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const FilterPlaceholder = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  color: var(--black);
+  font-size: 0.9rem;
+  justify-content: space-between;
+
+  span {
+    padding: 8px 12px;
+    background-color: var(--gray-100);
+    border-radius: 8px;
+  }
+`;
 const SearchButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: 10px 24px;
   background-color: var(--skyblue);
   color: var(--white);
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
 
   &:hover {
     background-color: var(--primary);
   }
 `;
 
-const StudyListContainer = styled.div`
+const FilterWraaper = styled.div`
+  display: flex;
+  gap: 1.5rem;
+`
+
+const FilterContainer = styled.div`
+  width: 8.38rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 0.5rem;
+`
+
+const FilterSelect = styled.select`
+  width: 100%;
+  border: none;
+  font-family: 'SchoolSafetyRoundedSmile';
+  cursor: pointer;
+
+  &:focus {
+
+    outline: none;
+  }
+
+  &:hover {
+    border-color: var(--Primary-400);
+  }
+
+  &:disabled {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    cursor: not-allowed;
+  }
+
+  option {
+    color: var(--black);
+    background: var(--white);
+  }
+`
+
+const HeaderImage = styled.img`
+  width: 2.31794rem;
+  height: 1.58788rem;
+  object-fit: contain;
+  padding-top: 0.8rem;
 `;
 
 const StudyList = () => {
@@ -166,7 +245,7 @@ const StudyList = () => {
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 에러 메시지
 
-  const fetchStudies = useCallback(async () => {
+  const fetchStudies = useCallback(async (customFilter?: StudyFilter) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -187,7 +266,9 @@ const StudyList = () => {
 
   useEffect(() => {
     fetchStudies();
-  }, [fetchStudies]);
+    fetchUserMe();
+  }, []);
+
 
   const fetchUserMe = async () => {
     try {
@@ -205,10 +286,11 @@ const StudyList = () => {
     }
   };
 
-  useEffect(() => {
-    fetchStudies();
-    fetchUserMe(); // 내 정보 조회 호출
-  }, [fetchStudies]);
+useEffect(() => {
+  fetchStudies();
+  fetchUserMe();
+}, []);
+
 
   const handleFilterChange = (key: keyof Omit<StudyFilter, 'page' | 'size'>, value: string | undefined) => {
     setFilters(prev => ({
@@ -219,7 +301,8 @@ const StudyList = () => {
   };
 
   const handleSearch = () => {
-    console.log("새로운 필터 적용:", filters);
+    console.log("필터 적용 조회:", filters);
+    fetchStudies(filters); 
   };
 
   const handlePageChange = (newPage: number) => {
@@ -325,57 +408,66 @@ const StudyList = () => {
 
         <RightPanel>
           <PageTitle className="H1">스터디 모집</PageTitle>
-          
           <FilterSection>
-            <FilterText>
-              <FilterTitle className="H5">나와 Fit이 맞는 스터디 찾기</FilterTitle>
-            </FilterText>
-            
-            <FilterOptions>
-              <div>
-                <span className="Body2">캠퍼스</span>
-                <FilterDropdown 
-                  value={filters.campus || ''}
-                  onChange={(e) => handleFilterChange('campus', e.target.value)}
-                >
-                  <option value="">전체</option>
-                  <option value="SEOUL">서울캠퍼스</option>
-                  <option value="GLOBAL">글로벌캠퍼스</option>
-                </FilterDropdown>
-              </div>
-              
-              <div>
-                <span className="Body2">사용 언어</span>
-                <FilterDropdown 
-                  value={filters.language || ''}
-                  onChange={(e) => handleFilterChange('language', e.target.value)}
-                >
-                  <option value="">전체</option>
-                  <option value="한국어">한국어</option>
-                  <option value="영어">영어</option>
-                  <option value="일본어">일본어</option>
-                  <option value="중국어">중국어</option>
-                  <option value="아랍어">아랍어</option>
-                </FilterDropdown>
-              </div>
-              
-              <div>
-                <span className="Body2">모집중 / 마감</span>
-                <FilterDropdown 
-                  value={filters.status || ''}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                >
-                  <option value="">전체</option>
-                  <option value="모집중">모집중</option>
-                  <option value="마감">마감</option>
-                </FilterDropdown>
-              </div>
-              
-              <SearchButton className="Button1" onClick={handleSearch}>
-                조회
-              </SearchButton>
-            </FilterOptions>
-          </FilterSection>
+        <ContentTitle>
+          <HeaderImage src={HeaderImg} alt="프로필 조회" />
+          <SubText className="H4">나와 Fit이 맞는 친구 찾기</SubText>
+        </ContentTitle>
+
+        <FilterPlaceholder className="H5">
+          <FilterWraaper>
+
+          <FilterContainer>
+            <span>캠퍼스</span>
+            <FilterSelect
+              value={filters.campus ?? ""}
+              onChange={(e) => handleFilterChange("campus", e.target.value)}
+            >
+              <option value="">전체</option>
+              <option value="글로벌">글로벌캠퍼스</option>
+              <option value="서울">서울캠퍼스</option>
+            </FilterSelect>
+          </FilterContainer>
+
+          <FilterContainer>
+            <span>사용 언어</span>
+            <FilterSelect
+              value={filters.language ?? ""}  
+              onChange={(e) => handleFilterChange("language", e.target.value)}
+            >
+              <option value="">전체</option>  
+              <option value="한국어">한국어</option>
+              <option value="영어">영어</option>
+              <option value="일본어">일본어</option>
+              <option value="중국어">중국어</option>
+              <option value="프랑스어">프랑스어</option>
+              <option value="스페인어">스페인어</option>
+              <option value="아랍어">아랍어</option>
+              <option value="이탈리아어">이탈리아어</option>
+              ...
+            </FilterSelect>
+          </FilterContainer>
+
+            <FilterContainer>
+              <span>모집중/마감</span>
+              <FilterSelect
+                value={filters.status}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+              >
+                <option value="">전체</option>
+                <option value="모집중">모집중</option>
+                <option value="마감">모집마감</option>
+              </FilterSelect>
+            </FilterContainer>
+
+          </FilterWraaper>
+
+          <SearchButton onClick={handleSearch} >조회</SearchButton>
+
+        </FilterPlaceholder>
+      </FilterSection>
+
+
 
           <StudyListContainer>
             {studies.length === 0 && !isLoading ? (

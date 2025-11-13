@@ -211,7 +211,7 @@ const MessageContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2.12rem;
+  gap: 0.5rem;
   padding: 0 1.69rem;
   box-sizing: border-box;
   overflow-y: auto; 
@@ -294,13 +294,14 @@ const ModalWrapper = styled.div`
 `;
 
 const ModalBox = styled.div`
-  width: 18rem;
+  //width: 18rem;
   padding: 2rem;
+  box-sizing: border-box;
   border-radius: 1.2rem;
   background: white;
   text-align: center;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 
@@ -327,10 +328,7 @@ export default function RandomMatchCard() {
   const [chatRoomId, setChatRoomId] = useState<number | null>(null);
   const [waitingAccept, setWaitingAccept] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
-
-
-
-  
+  const [wsReady, setWsReady] = useState(false);
 
 // 매칭 상태 확인
 useEffect(() => {
@@ -382,7 +380,10 @@ useEffect(() => {
       if (apiData.status === "ACCEPTED_BOTH") {
         console.log("ACCEPTED_BOTH — 채팅 입장합니다!");
 
-        clearInterval(intervalRef.current!);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null; 
+        }
         setChatRoomId(apiData.chatRoomId);
         localStorage.setItem("chatRoomId", apiData.chatRoomId);
 
@@ -397,8 +398,33 @@ useEffect(() => {
 
   intervalRef.current = setInterval(fetchMatchingStatus, 1000);
 
-  return () => clearInterval(intervalRef.current!);
-}, [userId, matchId, partner]);
+  return () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null; 
+    }
+  };
+}, [userId, matchId, partner, stage]);
+
+useEffect(() => {
+  const handleLeave = () => {
+    if (!userId) return;
+    axiosInstance
+      .delete("/api/matching/queue", {
+        data: { userId },
+      })
+      .catch(() => {});
+  };
+
+  window.addEventListener("beforeunload", handleLeave);
+  window.addEventListener("pagehide", handleLeave);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleLeave);
+    window.removeEventListener("pagehide", handleLeave);
+  };
+}, [userId]);
+
 
 
 
@@ -406,14 +432,14 @@ const handleAcceptMatch = async () => {
   console.log("handleAcceptMatch 실행됨, matchId:", matchId);
 
   if (!matchId) {
-    console.log("⚠ matchId가 null → 서버에서 다시 불러옵니다.");
+    console.log("matchId가 null → 서버에서 다시 불러옵니다.");
 
     try {
       const res = await axiosInstance.get(`/api/matching/active`);
       const apiData = res.data.data;
 
       if (apiData?.matchId) {
-        console.log("✔ matchId 재획득 성공:", apiData.matchId);
+        console.log("matchId 재획득 성공:", apiData.matchId);
         setMatchId(apiData.matchId);
       } else {
         alert("매칭 정보가 올바르지 않습니다.");
@@ -448,30 +474,41 @@ const handleAcceptMatch = async () => {
 };
 
 
-  // 다른 상대 찾기(거절)
-  const handleFindAnother = async () => {
-    try {
-      if (!matchId) {
-        console.error("matchId가 없습니다.");
+// 다른 상대 찾기(거절)
+const handleFindAnother = async () => {
+  try {
+    let currentMatchId = matchId;
+
+    if (!currentMatchId) {
+      const res = await axiosInstance.get(`/api/matching/active`);
+      const apiData = res.data.data;
+
+      if (!apiData?.matchId) {
+        alert("매칭 정보가 없습니다. 다시 시도해주세요.");
         return;
       }
 
-      await axiosInstance.post(`/api/matching/${matchId}/next`);
-      console.log("다음 상대 찾기 성공");
-
-      // 상태 초기화
-      setStage("loading");
-      setMatchId(null);
-      setPartner(null);
-      setChatRoomId(null);
-      setHasAccepted(false);
-      setWaitingAccept(false);
-
-    } catch (error) {
-      console.error("다음 상대 찾기 오류:", error);
-      alert("다른 상대를 찾는 중 오류가 발생했습니다.");
+      currentMatchId = apiData.matchId;
+      setMatchId(currentMatchId);
     }
-  };
+
+    await axiosInstance.post(`/api/matching/${currentMatchId}/next`);
+    console.log("다음 상대 찾기 성공");
+
+    // 상태 초기화
+    setStage("loading");
+    setMatchId(null);
+    setPartner(null);
+    setChatRoomId(null);
+    setHasAccepted(false);
+    setWaitingAccept(false);
+
+  } catch (error) {
+    console.error("다음 상대 찾기 오류:", error);
+    alert("다른 상대를 찾는 중 오류가 발생했습니다.");
+  }
+};
+
 
   // 매칭 취소 
   const handleCancelMatching = async () => {
@@ -486,12 +523,21 @@ const handleAcceptMatch = async () => {
   };
 
   
-useEffect(() => {
-  if (stage !== "chat") return;
-  if (ws.current) {
-    console.log("⚠️ 이미 WebSocket 연결 존재, 새로 생성 안 함");
-    return;
-  }
+  useEffect(() => {
+    if (stage !== "chat") return;
+  
+    setWsReady(false);
+  
+    if (ws.current) {
+      console.log("이미 WebSocket 연결 존재 → 재활성화");
+      
+      if (ws.current.readyState === WebSocket.OPEN) {
+        setWsReady(true);
+      }
+  
+      return;
+    }
+  
 
   const token = localStorage.getItem("accessToken");
   if (!token) {
@@ -505,7 +551,22 @@ useEffect(() => {
 
   ws.current = socket;
 
-  socket.onopen = () => console.log("WebSocket 연결 성공");
+  socket.onopen = () => {
+    console.log("WebSocket 연결 성공");
+    setWsReady(true);
+  
+    if (chatRoomId) {
+      const joinPayload = {
+        type: "JOIN",
+        chatRoomId, 
+      };
+      socket.send(JSON.stringify(joinPayload));
+      console.log("JOIN 메시지 전송:", joinPayload);
+    } else {
+      console.warn("WebSocket 연결은 됐지만 chatRoomId가 없어 JOIN을 못 보냄");
+    }
+  };
+
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     console.log("서버 메시지:", data);
@@ -533,31 +594,35 @@ useEffect(() => {
     socket.close();
     ws.current = null;
   };
-}, [stage]);
+}, [stage, chatRoomId]);
 
     
   
 
 
-
-
-const sendMessage = () => {
-  if (!input.trim() || !ws.current) return;
-
-  const payload = {
-    type: "MESSAGE",
-    chatRoomId,
-    message: input,
+  const sendMessage = () => {
+    if (!input.trim()) return;
+  
+    if (!chatRoomId) {
+      console.warn("chatRoomId 없음 → 첫 메시지 전송 불가");
+      return;
+    }
+  
+    if (!ws.current || !wsReady) {
+      console.log("웹소켓 준비 안됨");
+      return;
+    }
+  
+    const payload = {
+      type: "MESSAGE",
+      chatRoomId,
+      message: input,
+    };
+  
+    ws.current.send(JSON.stringify(payload));
+    setInput("");
   };
-
-  console.log("[클라이언트 → 서버] 전송:", payload); 
-
-  ws.current.send(JSON.stringify(payload));
-
-  setInput("");
-};
-
-
+  
 
 const handleEndChat = () => {
   if (!ws.current || !chatRoomId) return;

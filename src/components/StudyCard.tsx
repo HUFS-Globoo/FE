@@ -117,7 +117,7 @@ const MoreButton = styled.span`
 `;
 
 const StudyCard = ({ study, onClick }: StudyCardProps) => {
-  const characterImage = study.authorProfileImageUrl || 
+  const characterImage = study.authorProfileImageUrl || KoreaProfileImg; // 기본 이미지 한국 이미지로 설정
     countryCharacterImages[study.authorCountry || 'KR'] || 
     KoreaProfileImg;
 
@@ -141,10 +141,15 @@ const StudyCard = ({ study, onClick }: StudyCardProps) => {
   };
 
   // 태그 
-  const tags = [];
-  if (study.campus) tags.push(campusMap[study.campus] || study.campus);
-  if (study.language) tags.push(languageMap[study.language] || study.language);
-  if (study.tags) tags.push(...study.tags); // UI용 추가 태그가 있다면
+  // campus, language 필드 수정(배열로 고침)
+const tags: string[] = [];
+
+const primaryCampus = study.campuses?.[0];
+const primaryLanguage = study.languages?.[0];
+
+  if (primaryCampus) tags.push(campusMap[primaryCampus] || primaryCampus);
+  if (primaryLanguage) tags.push(languageMap[primaryLanguage] || primaryLanguage);
+  if (study.tags) tags.push(...study.tags);
 
   return (
     <CardContainer onClick={onClick}>

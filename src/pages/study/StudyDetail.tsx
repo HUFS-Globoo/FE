@@ -1,11 +1,12 @@
 // src/components/study/StudyDetail.tsx
-import type { UserMeResponse } from "../../types/mypage&profile.types";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import type { UserMeResponse } from "../../types/mypage&profile.types";
 import CommentSection from "../../components/CommentSection";
 import { 
-    getStudyDetail, deleteStudy, handleApiError 
+    getStudyDetail, deleteStudy, handleApiError, 
+    joinStudy
 } from "../../api/studyAPI"; 
 
 import { 
@@ -23,16 +24,7 @@ import type {
     StudyStatus
 } from "../../types/study.types";
 
-
-// 목데이터 (인증 구현 전까지 현재 로그인 사용자 정보로 사용)
-const mockUserData = {
-    id: 1, // 현재 로그인 사용자의 ID
-    username: "홍길동",
-    nickname: "멋쟁이",
-    email: "likelion@hufs.ac.kr",
-    profileImage: null,
-    country: "KR"
-};
+//목데이터 삭제함
 
 import ParticipantImg from "../../assets/img-participant.svg";
 import AmericaProfileImg from "../../assets/img-profile1-America.svg";
@@ -41,6 +33,7 @@ import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
 import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 import axiosInstance from "../../../axiosInstance";
+
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -247,23 +240,30 @@ const StudyDetail = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCommentsLoading, setIsCommentsLoading] = useState(false); 
-    const [currentUser, setCurrentUser] = useState<UserMeResponse | null>(null);
+ // StudyPost패턴 그대로 동일하게 수정
+    const [userMe, setUserMe] = useState<UserMeResponse | null>(null);
+    const [isUserLoading, setIsUserLoading] = useState(true);
+
     
-    // 현재 로그인 사용자 정보 불러오기
     useEffect(() => {
-      const fetchUserMe = async () => {
-        try {
-          const res = await axiosInstance.get<UserMeResponse>("/api/users/me");
-          setCurrentUser(res.data);
-        } catch (error) {
-          console.error("사용자 정보 조회 실패:", error);
-        }
-      };
-      fetchUserMe();
-    }, []);
+  const fetchUserMe = async () => {
+    try {
+      setIsUserLoading(true);
+      const res = await axiosInstance.get<UserMeResponse>("/api/users/me");
+      setUserMe(res.data);
+    } catch (error) {
+      console.error("내 정보 조회 실패 (StudyDetail):", error);
+      setUserMe(null);
+    } finally {
+      setIsUserLoading(false);
+    }
+  };
+
+  fetchUserMe();
+}, []);
 
 
-    // 댓글 commeeent
+    // 댓글 comment
     const fetchComments = useCallback(async () => {
         if (isNaN(studyId) || studyId === 0) return;
 
@@ -373,19 +373,24 @@ const StudyDetail = () => {
     // 마이페이지/게시글 이동
     const handleMyPostsClick = () => { navigate("/mypage"); };
     const handleMyCommentsClick = () => { navigate("/mypage"); };
-    const handleCreatePostClick = () => { navigate("/study/post"); };
+    const handleBackToList = () => { 
+  navigate("/study");
+};
     const handleJoinStudy = async () => {
-    if (!studyDetail || !window.confirm(`"${studyDetail.title}" 스터디에 가입 요청을 하시겠습니까?`)) {
-        return;
-    }
+  if (
+    !studyDetail ||
+    !window.confirm(`"${studyDetail.title}" 스터디에 가입 요청을 하시겠습니까?`)
+  ) {
+    return;
+  }
 
-    try {
-        alert("스터디 가입 요청을 성공적으로 보냈습니다.");
-        // navigate(0); // 새로고침
-    } catch (err) {
-        const errorMessage = handleApiError(err);
-        alert(`스터디 가입 요청에 실패했습니다: ${errorMessage}`);
-    }
+  try {
+    const res = await joinStudy(studyId);
+    alert(res.message || "스터디 가입 요청을 성공적으로 보냈습니다.");
+  } catch (err) {
+    const errorMessage = handleApiError(err);
+    alert(`스터디 가입 요청에 실패했습니다: ${errorMessage}`);
+  }
 };
 
     // 로딩 및 에러 처리 UI
@@ -409,48 +414,82 @@ const StudyDetail = () => {
     }
     
     const studyData = studyDetail!;
-// 데이터 가공
-    const isAuthor = currentUser && studyData.authorId === currentUser.userId;
+    const isAuthor = !!(userMe && studyData.authorId === userMe.userId);
 
-    
-    const characterImage = studyData.authorProfileImageUrl || 
-        countryCharacterImages[studyData.campus] || // 임시로 campus를 기반으로 이미지 선택
-        KoreaProfileImg;
+    const characterImage = studyData.authorProfileImageUrl || KoreaProfileImg;
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
-    const campusMap: { [key: string]: string } = { 'GLOBAL': '글로벌캠퍼스', 'SEOUL': '서울캠퍼스' };
-    const languageMap: { [key: string]: string } = { '한국어': '한국어', '영어': '영어', '일본어': '일본어', '중국어': '중국어', '아랍어': '아랍어' };
+    const campusMap:{ [key: string]: string } = {
+  GLOBAL: "글로벌캠퍼스",
+  SEOUL: "서울캠퍼스",
+};
+    const languageMap: { [key: string]: string } = {
+  한국어: "한국어",
+  영어: "영어",
+  일본어: "일본어",
+  중국어: "중국어",
+  아랍어: "아랍어",
+};
 
-    const tags = [];
-    if (studyData.campus) tags.push(campusMap[studyData.campus] || studyData.campus);
-    if (studyData.language) tags.push(languageMap[studyData.language] || studyData.language);
-    // studyData.tags는 StudyItem에 없으므로 제거
+    const tags: string[] = [];
+    const primaryCampus = studyData.campuses?.[0];
+    const primaryLanguage = studyData.languages?.[0];
+
+    if (primaryCampus) tags.push(campusMap[primaryCampus] || primaryCampus);
+    if (primaryLanguage) tags.push(languageMap[primaryLanguage] || primaryLanguage);
 
 
     return (
         <Container>
             <ContentWrapper>
                 <LeftPanel>
-                    <UserProfileCard>
-                        <ProfileImage 
-                            src={mockUserData.profileImage || "/placeholder-profile.png"} 
-                            alt="프로필"
-                        />
-                        <UserInfo>
-                            <UserName className="H4">
-                                {mockUserData.username} / {mockUserData.nickname}
-                            </UserName>
-                            <UserEmail className="Body2">
-                                {mockUserData.email}
-                            </UserEmail>
-                        </UserInfo>
-                        <ButtonGroup>
-                            <ActionButton $variant="secondary" className="Button1" onClick={handleMyPostsClick}>작성한 게시글</ActionButton>
-                            <ActionButton $variant="secondary" className="Button1" onClick={handleMyCommentsClick}>작성한 댓글</ActionButton>
-                            <ActionButton $variant="primary" className="Button1" onClick={handleCreatePostClick}>게시글 작성</ActionButton>
-                        </ButtonGroup>
-                    </UserProfileCard>
-                </LeftPanel>
+          <UserProfileCard>
+            {/*스터디posf와 동일하게 수정/*/}
+            {isUserLoading ? (
+    <p>사용자 정보 로딩 중...</p>
+  ) : userMe ? (
+    <>
+      <ProfileImage
+        src={userMe.profileImageUrl || "/placeholder-profile.png"}
+        alt="프로필"
+      />
+      <UserInfo>
+        <UserName className="H4">
+          {userMe.name} / {userMe.nickname}
+        </UserName>
+        <UserEmail className="Body2">{userMe.email}</UserEmail>
+      </UserInfo>
+    </>
+  ) : (
+    <p>로그인이 필요합니다.</p>
+  )}
+
+            <ButtonGroup>
+              <ActionButton 
+                $variant="secondary" 
+                className="Button1"
+                onClick={handleMyPostsClick}
+              >
+                작성한 게시글
+              </ActionButton>
+              <ActionButton 
+                $variant="secondary" 
+                className="Button1"
+                onClick={handleMyCommentsClick}
+              >
+                작성한 댓글
+              </ActionButton>
+              <ActionButton 
+                $variant="primary" 
+                className="Button1"
+                onClick={handleBackToList}
+              >
+                스터디 목록
+              </ActionButton>
+            </ButtonGroup>
+          </UserProfileCard>
+        </LeftPanel>
+
 
                 <RightPanel>
                     <PageTitle className="H1">스터디 모집</PageTitle>
@@ -491,32 +530,54 @@ const StudyDetail = () => {
                             {studyData.content}
                         </StudyContent>
                         
-                        
-                        {isAuthor ? (
-                            <ButtonGroup style={{ flexDirection: 'row', marginTop: '1rem', justifyContent: 'flex-end' }}>
-                                <ActionButton $variant="secondary" className="Button1" onClick={() => navigate(`/study/edit/${studyId}`)}>
-                                    수정
-                                </ActionButton>
-                                {/* 삭제하기 버튼: handleDeleteStudy 호출 */}
-                                <ActionButton $variant="primary" className="Button1" onClick={handleDeleteStudy}>
-                                    삭제
-                                </ActionButton>
-                            </ButtonGroup>
-                        ) : (
-                            <JoinButton className="Button1" onClick={handleJoinStudy} style={{ marginTop: '1rem' }}>
-                                가입하기
-                            </JoinButton>
-                        )}
-
-                        <JoinButton className="Button1" onClick={handleJoinStudy} style={{ marginTop: '1rem' }}>
+                                            
+                    {isAuthor ? (
+                        <ButtonGroup
+                            style={{
+                            flexDirection: "row",
+                            marginTop: "1rem",
+                            justifyContent: "flex-end",
+                            }}
+                        >
+                            <ActionButton
+                            $variant="secondary"
+                            className="Button1"
+                            onClick={() => navigate(`/study/edit/${studyId}`)}
+                            >
+                            수정하기
+                            </ActionButton>
+                            <ActionButton
+                            $variant="primary"
+                            className="Button1"
+                            onClick={handleDeleteStudy}
+                            >
+                            삭제하기
+                            </ActionButton>
+                        </ButtonGroup>
+                        ) : (
+                        <JoinButton
+                            className="Button1"
+                            onClick={handleJoinStudy}
+                            style={{ marginTop: "1rem" }}
+                        >
                             가입하기
                         </JoinButton>
+                        )}
                     </StudyDetailCard>
 
-                    <CommentSection 
+                    {/* <CommentSection 
                         studyId={studyId}
                         comments={comments}
                         currentUserId={Number(localStorage.getItem("userId"))}
+                        onAddComment={handleAddComment}
+                        onEditComment={handleEditComment}
+                        onDeleteComment={handleDeleteComment}
+                        isCommentsLoading={isCommentsLoading}
+                    /> */}
+                    <CommentSection
+                        studyId={studyId}
+                        comments={comments}
+                        currentUserId={userMe ? userMe.userId : 0}
                         onAddComment={handleAddComment}
                         onEditComment={handleEditComment}
                         onDeleteComment={handleDeleteComment}

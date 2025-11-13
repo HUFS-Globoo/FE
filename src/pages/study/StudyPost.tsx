@@ -450,7 +450,7 @@ const StudyPost = () => {
                   <option value="">언어 선택</option>
                   <option value="한국어">한국어</option>
                   <option value="영어">영어</option>
-                  <option value="일본어">일본어</option>
+                  <option value="일본어">이탈리아어</option>
                   <option value="중국어">중국어</option>
                   <option value="아랍어">아랍어</option>
                 </Select>

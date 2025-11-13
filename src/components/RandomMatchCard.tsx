@@ -583,25 +583,20 @@ const handleEndChat = () => {
     roomId: chatRoomId,
   };
 
-  // 1) 서버에 LEAVE 전송
   ws.current.send(JSON.stringify(leavePayload));
 
-  // 2) 잠시 기다렸다가 소켓 종료 (중요!)
   setTimeout(() => {
     if (ws.current) {
       ws.current.close();
       ws.current = null;
     }
 
-    // 3) UI 초기화
     setChatRoomId(null);
     setMessages([]);
     setPartner(null);
 
-    // 4) 상태 변경
-    setStage("loading"); // 또는 matched로 유지해도 됨
+    setStage("loading"); 
 
-    // 5) 홈으로 이동
     navigate("/");
   }, 100);
 };
@@ -755,7 +750,7 @@ const handleEndChat = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="메시지를 입력해주세요"
               onKeyUp={(e) => {
-                if (e.nativeEvent.isComposing) return; // ✅ 조합 중이면 무시
+                if (e.nativeEvent.isComposing) return; 
                 if (e.key === "Enter") {
                   e.preventDefault();
                   sendMessage();

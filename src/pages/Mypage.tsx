@@ -394,6 +394,7 @@ const Mypage = () => {
               key={`${cleanedProfileUrl}-${userData._updateKey || ""}`}
               userId={userData.id}
               username={userData.username}
+              name={userData.name}
               nickname={userData.nickname}
               mbti={userData.mbti}
               country={userData.country}

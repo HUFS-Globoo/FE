@@ -14,6 +14,7 @@ import EmailIcon from "../assets/ic-email.svg";
 interface ProfileCardProps {
   userId?: number;
   username?: string;
+  name?: string; 
   nickname: string;
   mbti: string;
   country: string;
@@ -361,6 +362,7 @@ const DropdownItem = styled.div`
 `;
 
 const ProfileCard = ({
+  name,
   username,
   nickname,
   mbti,
@@ -483,7 +485,9 @@ const [editedMbti, setEditedMbti] = useState(mbti);
   };
   
 
-  const displayName = username ? `${username} / ${nickname}` : nickname;
+  const displayName = `${name} / ${nickname}`;
+
+
   const campusName =
     campusOptions.find((c) => c.value === selectedValues.campus)?.label || "글로벌캠퍼스";
 

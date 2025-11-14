@@ -138,6 +138,7 @@ export interface ProfileListResponse {
 
 // 프로필 상세 정보
 export interface ProfileDetailResponse {
+  name: string;
   userId: number;
   nickname: string;
   campus: 'GLOBAL' | 'SEOUL';

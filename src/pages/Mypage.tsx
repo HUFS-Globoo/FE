@@ -144,7 +144,7 @@ const Mypage = () => {
                 `댓글 ${comment.id}의 게시글 정보 조회 실패:`,
                 e
               );
-              // 게시글 정보 못 가져와도 댓글은 보여주기
+
               return {
                 id: comment.id,
                 postId: comment.postId,
@@ -166,7 +166,6 @@ const Mypage = () => {
     fetchMyComments();
   }, []);
 
-  // 프로필 수정
   const handleProfileSave = async (updatedData: any) => {
     try {
       const profileImageUrlToSend =
@@ -184,21 +183,33 @@ const Mypage = () => {
         campus: updatedData.campus || userData.campus,
         country: updatedData.country || userData.country,
         email: userData.email,
-        nativeLanguages: (updatedData.nativeLanguages || languages.nativeCodes || []).map(
-          (lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang
-        ),
-        learnLanguages: (updatedData.learnLanguages || languages.learnCodes || []).map(
-          (lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang
-        ),
         personalityKeywords: updatedData.personalityKeywords || keywords.personality,
         hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
         topicKeywords: updatedData.topicKeywords || keywords.topic,
       };
-
-      console.log("PATCH body:", JSON.stringify(finalData, null, 2));
-
+  
+  
+      console.log(finalData);
+  
       await axiosInstance.patch("/api/users/me", finalData);
+  
+      const finalNative = (updatedData.nativeLanguages ?? languages.nativeCodes)
+        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+  
+      const finalLearn = (updatedData.learnLanguages ?? languages.learnCodes)
+        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+  
+      const languagePutData = {
+        nativeCodes: finalNative,
+        learnCodes: finalLearn,
+      };
+  
+      console.log(languagePutData);
+  
+      await axiosInstance.put("/api/users/me/languages", languagePutData);
+  
       alert("프로필이 성공적으로 수정되었습니다!");
+  
 
       const refreshed = await axiosInstance.get("/api/users/me");
       const refreshedUser = refreshed.data;
@@ -218,12 +229,15 @@ const Mypage = () => {
         hobby: refreshedUser.hobbyKeywords || [],
         topic: refreshedUser.topicKeywords || [],
       });
+  
       setIsEditMode(false);
-    } catch (error: any) {
-      console.error("프로필 수정 실패:", error.response?.data || error);
+    } catch (error) {
+      console.error("프로필 수정 실패:", error);
       alert("프로필 수정 중 오류가 발생했습니다.");
     }
   };
+  
+  
 
   // 프로필 이미지 업로드
   const handleProfileImageUpload = async (file: File) => {

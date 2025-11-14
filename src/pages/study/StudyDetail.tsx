@@ -479,10 +479,16 @@ const StudyDetail = () => {
     
     const studyData = studyDetail!;
     const storedUserId = localStorage.getItem("userId");
-const currentUserId = storedUserId ? Number(storedUserId) : undefined;
+    const currentUserId = storedUserId ? Number(storedUserId) : undefined;
 
-const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
-   
+    const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
+      
+    const authorCountryCode =
+  (studyData as any).authorCountry ||
+  (studyData as any).authorNation ||
+  userMe?.country; // 없으면 내 country라도 사용
+
+
     <CommentSection
   studyId={studyId}
   comments={comments}
@@ -492,7 +498,28 @@ const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
   onDeleteComment={handleDeleteComment}
   isCommentsLoading={isCommentsLoading}
 />
-    const characterImage = studyData.authorProfileImageUrl || KoreaProfileImg;
+    // const characterImage = studyData.authorProfileImageUrl || KoreaProfileImg;
+
+    const fallbackCharacter =
+  (authorCountryCode &&
+    countryCharacterImages[
+      authorCountryCode as keyof typeof countryCharacterImages
+    ]) ||
+  KoreaProfileImg;
+
+  let characterImage = fallbackCharacter;
+
+  if (isAuthor && userMe?.profileImageUrl) {
+    characterImage = userMe.profileImageUrl;
+  } else if (studyData.authorProfileImageUrl) {
+    characterImage = studyData.authorProfileImageUrl;
+  }
+
+  // 혹시 모르니 슬래시 정리
+  if (characterImage) {
+  characterImage = characterImage.replace(/([^:]\/)\/+/g, "$1");
+}
+
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
     const campusMap:{ [key: string]: string } = {

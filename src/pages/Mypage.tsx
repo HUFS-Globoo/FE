@@ -166,11 +166,16 @@ const Mypage = () => {
   // 프로필 수정
   const handleProfileSave = async (updatedData: any) => {
     try {
+      const profileImageUrlToSend =
+      updatedData.profileImageUrl === undefined
+        ? userData.profileImageUrl          // 이미지 안 건드렸으면 기존 국적 이미지 유지(기존 값)
+        : updatedData.profileImageUrl;      // 수정,리셋한 경우는 그 값 그대로 (null 포함)
+
       const finalData = {
         name: userData.name,
         nickname: updatedData.nickname || userData.nickname,
         mbti: updatedData.mbti || userData.mbti,
-        profileImageUrl: updatedData.profileImageUrl || userData.profileImageUrl,
+        profileImageUrl: updatedData.profileImageUrl, // 수정
         infoTitle: updatedData.infoTitle || userData.infoTitle,
         infoContent: updatedData.infoContent || userData.infoContent,
         campus: updatedData.campus || userData.campus,
@@ -194,6 +199,11 @@ const Mypage = () => {
 
       const refreshed = await axiosInstance.get("/api/users/me");
       const refreshedUser = refreshed.data;
+
+    // 백에서 null 반영 안해도 프엔에서 "null이면 무조건 기본 이미지"로 인정
+    if (profileImageUrlToSend === null) {
+      refreshedUser.profileImageUrl = null;
+    }
 
       setUserData(refreshedUser);
       setLanguages({
@@ -242,7 +252,58 @@ const Mypage = () => {
       alert("이미지 업로드 중 오류가 발생했습니다.");
     }
   };
-  
+  // 이미지 리셋 핸들러 추가(이미지 삭제 할 수 있도록)
+   const handleProfileImageReset = async () => {
+    if (!userData) return;
+
+    if (!window.confirm("업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?")) {
+      return;
+    }
+
+    try {
+      // 현재 state에 있는 값들 그대로 보내고, profileImageUrl만 null로 바꿔서 보낸다.
+      const finalData = {
+        name: userData.name,
+        nickname: userData.nickname,
+        mbti: userData.mbti,
+        profileImageUrl: null, // 이미지 제거
+        infoTitle: userData.infoTitle,
+        infoContent: userData.infoContent,
+        campus: userData.campus,
+        country: userData.country,
+        email: userData.email,
+        nativeLanguages: languages.nativeCodes,
+        learnLanguages: languages.learnCodes,
+        personalityKeywords: keywords.personality,
+        hobbyKeywords: keywords.hobby,
+        topicKeywords: keywords.topic,
+      };
+
+      await axiosInstance.patch("/api/users/me", finalData);
+
+      // 다시 내 정보 불러오기
+      const refreshed = await axiosInstance.get("/api/users/me");
+      const refreshedUser = refreshed.data;
+
+      refreshedUser.profileImageUrl = null; //강제로 되돌리기(백에서 null 안줘도 프론트에서 처리)
+
+      setUserData(refreshedUser);
+      setLanguages({
+        nativeCodes: refreshedUser.nativeLanguages || [],
+        learnCodes: refreshedUser.learnLanguages || [],
+      });
+      setKeywords({
+        personality: refreshedUser.personalityKeywords || [],
+        hobby: refreshedUser.hobbyKeywords || [],
+        topic: refreshedUser.topicKeywords || [],
+      });
+
+      alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
+    } catch (error) {
+      console.error("프로필 이미지 기본이미지로 되돌리기 실패:", error);
+      alert("이미지 초기화 중 오류가 발생했습니다.");
+    }
+  };
 
   const handlePostClick = (postId: number) => {
     navigate(`/study/${postId}`);
@@ -327,6 +388,7 @@ const Mypage = () => {
               onSave={handleProfileSave}
               onCancel={() => setIsEditMode(false)}
               onImageUpload={handleProfileImageUpload}
+              onImageReset={handleProfileImageReset} 
             />
           );
         })()

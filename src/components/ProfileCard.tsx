@@ -42,6 +42,7 @@ interface ProfileCardProps {
   onSave?: (updatedData: any) => void;
   onCancel?: () => void;
   onImageUpload?: (file: File) => void;
+  onImageReset?: () => void;  // 이미지 리셋 핸들러 추가
 }
 
 // 국가별 캐릭터 이미지 매핑
@@ -379,6 +380,7 @@ const ProfileCard = ({
   onSave,
   onCancel,
   onImageUpload, 
+  onImageReset, //이미지 리셋 핸들러 추가
 }: ProfileCardProps) => {
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
@@ -557,6 +559,33 @@ const [editedMbti, setEditedMbti] = useState(mbti);
             }
           }}
         />
+
+        {/* 이미지 리셋 버튼 추가*/}
+
+        {isOwner && isEditMode && onImageReset && (
+          <div
+            style={{
+              marginTop: "0.5rem",
+              display: "flex",
+              gap: "0.5rem",
+              justifyContent: "center",
+            }}
+          >
+            <button
+              type="button"
+              className="Button2"
+              onClick={() => {
+                onImageReset();
+                setEditedData((prev) => ({
+                  ...prev,
+                  profileImage: null,
+                }));
+              }}
+            >
+             기본 이미지로 되돌리기
+            </button>
+          </div>
+        )}
 
 
       <UserInfo>

@@ -287,46 +287,74 @@ const StudyDetail = () => {
 }, []);
 
 
-    // 댓글 comment
-    const fetchComments = useCallback(async () => {
-        if (isNaN(studyId) || studyId === 0) return;
 
-        setIsCommentsLoading(true);
+
+const fetchComments = useCallback(async () => {
+  setIsCommentsLoading(true);
+  try {
+    const res = await axiosInstance.get(`/api/study/posts/${studyId}/comments`);
+    const rawComments = res.data.content;
+
+    const commentsWithAuthorInfo = await Promise.all(
+      rawComments.map(async (comment: any) => {
         try {
-            const response = await getCommentsByStudyId(studyId);
-            setComments(response.content || []); 
-        } catch (err) {
-            console.error("댓글 로딩 실패:", err);
-        } finally {
-            setIsCommentsLoading(false);
+          // ⬇⬇⬇ 이게 정확한 댓글 작성자 정보 API 
+          const profileRes = await axiosInstance.get(`/api/profiles/${comment.author.id}`);
+
+          return {
+            ...comment,
+            author: {
+              ...comment.author,
+              country: profileRes.data.country,
+              profileImageUrl: profileRes.data.profileImageUrl,
+            },
+          };
+        } catch (e) {
+          console.error("댓글 작성자 정보 조회 실패:", comment.author.id, e);
+          return {
+            ...comment,
+            author: {
+              ...comment.author,
+              country: "KR",
+              profileImageUrl: null,
+            },
+          };
         }
-    }, [studyId]);
+      })
+    );
+
+    setComments(commentsWithAuthorInfo);
+
+  } catch (e) {
+    console.error("댓글 조회 실패:", e);
+  } finally {
+    setIsCommentsLoading(false);
+  }
+}, [studyId]);
 
 
-    // 게시글 상세 정보
-    const fetchStudyDetail = useCallback(async () => {
-        if (isNaN(studyId) || studyId === 0) {
-          setError("잘못된 게시글 ID입니다.");
-          setIsLoading(false);
-          return;
-        }
 
-        try {
-          const response: StudyDetailResponse = await getStudyDetail(studyId);
-          setStudyDetail(response.data);
-          setError(null);
-          fetchComments();
-        } catch (err) {
-          const errorMessage = handleApiError(err);
-          setError(`게시글 정보를 불러오는데 실패했습니다: ${errorMessage}`);
-        } finally {
-          setIsLoading(false);
-        }
-      }, [studyId, fetchComments]);
+const fetchStudyDetail = useCallback(async () => {
+  if (isNaN(studyId)) return;
 
-      useEffect(() => {
-        fetchStudyDetail();
-      }, [fetchStudyDetail]);
+  try {
+    const response: StudyDetailResponse = await getStudyDetail(studyId);
+    setStudyDetail(response.data);
+    setError(null);
+  } catch (err) {
+    const errorMessage = handleApiError(err);
+    setError(`게시글 정보를 불러오는데 실패했습니다: ${errorMessage}`);
+  } finally {
+    setIsLoading(false);
+  }
+}, [studyId]);
+
+useEffect(() => {
+  fetchStudyDetail();
+  fetchComments();
+}, [fetchStudyDetail, fetchComments]);
+
+
 
 
     // 게시글 삭제

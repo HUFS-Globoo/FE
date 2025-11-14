@@ -262,21 +262,43 @@ const StudyList = () => {
   const fetchStudies = useCallback(async (customFilter?: StudyFilter) => {
     setIsLoading(true);
     setError(null);
+  
     try {
-      const response: any = await getStudies(filters); 
-      
-      setStudies(response.data || []); 
-      
-      setTotalPages(1); 
-      
-    } catch (err) {
-      console.error('스터디 목록 조회 실패:', err);
-      const status = (err as any)?.response?.status;
-      setError(`목록을 불러오지 못했습니다. (오류 코드: ${status || 'API 통신 오류'})`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters]);
+      const response: any = await getStudies(filters);
+      const rawList = response.data || [];
+  
+
+      const listWithAuthorCountry = await Promise.all(
+        rawList.map(async (study: any) => {
+          try {
+            const res = await axiosInstance.get(`/api/profiles/${study.authorId}`);
+
+            return {
+              ...study,
+              authorCountry: res.data.country, 
+            };
+          } catch (err) {
+            console.error("author 정보 조회 실패:", err);
+            return {
+              ...study,
+              authorCountry: "KR", 
+            };
+          }
+        })
+      );
+  
+      setStudies(listWithAuthorCountry);
+      setTotalPages(1);
+  
+    } catch (err) {
+      console.error("스터디 목록 조회 실패:", err);
+      const status = (err as any)?.response?.status;
+      setError(`목록을 불러오지 못했습니다. (오류 코드: ${status || 'API 통신 오류'})`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters]);
+  
 
   const fetchUserMe = async () => {
     try {
@@ -507,12 +529,13 @@ useEffect(() => {
               <div style={{ padding: '4rem', textAlign: 'center' }}>검색 결과가 없습니다.</div>
             ) : (
               studies.map((study) => (
-                <StudyCard 
-                  key={study.id} 
-                  study={study}
-                  onClick={() => handleStudyClick(study.id)}
-                  currentUserId={userMe?.id}
-                />
+            <StudyCard 
+              key={study.id} 
+              study={study}
+              authorCountry={study.authorCountry}  
+              onClick={() => handleStudyClick(study.id)}
+              currentUserId={userMe?.id}
+            />
               ))
             )}
           </StudyListContainer>

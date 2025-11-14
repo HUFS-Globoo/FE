@@ -11,6 +11,7 @@ interface StudyCardProps {
   study: StudyItem;
   onClick?: () => void;
   currentUserId?: number;
+  authorCountry?: string;
 }
 
 // 국가별 캐릭터 이미지 매핑
@@ -117,14 +118,13 @@ const MoreButton = styled.span`
   }
 `;
 
-const StudyCard = ({ study, onClick, currentUserId }: StudyCardProps) => {
-  // 🔹 기본이미지 모드 여부
+const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardProps) => {
+
   const useDefaultProfile =
     typeof window !== "undefined" &&
     localStorage.getItem("useDefaultProfileImage") === "true";
 
-  // 🔹 작성자 국가코드 → 기본 캐릭터
-  const authorCountryCode = study.authorCountry;
+  const authorCountryCode = authorCountry ?? null;
   const fallbackCharacter =
     (authorCountryCode &&
       countryCharacterImages[
@@ -132,7 +132,6 @@ const StudyCard = ({ study, onClick, currentUserId }: StudyCardProps) => {
       ]) ||
     KoreaProfileImg;
 
-  // 🔹 서버에서 준 작성자 프로필 URL
   let characterImage: string | null = study.authorProfileImageUrl;
 
   // 🔹 이 카드의 작성자가 "나"인 경우 + 기본이미지 모드면 → 업로드 이미지 무시
@@ -176,8 +175,7 @@ const primaryLanguage = study.languages?.[0];
   if (primaryCampus) tags.push(campusMap[primaryCampus] || primaryCampus);
   if (primaryLanguage) tags.push(languageMap[primaryLanguage] || primaryLanguage);
   if (study.tags) tags.push(...study.tags);
-  console.log("🌐 study.languages:", study.languages);
-  console.log("🌐 primaryLanguage:", primaryLanguage);
+
 
   return (
     <CardContainer onClick={onClick}>

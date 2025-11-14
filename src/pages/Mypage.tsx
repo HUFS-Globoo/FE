@@ -163,10 +163,10 @@ const Mypage = () => {
     fetchMyComments();
   }, []);
 
-  // 프로필 수정
   const handleProfileSave = async (updatedData: any) => {
     try {
-      const finalData = {
+      /** 1) 프로필 기본 정보 PATCH */
+      const profilePatchData = {
         name: userData.name,
         nickname: updatedData.nickname || userData.nickname,
         mbti: updatedData.mbti || userData.mbti,
@@ -176,25 +176,41 @@ const Mypage = () => {
         campus: updatedData.campus || userData.campus,
         country: updatedData.country || userData.country,
         email: userData.email,
-        nativeLanguages: (updatedData.nativeLanguages || languages.nativeCodes || []).map(
-          (lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang
-        ),
-        learnLanguages: (updatedData.learnLanguages || languages.learnCodes || []).map(
-          (lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang
-        ),
         personalityKeywords: updatedData.personalityKeywords || keywords.personality,
         hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
         topicKeywords: updatedData.topicKeywords || keywords.topic,
       };
-
-      console.log("PATCH body:", JSON.stringify(finalData, null, 2));
-
-      await axiosInstance.patch("/api/users/me", finalData);
+  
+      // 🔥 PATCH 요청 로그
+      console.log("%c[PATCH /api/users/me] 요청 데이터 ↓", "color:#00aaff;font-weight:bold;");
+      console.log(profilePatchData);
+  
+      await axiosInstance.patch("/api/users/me", profilePatchData);
+  
+      /** 2) 언어 변경 PUT */
+      const finalNative = (updatedData.nativeLanguages ?? languages.nativeCodes)
+        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+  
+      const finalLearn = (updatedData.learnLanguages ?? languages.learnCodes)
+        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+  
+      const languagePutData = {
+        nativeCodes: finalNative,
+        learnCodes: finalLearn,
+      };
+  
+      // 🔥 PUT 요청 로그
+      console.log("%c[PUT /api/users/me/languages] 요청 데이터 ↓", "color:#ff9900;font-weight:bold;");
+      console.log(languagePutData);
+  
+      await axiosInstance.put("/api/users/me/languages", languagePutData);
+  
       alert("프로필이 성공적으로 수정되었습니다!");
-
+  
+      /** 3) 최신 정보 다시 불러오기 */
       const refreshed = await axiosInstance.get("/api/users/me");
       const refreshedUser = refreshed.data;
-
+  
       setUserData(refreshedUser);
       setLanguages({
         nativeCodes: refreshedUser.nativeLanguages || [],
@@ -205,12 +221,15 @@ const Mypage = () => {
         hobby: refreshedUser.hobbyKeywords || [],
         topic: refreshedUser.topicKeywords || [],
       });
+  
       setIsEditMode(false);
-    } catch (error: any) {
-      console.error("프로필 수정 실패:", error.response?.data || error);
+    } catch (error) {
+      console.error("프로필 수정 실패:", error);
       alert("프로필 수정 중 오류가 발생했습니다.");
     }
   };
+  
+  
 
   // 프로필 이미지 업로드
   const handleProfileImageUpload = async (file: File) => {

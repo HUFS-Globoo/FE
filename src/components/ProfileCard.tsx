@@ -61,7 +61,6 @@ const campusOptions = [
 
 const languageOptions = [
   { value: "한국어", label: "한국어" },
-  { value: "일본어", label: "일본어" },
   { value: "영어", label: "영어" },
   { value: "이탈리아어", label: "이탈리아어" },
   { value: "아랍어", label: "아랍어" },

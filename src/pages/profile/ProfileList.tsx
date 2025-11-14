@@ -419,19 +419,7 @@ const ProfileList: React.FC = () => {
             ? `${profile.infoTitle}\n${profile.infoContent}`
             : ""
         }
-        onClick={() => {
-  if (profile.userId === currentUserId) {
-    // 자기 자신이면 마이페이지로 가라 ㅏ제발
-    navigate("/mypage");
-  } else {
-    // 남이면 기존처럼 프로필 상세
-    // 정말 재밌다
-    // 졸려요
-    // 이것만 하면 잔다!!!
-    // 아예 mypage로 이동되게끔 해서 따로 profileDetail에서는 수정 안할게요
-    handleProfileClick(profile.userId);
-  }
-}}
+        onClick={() => handleProfileClick(profile.userId)}
       />
     );
   })}

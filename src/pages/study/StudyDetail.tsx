@@ -34,21 +34,6 @@ import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 import axiosInstance from "../../../axiosInstance";
 
-const getCleanImageUrl = (url: string | null | undefined) => {
-  if (!url || url.trim() === "") return null;
-
-  const base = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "";
-
-  // 절대 주소인 경우
-  if (url.startsWith("http")) {
-    return `${url.replace(/([^:]\/)\/+/g, "$1")}?t=${Date.now()}`;
-  }
-
-  // 상대 경로인 경우
-  const normalized = url.replace(/^\//, "").replace(/([^:]\/)\/+/g, "$1");
-  return base ? `${base}/${normalized}?t=${Date.now()}` : `${normalized}?t=${Date.now()}`;
-};
-
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -258,14 +243,6 @@ const JoinButton = styled.button`
   }
 `;
 
-const [authorProfile, setAuthorProfile] = useState<{
-  country: string | null;
-  profileImageUrl: string | null;
-} | null>(null);
-
-const [isAuthorProfileLoading, setIsAuthorProfileLoading] = useState(false);
-
-
 const StudyDetail = () => {
     const { id: postId } = useParams<{ id: string }>();
     const studyId = Number(postId);
@@ -289,8 +266,8 @@ const StudyDetail = () => {
   localStorage.getItem("useDefaultProfileImage") === "true";
 
     const effectiveUserProfileImageUrl =
-  useDefaultProfile ? null : getCleanImageUrl(userMe?.profileImageUrl);
-// 항상 최신 이미지로(내 프로필 이미지 캐시 깨기)
+  useDefaultProfile ? null : userMe?.profileImageUrl ?? null;
+
     
     useEffect(() => {
   const fetchUserMe = async () => {
@@ -321,7 +298,7 @@ const fetchComments = useCallback(async () => {
     const commentsWithAuthorInfo = await Promise.all(
       rawComments.map(async (comment: any) => {
         try {
-          // 댓글 작성자 정보 API 
+          // ⬇⬇⬇ 이게 정확한 댓글 작성자 정보 API 
           const profileRes = await axiosInstance.get(`/api/profiles/${comment.author.id}`);
 
           return {
@@ -355,23 +332,6 @@ const fetchComments = useCallback(async () => {
   }
 }, [studyId]);
 
-const fetchAuthorProfile = useCallback(async (authorId: number) => {
-  try {
-    setIsAuthorProfileLoading(true);
-    const res = await axiosInstance.get(`/api/profiles/${authorId}`);
-
-    setAuthorProfile({
-      country: res.data.country ?? null,
-      profileImageUrl: res.data.profileImageUrl ?? null,
-    });
-  } catch (e) {
-    console.error("작성자 프로필 조회 실패:", authorId, e);
-    setAuthorProfile(null);
-  } finally {
-    setIsAuthorProfileLoading(false);
-  }
-}, []);
-
 
 
 const fetchStudyDetail = useCallback(async () => {
@@ -381,18 +341,13 @@ const fetchStudyDetail = useCallback(async () => {
     const response: StudyDetailResponse = await getStudyDetail(studyId);
     setStudyDetail(response.data);
     setError(null);
-
-     if (response.data?.authorId) {
-      fetchAuthorProfile(response.data.authorId);
-    }
-
   } catch (err) {
     const errorMessage = handleApiError(err);
     setError(`게시글 정보를 불러오는데 실패했습니다: ${errorMessage}`);
   } finally {
     setIsLoading(false);
   }
-}, [studyId, fetchAuthorProfile]);
+}, [studyId]);
 
 useEffect(() => {
   fetchStudyDetail();
@@ -564,10 +519,9 @@ useEffect(() => {
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
     const authorCountryCode =
-    authorProfile?.country ||
   (studyData as any).authorCountry ||
   (studyData as any).authorNation ||
-    "KR";// 없으면 KR 기본(이러며 ㄴ안되긴하는데)
+  userMe?.country; // 없으면 내 country라도 사용
 
     const fallbackCharacter =
   (authorCountryCode &&
@@ -580,24 +534,14 @@ useEffect(() => {
 
   if (isAuthor) {
   if (useDefaultProfile || !userMe?.profileImageUrl) {
-    // 기본이미지 모드 or 서버에 이미지 없음 → 내 country기반 이미지 사용
+    // 기본이미지 모드 → fallback 사용
     characterImage = fallbackCharacter;
-  } else {
-    // 내 업로드 이미지 + 캐시 버스터
-    characterImage = getCleanImageUrl(userMe.profileImageUrl) || fallbackCharacter;
+  } else if (userMe.profileImageUrl) {
+    characterImage = userMe.profileImageUrl;
   }
-} else {
-  // 다른 사람이 쓴 글
-  const uploadedAuthorImage =
-    authorProfile?.profileImageUrl || studyData.authorProfileImageUrl;
-
-  if (uploadedAuthorImage) {
-    characterImage = getCleanImageUrl(uploadedAuthorImage) || fallbackCharacter;
-  } else {
-    // 업로드 이미지 없으면 나라 기반 기본 캐릭터(fallbackCharacter)
-    // 마이페이지에서 기본 이미지로 되돌렸을 때 -> characterImage null 처리하면 fallbackCharacter로 교체~~
-    characterImage = fallbackCharacter;
-  }
+} else if (studyData.authorProfileImageUrl) {
+  // 남이 쓴 글이면 서버에서 온 authorProfileImageUrl 그대로
+  characterImage = studyData.authorProfileImageUrl;
 }
 
   // 혹시 모르니 슬래시 정리

@@ -213,6 +213,10 @@ const ProfileList: React.FC = () => {
     topicKeyword: "",
   });
 
+  const currentUserId = Number(localStorage.getItem("userId"));
+  const useDefaultProfile =
+    localStorage.getItem("useDefaultProfileImage") === "true";
+
 
   // 프로필 조회 (필터 적용)
   const fetchProfiles = async (page = 0) => {
@@ -384,32 +388,42 @@ const ProfileList: React.FC = () => {
       <ContentContainer>
         <SectionTitle className="H4">친구들의 프로필 보기</SectionTitle>
         <ProfileGrid>
-          {profiles.map((profile) => {
-          
-            return (
-              <ProfileBanner
-                key={profile.userId}
-                userId={profile.userId}
-                nickname={profile.nickname}
-                campus={profile.campus}
-                country={profile.country}
-                mbti={profile.mbti}
-                profileImageUrl={profile.profileImageUrl}
-                languages={{
-                  native: profile.nativeLanguages.map((l) => l.code),
-                  learn: profile.learnLanguages.map((l) => l.code),
-                }}
-                keywords={profile.keywords.map((k) => k.name)}
-                intro={
-                  profile.infoTitle && profile.infoContent
-                    ? `${profile.infoTitle}\n${profile.infoContent}`
-                    : ""
-                }
-                onClick={() => handleProfileClick(profile.userId)}
-              />
-            );
-          })}
-        </ProfileGrid>
+  {profiles.map((profile) => {
+    let effectiveProfileImageUrl = profile.profileImageUrl;
+    if (effectiveProfileImageUrl) {
+      effectiveProfileImageUrl = effectiveProfileImageUrl.replace(
+        /([^:]\/)\/+/g,
+        "$1"
+      );
+    }
+    if (profile.userId === currentUserId && useDefaultProfile) {
+      effectiveProfileImageUrl = null;
+    }
+
+    return (
+      <ProfileBanner
+        key={profile.userId}
+        userId={profile.userId}
+        nickname={profile.nickname}
+        campus={profile.campus}
+        country={profile.country}
+        mbti={profile.mbti}
+        profileImageUrl={effectiveProfileImageUrl}
+        languages={{
+          native: profile.nativeLanguages.map((l) => l.code),
+          learn: profile.learnLanguages.map((l) => l.code),
+        }}
+        keywords={profile.keywords.map((k) => k.name)}
+        intro={
+          profile.infoTitle && profile.infoContent
+            ? `${profile.infoTitle}\n${profile.infoContent}`
+            : ""
+        }
+        onClick={() => handleProfileClick(profile.userId)}
+      />
+    );
+  })}
+</ProfileGrid>
 
       </ContentContainer>
 

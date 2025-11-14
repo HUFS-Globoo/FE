@@ -117,10 +117,23 @@ const MoreButton = styled.span`
 `;
 
 const StudyCard = ({ study, onClick }: StudyCardProps) => {
-  const characterImage = study.authorProfileImageUrl || KoreaProfileImg; // 기본 이미지 한국 이미지로 설정
-    countryCharacterImages[study.authorCountry || 'KR'] || 
+    // 이미지 우선순위: 업로드 이미지 > 국가 캐릭터 > 한국 기본
+  const authorCountryCode = (study as any).authorCountry || (study as any).authorNation;
+  
+  const fallbackCharacter =
+    (authorCountryCode &&
+      countryCharacterImages[
+        authorCountryCode as keyof typeof countryCharacterImages
+      ]) ||
     KoreaProfileImg;
 
+  let characterImage = study.authorProfileImageUrl || fallbackCharacter;
+
+  // URL에 // 중복 들어오는 경우 방지
+  if (characterImage) {
+    characterImage = characterImage.replace(/([^:]\/)\/+/g, "$1");
+  }
+  
   // 캠퍼스 
   const campusMap: { [key: string]: string } = {
     'GLOBAL': '글로벌캠퍼스',

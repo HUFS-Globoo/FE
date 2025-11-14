@@ -331,7 +331,7 @@ const ActivityTabs = ({ activeTab,
           onClick={() => onTabChange('posts')}
           className="H4"
         >
-          작성한 게시물
+          작성한 게시글
         </Tab>
         <Tab 
           $active={activeTab === 'comments'}

@@ -357,8 +357,8 @@ const StudyPost = () => {
   };
 
   const handleMyCommentsClick = () => {
-    navigate("/mypage");
-  };
+  navigate("/mypage", { state: { activeTab: "comments" } });
+};
 
   const handleBackToList = () => {
     navigate("/study");

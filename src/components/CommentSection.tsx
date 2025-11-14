@@ -16,6 +16,7 @@ interface CommentSectionProps {
   onEditComment: (commentId: number, content: string) => Promise<boolean>;
   onDeleteComment: (commentId: number) => void;
   isCommentsLoading: boolean;
+  currentUserProfileImageUrl?: string | null;
 }
 
 // 국가별 캐릭터 이미지 매핑 (추후 실제 프로필 이미지로 교체)
@@ -25,6 +26,34 @@ const countryCharacterImages: { [key: string]: string } = {
   IT: ItalyProfileImg,
   EG: EgyptProfileImg,
   CN: ChinaProfileImg,
+};
+
+const getCommentProfileImage = (
+  comment: StudyComment,
+  currentUserId: number,
+  currentUserProfileImageUrl?: string | null
+) => {
+  //내가 쓴 댓글 + 내 최신 프로필 이미지가 있을 때
+  if (
+    comment.author.id === currentUserId &&
+    currentUserProfileImageUrl
+  ) {
+    return currentUserProfileImageUrl.replace(/([^:]\/)\/+/g, "$1");
+  }
+
+  // 댓글에 실려 있는 author.profileImageUrl 우선
+  if (comment.author.profileImageUrl) {
+    return comment.author.profileImageUrl.replace(/([^:]\/)\/+/g, "$1");
+  }
+
+  // author.country 기반 국적 캐릭터
+  const country = (comment.author as any).country as string | undefined;
+  if (country && countryCharacterImages[country]) {
+    return countryCharacterImages[country];
+  }
+
+  // 혹여나 country 데이터 못받아오면 한국 캐릭터로 기본 설정
+  return KoreaProfileImg;
 };
 
 const CommentContainer = styled.div`
@@ -174,7 +203,8 @@ const CommentSection = ({
   onAddComment, 
   onEditComment, 
   onDeleteComment,
-  isCommentsLoading
+  isCommentsLoading,
+  currentUserProfileImageUrl, //함수 파라미터에 넣기
 }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState("");
 
@@ -251,8 +281,8 @@ useEffect(() => {
             <CommentsList>
               {comments.map((comment) => (
                 <CommentItem key={comment.id}>
-                  <CommentAvatar 
-                    src={comment.author.profileImageUrl || KoreaProfileImg} 
+                  <CommentAvatar
+                    src={getCommentProfileImage(comment, currentUserId, currentUserProfileImageUrl)}
                     alt={comment.author.nickname}
                   />
                   

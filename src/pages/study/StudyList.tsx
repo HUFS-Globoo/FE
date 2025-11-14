@@ -8,6 +8,20 @@ import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
 import HeaderImg from "../../assets/img-miniBoo.svg";
 
+import AmericaProfileImg from "../../assets/img-profile1-America.svg";
+import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
+import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
+import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
+import ChinaProfileImg from "../../assets/img-profile1-China.svg";
+
+const countryCharacterImages: { [key: string]: string } = {
+  US: AmericaProfileImg,
+  KR: KoreaProfileImg,
+  IT: ItalyProfileImg,
+  EG: EgyptProfileImg,
+  CN: ChinaProfileImg,
+};
+
 const initialFilters: StudyFilter = {
   page: 0,
   campus: undefined,
@@ -264,12 +278,6 @@ const StudyList = () => {
     }
   }, [filters]);
 
-  useEffect(() => {
-    fetchStudies();
-    fetchUserMe();
-  }, []);
-
-
   const fetchUserMe = async () => {
     try {
       setIsProfileLoading(true);
@@ -277,7 +285,17 @@ const StudyList = () => {
       const res = await axiosInstance.get('/api/users/me'); 
       const data: UserMeResponse = res.data; 
       
-      setUserMe(data);
+      let cleanedUrl = data.profileImageUrl;
+        if (cleanedUrl) {
+          cleanedUrl = cleanedUrl
+            .replace(/([^:]\/)\/+/g, "$1")
+            + `?t=${Date.now()}`;         
+        }
+
+    setUserMe({
+      ...data,
+      profileImageUrl: cleanedUrl ?? null,
+    });
     } catch (error) {
       console.error("내 정보 조회 실패 (로그인 필요):", error);
       setUserMe(null); 
@@ -321,7 +339,7 @@ useEffect(() => {
   };
 
   const handleMyCommentsClick = () => {
-    navigate("/mypage");
+    navigate("/mypage", { state: { activeTab: "comments" } });
   };
 
   const handleCreatePostClick = () => {
@@ -363,10 +381,13 @@ useEffect(() => {
           {userMe ? (
           <UserProfileCard>
             <ProfileImage 
-              // profile이 없으면 undefined를 반환하므로 TypeError 방지
-              src={userMe.profileImageUrl || "/placeholder-profile.png"} 
-              alt="프로필"
-            />
+              src={
+                userMe.profileImageUrl ||
+                (userMe.country && countryCharacterImages[userMe.country]) ||
+                  KoreaProfileImg
+              }
+              alt="프로필"
+            />
             <UserInfo>
               <UserName className="H4">
                 {userMe.name} / {userMe.nickname} 

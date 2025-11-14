@@ -141,7 +141,7 @@ const Mypage = () => {
                 `댓글 ${comment.id}의 게시글 정보 조회 실패:`,
                 e
               );
-              // 게시글 정보 못 가져와도 댓글은 보여주기
+
               return {
                 id: comment.id,
                 postId: comment.postId,
@@ -165,7 +165,6 @@ const Mypage = () => {
 
   const handleProfileSave = async (updatedData: any) => {
     try {
-      /** 1) 프로필 기본 정보 PATCH */
       const profilePatchData = {
         name: userData.name,
         nickname: updatedData.nickname || userData.nickname,
@@ -181,13 +180,11 @@ const Mypage = () => {
         topicKeywords: updatedData.topicKeywords || keywords.topic,
       };
   
-      // 🔥 PATCH 요청 로그
-      console.log("%c[PATCH /api/users/me] 요청 데이터 ↓", "color:#00aaff;font-weight:bold;");
+  
       console.log(profilePatchData);
   
       await axiosInstance.patch("/api/users/me", profilePatchData);
   
-      /** 2) 언어 변경 PUT */
       const finalNative = (updatedData.nativeLanguages ?? languages.nativeCodes)
         .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
   
@@ -199,15 +196,13 @@ const Mypage = () => {
         learnCodes: finalLearn,
       };
   
-      // 🔥 PUT 요청 로그
-      console.log("%c[PUT /api/users/me/languages] 요청 데이터 ↓", "color:#ff9900;font-weight:bold;");
       console.log(languagePutData);
   
       await axiosInstance.put("/api/users/me/languages", languagePutData);
   
       alert("프로필이 성공적으로 수정되었습니다!");
   
-      /** 3) 최신 정보 다시 불러오기 */
+
       const refreshed = await axiosInstance.get("/api/users/me");
       const refreshedUser = refreshed.data;
   

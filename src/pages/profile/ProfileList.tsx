@@ -256,8 +256,8 @@ const ProfileList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProfiles(0); 
-  }, []);
+    fetchProfiles(currentPage);
+  }, [currentPage]);
 
   return (
     <PageContainer>

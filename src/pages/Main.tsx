@@ -210,7 +210,7 @@ const Main = () => {
             <Icon src={Message} />
             <CardTitle>쪽지</CardTitle>
             <CardContent>친구들의 프로필을 구경하고<br /> 친해지고 싶은 친구에게 쪽지를 보내세요!</CardContent>
-            <Button  onClick={() => navigate("/profile")}>시작하기</Button>
+            <Button  onClick={() => navigate("/message")}>시작하기</Button>
           </ServiceCard>
         </ServiceContainer>
       </ContentContainer>

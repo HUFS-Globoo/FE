@@ -25,27 +25,6 @@ const countryCharacterImages: { [key: string]: string } = {
   CN: ChinaProfileImg,
 };
 
-const getCleanImageUrl = (url: string | null | undefined) => {
-  if (!url || url.trim() === "") return null;
-
-  const base = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "";
-
-  // 중복 슬래시 정리
-  const cleaned = url.replace(/([^:]\/)\/+/g, "$1");
-
-  // 이미 절대경로인 경우
-  if (cleaned.startsWith("http")) {
-    const hasQuery = cleaned.includes("?");
-    return `${cleaned}${hasQuery ? "&" : "?"}t=${Date.now()}`;
-  }
-
-  // 상대경로인 경우 → BASE_URL 붙이기
-  const normalized = cleaned.replace(/^\//, "");
-  const full = base ? `${base}/${normalized}` : normalized;
-  const hasQuery = full.includes("?");
-  return `${full}${hasQuery ? "&" : "?"}t=${Date.now()}`;
-};
-
 const CardContainer = styled.div`
   background-color: var(--white);
   border: 1px solid var(--gray);
@@ -155,9 +134,9 @@ const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardPr
       ]) ||
     KoreaProfileImg;
 
-  let characterImage: string | null = study.authorProfileImageUrl || null;
+  let characterImage: string | null = study.authorProfileImageUrl;
 
-  // 이 카드의 작성자가 "나"인 경우 + 기본이미지 모드면 → 업로드 이미지 무시
+  // 🔹 이 카드의 작성자가 "나"인 경우 + 기본이미지 모드면 → 업로드 이미지 무시
   if (
     currentUserId &&
     study.authorId === currentUserId &&
@@ -166,13 +145,9 @@ const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardPr
     characterImage = null;
   }
 
-  const finalSrc =
-  characterImage
-    ? getCleanImageUrl(characterImage) || fallbackCharacter
+  const finalSrc = characterImage
+    ? characterImage.replace(/([^:]\/)\/+/g, "$1")
     : fallbackCharacter;
-
-    //마이페이지에서 기본 이미지로 되돌렸을 때 -> characterImage null 처리하면 fallbackCharacter로 교체~~
-  //제발 되자
   
   // 캠퍼스 
   const campusMap: { [key: string]: string } = {

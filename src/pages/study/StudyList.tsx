@@ -260,8 +260,6 @@ const StudyList = () => {
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 에러 메시지
 
-  const storedUserId = Number(localStorage.getItem("userId")) || undefined;
-// gk currentUserId를 로컬스토리지 기반으로 넘겨주기
   const fetchStudies = useCallback(async (customFilter?: StudyFilter) => {
     setIsLoading(true);
     setError(null);
@@ -537,7 +535,7 @@ useEffect(() => {
               study={study}
               authorCountry={study.authorCountry}  
               onClick={() => handleStudyClick(study.id)}
-              currentUserId={storedUserId} // useDefaultProfileImage가 true로 켜지고 기본으로 되돌리면 fallbackCharater로 바뀌어서 내가 쓴 스터디리스트에도 전부 기본 캐릭터로 보임
+              currentUserId={userMe?.id}
             />
               ))
             )}

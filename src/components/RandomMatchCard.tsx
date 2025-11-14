@@ -570,19 +570,32 @@ const handleFindAnother = async () => {
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     console.log("서버 메시지:", data);
-
+  
     switch (data.type) {
       case "MESSAGE_ACK":
         setMessages((prev) => [...prev, data]);
         break;
+  
       case "LEAVE_NOTICE":
         alert("상대방이 나갔습니다.");
+  
+        setChatRoomId(null);
+        setMessages([]);
+        setPartner(null);
+        setStage("loading");
+  
         socket.close();
+        ws.current = null;
+  
+        navigate("/");
+  
         break;
+  
       default:
         console.warn("알 수 없는 메시지 타입:", data.type);
     }
   };
+  
 
   socket.onclose = () => {
     console.log("WebSocket 종료됨");
@@ -624,32 +637,34 @@ const handleFindAnother = async () => {
   };
   
 
-const handleEndChat = () => {
-  if (!ws.current || !chatRoomId) return;
-
-  const leavePayload = {
-    type: "LEAVE",
-    roomId: chatRoomId,
+  const handleEndChat = () => {
+    if (!ws.current || !chatRoomId) return;
+  
+    const leavePayload = {
+      type: "LEAVE",
+      roomId: chatRoomId,
+    };
+  
+    ws.current.send(JSON.stringify(leavePayload));
+  
+    alert("대화방을 나갔습니다.");
+  
+    setTimeout(() => {
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
+      }
+  
+      setChatRoomId(null);
+      setMessages([]);
+      setPartner(null);
+  
+      setStage("loading"); 
+  
+      navigate("/");
+    }, 100);
   };
-
-  ws.current.send(JSON.stringify(leavePayload));
-
-  setTimeout(() => {
-    if (ws.current) {
-      ws.current.close();
-      ws.current = null;
-    }
-
-    setChatRoomId(null);
-    setMessages([]);
-    setPartner(null);
-
-    setStage("loading"); 
-
-    navigate("/");
-  }, 100);
-};
-
+  
 
 
   const languageMap: Record<string, string> = {

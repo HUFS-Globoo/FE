@@ -173,77 +173,84 @@ const Mypage = () => {
     fetchMyComments();
   }, []);
 
-  const handleProfileSave = async (updatedData: any) => {
-    try {
-      const profileImageUrlToSend =
-      updatedData.profileImageUrl === undefined
-        ? userData.profileImageUrl          // 이미지 안 건드렸으면 기존 국적 이미지 유지(기존 값)
-        : updatedData.profileImageUrl;      // 수정,리셋한 경우는 그 값 그대로 (null 포함)
+ const handleProfileSave = async (updatedData: any) => {
+  try {
+    // 1) 서버에 보낼 데이터 구성 (이미지 건들지 않음)
+    const finalData: any = {
+      name: userData.name,
+      nickname: updatedData.nickname || userData.nickname,
+      mbti: updatedData.mbti || userData.mbti,
+      infoTitle: updatedData.infoTitle || userData.infoTitle,
+      infoContent: updatedData.infoContent || userData.infoContent,
+      campus: updatedData.campus || userData.campus,
+      country: updatedData.country || userData.country,
+      email: userData.email,
+      personalityKeywords:
+        updatedData.personalityKeywords || keywords.personality,
+      hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
+      topicKeywords: updatedData.topicKeywords || keywords.topic,
+    };
 
-      const finalData = {
-        name: userData.name,
-        nickname: updatedData.nickname || userData.nickname,
-        mbti: updatedData.mbti || userData.mbti,
-         profileImageUrl: profileImageUrlToSend, //수정해요 수정 제발
-        infoTitle: updatedData.infoTitle || userData.infoTitle,
-        infoContent: updatedData.infoContent || userData.infoContent,
-        campus: updatedData.campus || userData.campus,
-        country: updatedData.country || userData.country,
-        email: userData.email,
-        personalityKeywords: updatedData.personalityKeywords || keywords.personality,
-        hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
-        topicKeywords: updatedData.topicKeywords || keywords.topic,
-      };
-  
-  
-      console.log(finalData);
-  
-      await axiosInstance.patch("/api/users/me", finalData);
-  
-      const finalNative = (updatedData.nativeLanguages ?? languages.nativeCodes)
-        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
-  
-      const finalLearn = (updatedData.learnLanguages ?? languages.learnCodes)
-        .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
-  
-      const languagePutData = {
-        nativeCodes: finalNative,
-        learnCodes: finalLearn,
-      };
-  
-      console.log(languagePutData);
-  
-      await axiosInstance.put("/api/users/me/languages", languagePutData);
-  
-      alert("프로필이 성공적으로 수정되었습니다!");
-  
+    // 🔹 profileImageUrl은 여기서 아예 안 보냄
+    // (이미지 변경은 업로드/리셋 핸들러에서만!)
 
-      const refreshed = await axiosInstance.get("/api/users/me");
-      const refreshedUser = refreshed.data;
+    await axiosInstance.patch("/api/users/me", finalData);
 
-      if (profileImageUrlToSend === null) {
+    // 2) 언어 코드 처리 그대로 유지
+    const finalNative = (updatedData.nativeLanguages ?? languages.nativeCodes)
+      .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+
+    const finalLearn = (updatedData.learnLanguages ?? languages.learnCodes)
+      .map((lang: string) => LANGUAGE_REVERSE_MAP[lang] || lang);
+
+    const languagePutData = {
+      nativeCodes: finalNative,
+      learnCodes: finalLearn,
+    };
+
+    await axiosInstance.put("/api/users/me/languages", languagePutData);
+
+    alert("프로필이 성공적으로 수정되었습니다!");
+
+    // 3) 내 정보 다시 불러오기
+    const refreshed = await axiosInstance.get("/api/users/me");
+    const refreshedUser = refreshed.data;
+
+    // 🔹 로컬스토리지 플래그는 건드리지 않음
+    // 대신, 플래그 값에 따라 보여줄 URL만 조정
+    const useDefaultProfile =
+      localStorage.getItem("useDefaultProfileImage") === "true";
+
+    if (useDefaultProfile) {
       refreshedUser.profileImageUrl = null;
-      localStorage.setItem("useDefaultProfileImage", "true");
-    } else {
-      localStorage.removeItem("useDefaultProfileImage");
+    } else if (refreshedUser.profileImageUrl) {
+      refreshedUser.profileImageUrl =
+        refreshedUser.profileImageUrl.replace(/([^:]\/)\/+/g, "$1") +
+        `?t=${Date.now()}`;
     }
-      setUserData(refreshedUser);
-      setLanguages({
-        nativeCodes: refreshedUser.nativeLanguages || [],
-        learnCodes: refreshedUser.learnLanguages || [],
-      });
-      setKeywords({
-        personality: refreshedUser.personalityKeywords || [],
-        hobby: refreshedUser.hobbyKeywords || [],
-        topic: refreshedUser.topicKeywords || [],
-      });
-  
-      setIsEditMode(false);
-    } catch (error) {
-      console.error("프로필 수정 실패:", error);
-      alert("프로필 수정 중 오류가 발생했습니다.");
-    }
-  };
+
+    setUserData({
+      ...refreshedUser,
+      _updateKey: Date.now(),
+    });
+
+    setLanguages({
+      nativeCodes: refreshedUser.nativeLanguages || [],
+      learnCodes: refreshedUser.learnLanguages || [],
+    });
+
+    setKeywords({
+      personality: refreshedUser.personalityKeywords || [],
+      hobby: refreshedUser.hobbyKeywords || [],
+      topic: refreshedUser.topicKeywords || [],
+    });
+
+    setIsEditMode(false);
+  } catch (error) {
+    console.error("프로필 수정 실패:", error);
+    alert("프로필 수정 중 오류가 발생했습니다.");
+  }
+};
   
   
 
@@ -398,7 +405,7 @@ const Mypage = () => {
               nickname={userData.nickname}
               mbti={userData.mbti}
               country={userData.country}
-              profileImage={cleanedProfileUrl}
+              profileImageUrl={cleanedProfileUrl}
               infoTitle={userData.infoTitle}
               infoContent={userData.infoContent}
               keywords={{

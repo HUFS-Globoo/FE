@@ -3,6 +3,7 @@ import Logo from "../assets/logo.svg";
 import GlobalStyle from '../styles/GlobalStyle';
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
   width: 100vw;
@@ -45,9 +46,43 @@ export default function Header() {
 
   const navigate = useNavigate();
 
+  // 로그인 여부 체크
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    setIsLoggedIn(!!refreshToken); // 토큰 있으면 로그인 상태
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        alert("이미 로그아웃된 상태입니다.");
+        return;
+      }
+
+      await axiosInstance.post("/api/auth/logout", { refreshToken });
+
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userId");
+
+      alert("로그아웃 되었습니다!");
+      setIsLoggedIn(false);
+
+      navigate("/");
+    } catch (error) {
+      console.error("로그아웃 오류:", error);
+      alert("로그아웃 실패했습니다.");
+    }
+  };
+
   const handleStartMatching = async () => {
     try {
       const userId = localStorage.getItem("userId");
+      const token = localStorage.getItem("accessToken");
   
       if (!userId) {
         alert("로그인 후 이용해주세요!");
@@ -55,18 +90,25 @@ export default function Header() {
         return;
       }
   
-      const response = await axiosInstance.post("/api/matching/queue", {
-        userId: Number(userId),
+      const response = await axiosInstance.post(
+        "/api/matching/queue",
+        { userId: Number(userId) }, 
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      console.log("매칭 대기열 등록 성공:", response.data);
+  
+      navigate("/random-match", {
+        state: { matchStatus: "WAITING", userId: Number(userId) },
       });
-  
-      const result = response.data.data;
-      console.log("매칭 결과:", result);
-  
-      navigate("/random-match", { state: { matchStatus: result } });
-  
-    } catch (error: any) {
-      console.error("매칭 요청 오류:", error);
-      alert("매칭 대기열 진입 중 오류가 발생했습니다.");
+    } catch (error) {
+      console.error("매칭 요청 실패:", error);
+      alert("매칭 요청 중 오류가 발생했습니다.");
     }
   };
 
@@ -80,7 +122,11 @@ export default function Header() {
         <MenuItem onClick={() => navigate("/profile/landing")}>프로필 조회</MenuItem>
         <MenuItem onClick={() => navigate("/message")}>쪽지</MenuItem>
         <MenuItem onClick={() => navigate("/mypage")}>MYPAGE</MenuItem>
-        <MenuItem onClick={() => navigate("/login")}>로그인</MenuItem>
+        {isLoggedIn ? (
+          <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
+        ) : (
+          <MenuItem onClick={() => navigate("/login")}>로그인</MenuItem>
+        )}
       </Menu>
     </Container>
   )

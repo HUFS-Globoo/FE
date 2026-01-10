@@ -50,34 +50,37 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    setIsLoggedIn(!!refreshToken); // 토큰 있으면 로그인 상태
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (!refreshToken) {
-        alert("이미 로그아웃된 상태입니다.");
-        return;
-      }
-
-      await axiosInstance.post("/api/auth/logout", { refreshToken });
-
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("userId");
-
-      alert("로그아웃 되었습니다!");
+    const token = localStorage.getItem("accessToken");
+  
+    if (!token) {
       setIsLoggedIn(false);
-
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 오류:", error);
-      alert("로그아웃 실패했습니다.");
+      return;
     }
-  };
+  
+    axiosInstance
+      .get("/api/users/me")
+      .then(() => setIsLoggedIn(true))
+      .catch(() => {
+        localStorage.clear();
+        setIsLoggedIn(false);
+      });
+    }, []);
+  
+
+    const handleLogout = async () => {
+      try {
+        await axiosInstance.post("/api/auth/logout");
+        alert("로그아웃되었습니다.");
+      } catch (e) {
+        alert("로그아웃 처리 중 문제가 발생했습니다.");
+      } finally {
+        localStorage.clear();
+        setIsLoggedIn(false);
+        navigate("/");
+      }
+    };
+    
+    
 
   const handleStartMatching = async () => {
     try {

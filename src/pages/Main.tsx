@@ -145,16 +145,19 @@ const Main = () => {
   const navigate = useNavigate();
 
   const handleStartMatching = async () => {
+    // 로그인하지 않은 경우 ProtectedRoute가 안내 화면을 보여주도록
+    // 그냥 /random-match로 이동
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("accessToken");
+  
+    if (!userId || !token) {
+      // 로그인하지 않은 경우 ProtectedRoute가 처리하도록 그냥 이동
+      navigate("/random-match");
+      return;
+    }
+  
+    // 로그인한 경우에만 매칭 대기열에 등록
     try {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("accessToken");
-  
-      if (!userId) {
-        alert("로그인 후 이용해주세요!");
-        navigate("/login");
-        return;
-      }
-  
       const response = await axiosInstance.post(
         "/api/matching/queue",
         { userId: Number(userId) }, 

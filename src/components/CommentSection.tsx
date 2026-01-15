@@ -36,7 +36,7 @@ const getCommentProfileImage = (
   const useDefaultProfile =
     localStorage.getItem("useDefaultProfileImage") === "true";
 
-  const country = (comment.author as any).country as string | undefined;
+  const country = comment.author.country;
   const fallbackCharacter = country && countryCharacterImages[country]
     ? countryCharacterImages[country]
     : KoreaProfileImg;

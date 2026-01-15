@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance";
 import { useSignup } from "../../contexts/SignupContext";
+import EmailVerificationModal from "../../components/EmailVerificationModal";
 
 const Container = styled.div`
   width: 100%;
@@ -171,72 +172,6 @@ const KeywordItem = styled.div`
 
 `
 
-const ModalContainer = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); 
-  width: 43.25rem;
-  height: 22.375rem; 
-  padding: 0 3.875rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white; 
-  border-radius: 1rem; 
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  z-index: 10000;
-`;
-
- const CodeInputContainer = styled.div`
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 1.06rem;
-`
-const CodeInputBox = styled.div`
-  display: flex;
-  height: 4.5rem;
-  border-bottom: 0.0625rem solid #ABABAB;
-  box-sizing: border-box;
-`
-
-const CodeInputTitle = styled.div`
-  width: 10.25rem;
-  padding-left: 0.69rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-`
-const CodeInputItem = styled.input`
-  border: none;
-  width: 9.88rem;
-  &::placeholder {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #B1B1B1;
-  }
-
-  &:focus {
-    outline: none; 
-  }
-`
-const VerificationButton = styled.div`
-  display: flex;
-  width: 7.69rem;
-  height: 2.44rem;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.75rem;
-  background-color: var(--primary);
-  color: var(--white);
-`
-const ButtonWraaper = styled.div`
-display: flex;
-flex-direction: row;
-gap: 2rem;
-`
-
 const SignUp4 = () => {
 
   const navigate = useNavigate();
@@ -293,6 +228,10 @@ const SignUp4 = () => {
   
       console.log("회원가입 성공:", response.data);
      
+      if (signupData.email) {
+        localStorage.setItem("pendingVerificationEmail", signupData.email);
+      }
+     
       setIsModalOpen(true);
     } catch (error: any) {
       console.error("회원가입 실패:", error.response?.data || error.message || error);
@@ -323,6 +262,8 @@ const SignUp4 = () => {
         alert("이메일 인증이 완료되었습니다!");
         setIsVerified(true);
         setIsModalOpen(false);
+        // 이메일 인증 완료 시 localStorage에서 제거
+        localStorage.removeItem("pendingVerificationEmail");
         navigate("/login"); 
       } else {
         alert("인증에 실패했습니다. 코드를 다시 확인해주세요.");
@@ -472,32 +413,14 @@ const handleResendCode = async () => {
           <SubmitButton onClick={handleSubmit} /> 
       </ContentContainer>
 
-      {isModalOpen && (
-      <ModalContainer>
-        <CodeInputContainer>
-          <p>이메일로 인증번호가 갔습니다!</p>
-          <CodeInputBox>
-            <CodeInputTitle className="Body1">인증 번호</CodeInputTitle>
-            <CodeInputItem
-                type="text"
-                placeholder="인증번호를 입력하세요"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)} 
-              />
-          </CodeInputBox>
-
-          <ButtonWraaper>
-            <VerificationButton className="Button2" onClick={handleVerifyCode}>
-              인증번호 확인
-            </VerificationButton>
-            <VerificationButton className="Button2" onClick={handleResendCode} >
-              인증번호 재전송
-            </VerificationButton>
-          </ButtonWraaper>
-
-        </CodeInputContainer>
-      </ModalContainer>
-      )}
+      <EmailVerificationModal
+        isOpen={isModalOpen}
+        email={signupData.email}
+        verificationCode={verificationCode}
+        onChangeCode={(e) => setVerificationCode(e.target.value)}
+        onVerify={handleVerifyCode}
+        onResend={handleResendCode}
+      />
      
 
     </Container>

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import CharacterBlur from "../assets/character-blur.svg";
 import { useState, useEffect } from "react";
@@ -7,7 +7,7 @@ import axiosInstance from "../../axiosInstance";
 import EmailVerificationModal from "../components/EmailVerificationModal";
 
 const Container = styled.div`
-  width: 100%;
+  width: 100vw;
   display: flex;
   flex-direction: row;
 `
@@ -116,6 +116,7 @@ const SignUpContent = styled.div`
 const Login = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -158,7 +159,17 @@ const Login = () => {
 
       alert("로그인 성공!");
       console.log("로그인 응답:", response);
-      navigate("/");
+      
+      /**
+       * 로그인 성공 후 리다이렉트 처리
+       * 
+       * location.state?.from: ProtectedRoute에서 전달한 원래 접근하려던 페이지 경로
+       * 예: /mypage, /message, /study 등
+       * 
+       * 만약 from이 없으면 (직접 로그인 페이지로 온 경우) 메인 페이지(/)로 이동
+       */
+      const from = (location.state as { from?: string })?.from || "/";
+      navigate(from);
     } catch (error: any) {
       console.error("로그인 실패:", error);
 

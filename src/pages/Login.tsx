@@ -6,9 +6,11 @@ import { useState } from "react";
 import axiosInstance from "../../axiosInstance";
 
 const Container = styled.div`
-  width: 100vw;
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: row;
+  overflow: hidden;
 `
 
 const IntroContainer = styled.div`
@@ -21,6 +23,8 @@ const IntroContainer = styled.div`
   //justify-content: center;
   padding-top: 8rem;
   align-items: center;
+  overflow-y: auto;
+  flex-shrink: 0;
 `
 
 const MainCharacter = styled.img`
@@ -48,6 +52,8 @@ const LoginContainer = styled.div`
   gap: 4.56rem;
   padding-left: 11rem;
   padding-top: 12rem;
+  overflow-y: auto;
+  min-width: 0;
 `
 
 const LoginTitle = styled.div`

@@ -3,70 +3,12 @@ import { useNavigate } from "react-router-dom";
 import SubmitButton from '../../components/SubmitButton';
 import { useState } from "react";
 import { useSignup } from "../../contexts/SignupContext";
+import SignUpSidebar from '../../components/SignUpSidebar';
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-`;
-
-const SignUpBox = styled.div`
-  width: 29.3125rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5.56rem;
-`;
-
-const SignUpTitle = styled.div`
-  padding-top: 4.56rem;
-  font-family: 'Escoredream';
-  font-size: 2rem;
-  font-weight: 500;
-`;
-
-const StepContainer = styled.div`
-  width: 14.3125rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3.75rem;
-`;
-
-const StepBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  gap: 1rem;
-`;
-
-const StepIcon = styled.div`
-  display: flex;
-  width: 3.125rem;
-  height: 3.125rem;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: #002D56;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 500;
-`;
-
-const StepContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.81rem;
-`;
-
-const StepTitle = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
-`;
-
-const StepDetail = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
 `;
 
 const ContentContainer = styled.div`
@@ -276,6 +218,13 @@ export default function SignUp1() {
   const { signupData, setSignupData } = useSignup();
   const [campus, setCampus] = useState<"GLOBAL" | "SEOUL">("GLOBAL");
 
+  const steps = [
+    { number: 1, detail: "기본 정보 입력" },
+    { number: 2, detail: "학교 이메일 인증" },
+    { number: 3, detail: "언어 & 국적" },
+    { number: 4, detail: "나를 소개하는 키워드 선택" },
+  ];
+
   const handleNext = () => {
     const updatedData = {
       ...signupData,
@@ -292,39 +241,12 @@ export default function SignUp1() {
   
     setSignupData(updatedData);
     console.log("Step1 저장된 데이터:", updatedData); 
-    navigate("/signup/step3");
+    navigate("/signup/step2");
   };
 
   return (
     <Container>
-      <SignUpBox>
-        <SignUpTitle>회원가입</SignUpTitle>
-        <StepContainer>
-          <StepBox>
-            <StepIcon>1</StepIcon>
-            <StepContent>
-              <StepTitle>Step 1</StepTitle>
-              <StepDetail>기본 정보 입력</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>2</StepIcon>
-            <StepContent>
-              <StepTitle>Step 2</StepTitle>
-              <StepDetail>언어 & 국적</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>3</StepIcon>
-            <StepContent>
-              <StepTitle>Step 3</StepTitle>
-              <StepDetail>나를 소개하는 키워드 선택</StepDetail>
-            </StepContent>
-          </StepBox>
-        </StepContainer>
-      </SignUpBox>
+      <SignUpSidebar steps={steps} currentStep={1} />
 
       <ContentContainer>
         <ContentTitle>01 기본 정보를 입력해주세요</ContentTitle>

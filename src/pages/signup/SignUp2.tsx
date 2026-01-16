@@ -2,74 +2,12 @@ import styled from "styled-components";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import SubmitButton from '../../components/SubmitButton'
+import SignUpSidebar from '../../components/SignUpSidebar'
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-`
-
-const SignUpBox = styled.div`
-  width: 29.3125rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5.56rem;
-`
-
-const SignUpTitle = styled.div`
-  padding-top: 4.56rem;
-  font-family: 'Escoredream';
-  font-size: 2rem;
-  font-weight: 500;
-`
-
-const StepContainer = styled.div`
-  width: 14.3125rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3.75rem;
-`
-
-const StepBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  gap: 1rem;
-`
-
-const StepIcon = styled.div`
-  display: flex;
-  width: 3.125rem;
-  height: 3.125rem;
-  padding: 0.75rem 1.1875rem 0.5625rem 1rem;
-  box-sizing: border-box;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: #002D56;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 500;
-  aspect-ratio: 1/1;
-`
-
-const StepContent = styled.div`
-  width: 10.375rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.81rem;
-`
-
-const StepTitle = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
-`
-
-const StepDetail = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
 `
 
 const ContentContainer = styled.div`
@@ -166,44 +104,16 @@ const SignUp2 = () => {
   const [selected, setSelected] = useState<"global" | "seoul" | null>("global");
   const navigate = useNavigate();
 
+  const steps = [
+    { number: 1, detail: "기본 정보 입력" },
+    { number: 2, detail: "학교 이메일 인증" },
+    { number: 3, detail: "언어 & 국적" },
+    { number: 4, detail: "나를 소개하는 키워드 선택" },
+  ];
+
   return (
     <Container>
-      <SignUpBox>
-        <SignUpTitle>회원가입</SignUpTitle>
-        <StepContainer>
-          <StepBox>
-            <StepIcon>1</StepIcon>
-            <StepContent>
-              <StepTitle>Step 1</StepTitle>
-              <StepDetail>기본 정보 입력</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>2</StepIcon>
-            <StepContent>
-              <StepTitle>Step 2</StepTitle>
-              <StepDetail>학교 이메일 인증</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>3</StepIcon>
-            <StepContent>
-              <StepTitle>Step 3</StepTitle>
-              <StepDetail>언어 & 국적</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>4</StepIcon>
-            <StepContent>
-              <StepTitle>Step 4</StepTitle>
-              <StepDetail>나를 소개하는 키워드 선택</StepDetail>
-            </StepContent>
-          </StepBox>
-        </StepContainer>
-      </SignUpBox>
+      <SignUpSidebar steps={steps} currentStep={2} />
 
       <ContentContainer>
           <ContentTitle>02 학교 이메일로 인증해주세요 </ContentTitle>

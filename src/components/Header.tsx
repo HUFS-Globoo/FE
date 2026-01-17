@@ -68,10 +68,15 @@ export default function Header() {
   
 
     const handleLogout = async () => {
+      const refreshToken = localStorage.getItem("refreshToken");
+      
       try {
-        await axiosInstance.post("/api/auth/logout");
+        await axiosInstance.post("/api/auth/logout", {
+          refreshToken: refreshToken
+        });
         alert("로그아웃되었습니다.");
       } catch (e) {
+        console.error("로그아웃 처리 중 문제가 발생했습니다.", e);
         alert("로그아웃 처리 중 문제가 발생했습니다.");
       } finally {
         localStorage.clear();

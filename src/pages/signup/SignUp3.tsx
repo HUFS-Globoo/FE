@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SubmitButton from '../../components/SubmitButton';
 import { useSignup } from "../../contexts/SignupContext";
 import SignUpSidebar from '../../components/SignUpSidebar';
+import axiosInstance from "../../../axiosInstance";
 
 const Container = styled.div`
   width: 100%;
@@ -126,9 +127,13 @@ const SignUp3 = () => {
   const [prefLangOpen, setPrefLangOpen] = useState(false);
   const [nationalityOpen, setNationalityOpen] = useState(false);
   
-  const handleNext = () => {
-
-
+  const handleNext = async () => {
+    const onboardingToken = localStorage.getItem("onboardingToken");
+    
+    if (!onboardingToken) {
+      alert("인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.");
+      return;
+    }
 
     const updatedData = {
       ...signupData,
@@ -137,9 +142,43 @@ const SignUp3 = () => {
       nationalityCode: nationMap[nationality] ?? "KR",  
     };
 
-  setSignupData(updatedData);
-  console.log("Step3 저장된 데이터:", updatedData); 
-  navigate("/signup/step4");
+    setSignupData(updatedData);
+
+    try {
+      // 요청 데이터 구성
+      const requestData = {
+        nationalityCode: nationMap[nationality] ?? "KR",
+        nativeLanguageCode: langMap[useLang] ?? "ko",
+        preferredLanguageCode: langMap[prefLang] ?? "ko",
+      };
+
+      // 요청 데이터 콘솔 출력
+      console.log("Step3 API 요청 데이터:", requestData);
+      console.log("온보딩 토큰:", onboardingToken);
+      console.log("Authorization 헤더:", `Bearer ${onboardingToken}`);
+
+      // onboardingToken을 헤더에 넣어 step3 API 호출
+      const response = await axiosInstance.post(
+        "/api/onboarding/step3",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${onboardingToken}`,
+          },
+          timeout: 30000, // 30초
+        }
+      );
+
+      if (response.data) {
+        console.log("Step3 저장 완료:", response.data);
+        navigate("/signup/step4");
+      } else {
+        alert("저장에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error: any) {
+      console.error("Step3 저장 실패:", error.response?.data || error.message || error);
+      alert(error.response?.data?.message || "저장 중 오류가 발생했습니다.");
+    }
   };
 
   const steps = [

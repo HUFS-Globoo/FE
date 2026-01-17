@@ -216,7 +216,6 @@ function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => 
 export default function SignUp1() {
   const navigate = useNavigate();
   const { signupData, setSignupData } = useSignup();
-  const [campus, setCampus] = useState<"GLOBAL" | "SEOUL">("GLOBAL");
 
   const steps = [
     { number: 1, detail: "기본 정보 입력" },
@@ -228,7 +227,6 @@ export default function SignUp1() {
   const handleNext = () => {
     const updatedData = {
       ...signupData,
-      campus: campus || "SEOUL",
       gender: signupData.gender || "MALE",
       birthDate: signupData.birthDate || "2000-01-01",
       email: signupData.email,
@@ -250,17 +248,6 @@ export default function SignUp1() {
 
       <ContentContainer>
         <ContentTitle>01 기본 정보를 입력해주세요</ContentTitle>
-
-        <SelectContainer>
-          <Label onClick={() => setCampus("GLOBAL")}>
-            <Circle selected={campus === "GLOBAL"} />
-            글로벌
-          </Label>
-          <Label onClick={() => setCampus("SEOUL")}>
-            <Circle selected={campus === "SEOUL"} />
-            서울
-          </Label>
-        </SelectContainer>
 
         <InputContainer>
           <InputBox>
@@ -311,17 +298,6 @@ export default function SignUp1() {
             />
           </InputBox>
 
-          <InputBox>
-            <InputTitle>이메일</InputTitle>
-            <InputItem
-              type="text"
-              placeholder="likelion@hufs.ac.kr"
-              value={signupData.email || ""}
-              onChange={(e) =>
-                setSignupData({ ...signupData, email: e.target.value })
-              }
-            />
-          </InputBox>
           <Box>
             <InputWrapper>
               <BirthWrapper>

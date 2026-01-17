@@ -123,7 +123,7 @@ const SignUp4 = () => {
 
 
 
-  const { signupData, setSignupData } = useSignup();
+  const { signupData } = useSignup();
 
   const [selectedPersonality, setSelectedPersonality] = useState<string[]>(signupData.personalityKeywords || []);
   const [selectedHobby, setSelectedHobby] = useState<string[]>(signupData.hobbyKeywords || []);
@@ -138,30 +138,37 @@ const SignUp4 = () => {
   };
 
   const handleSubmit = async () => {
+    const onboardingToken = localStorage.getItem("onboardingToken");
+    
+    if (!onboardingToken) {
+      alert("인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.");
+      return;
+    }
+
     try {
-      const finalData = {
-        ...signupData,
-        mbti,
-        personalityKeywords: selectedPersonality,
-        hobbyKeywords: selectedHobby,
-        topicKeywords: selectedSubject,
-      };
-  
-      console.log("회원가입 요청 데이터:", finalData);
-  
+      // onboardingToken을 헤더에 넣어 step4 API 호출
       const response = await axiosInstance.post(
-        "/api/auth/signup",
-        JSON.stringify(finalData),
+        "/api/onboarding/step4",
+        {
+          mbti,
+          personalityKeywords: selectedPersonality,
+          hobbyKeywords: selectedHobby,
+          topicKeywords: selectedSubject,
+        },
         {
           headers: {
+            Authorization: `Bearer ${onboardingToken}`,
             "Content-Type": "application/json",
           },
-          transformRequest: [(data) => data], 
         }
       );
   
-      console.log("회원가입 성공:", response.data);
+      console.log("회원가입 완료:", response.data);
       alert("회원가입이 완료되었습니다!");
+      
+      // onboardingToken 정리
+      localStorage.removeItem("onboardingToken");
+      
       navigate("/login");
     } catch (error: any) {
       console.error("회원가입 실패:", error.response?.data || error.message || error);

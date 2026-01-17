@@ -215,6 +215,7 @@ const Mypage = () => {
     // 3) 내 정보 다시 불러오기
     const refreshed = await axiosInstance.get("/api/users/me");
     const refreshedUser = refreshed.data;
+    console.log("리셋 후 서버 profileImageUrl:", refreshedUser.profileImageUrl);
 
     // 🔹 로컬스토리지 플래그는 건드리지 않음
     // 대신, 플래그 값에 따라 보여줄 URL만 조정
@@ -260,9 +261,8 @@ const Mypage = () => {
       const formData = new FormData();
       formData.append("file", file);
   
-      await axiosInstance.post("/api/users/me/profile-image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axiosInstance.post("/api/users/me/profile-image", formData
+      );
 
       localStorage.setItem("useDefaultProfileImage", "false");
   
@@ -287,61 +287,61 @@ const Mypage = () => {
     }
   };
   // 이미지 리셋 핸들러 추가(이미지 삭제 할 수 있도록)
-   const handleProfileImageReset = async () => {
-    if (!userData) return;
+  //  const handleProfileImageReset = async () => {
+  //   if (!userData) return;
 
-    if (!window.confirm("업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?")) {
-      return;
-    }
+  //   if (!window.confirm("업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?")) {
+  //     return;
+  //   }
 
-    try {
-      // 현재 state에 있는 값들 그대로 보내고, profileImageUrl만 null로 바꿔서 보낸다.
-      const finalData = {
-        name: userData.name,
-        nickname: userData.nickname,
-        mbti: userData.mbti,
-        profileImageUrl: null, // 이미지 제거
-        infoTitle: userData.infoTitle,
-        infoContent: userData.infoContent,
-        campus: userData.campus,
-        country: userData.country,
-        email: userData.email,
-        nativeLanguages: languages.nativeCodes,
-        learnLanguages: languages.learnCodes,
-        personalityKeywords: keywords.personality,
-        hobbyKeywords: keywords.hobby,
-        topicKeywords: keywords.topic,
-      };
+  //   try {
+  //     // 현재 state에 있는 값들 그대로 보내고, profileImageUrl만 null로 바꿔서 보낸다.
+  //     const finalData = {
+  //       name: userData.name,
+  //       nickname: userData.nickname,
+  //       mbti: userData.mbti,
+  //       profileImageUrl: null, // 이미지 제거
+  //       infoTitle: userData.infoTitle,
+  //       infoContent: userData.infoContent,
+  //       campus: userData.campus,
+  //       country: userData.country,
+  //       email: userData.email,
+  //       nativeLanguages: languages.nativeCodes,
+  //       learnLanguages: languages.learnCodes,
+  //       personalityKeywords: keywords.personality,
+  //       hobbyKeywords: keywords.hobby,
+  //       topicKeywords: keywords.topic,
+  //     };
 
-      await axiosInstance.patch("/api/users/me", finalData);
+  //     await axiosInstance.patch("/api/users/me", finalData);
 
-      // 다시 내 정보 불러오기
-      const refreshed = await axiosInstance.get("/api/users/me");
-      const refreshedUser = refreshed.data;
+  //     // 다시 내 정보 불러오기
+  //     const refreshed = await axiosInstance.get("/api/users/me");
+  //     const refreshedUser = refreshed.data;
 
-      localStorage.setItem("useDefaultProfileImage", "true");
+  //     localStorage.setItem("useDefaultProfileImage", "true");
 
-      refreshedUser.profileImageUrl = null; //강제로 되돌리기(백에서 null 안줘도 프론트에서 처리)
+  //     refreshedUser.profileImageUrl = null; //강제로 되돌리기(백에서 null 안줘도 프론트에서 처리)
 
-      setUserData(refreshedUser);
-      setLanguages({
-        nativeCodes: refreshedUser.nativeLanguages || [],
-        learnCodes: refreshedUser.learnLanguages || [],
-      });
-      setKeywords({
-        personality: refreshedUser.personalityKeywords || [],
-        hobby: refreshedUser.hobbyKeywords || [],
-        topic: refreshedUser.topicKeywords || [],
-      });
+  //     setUserData(refreshedUser);
+  //     setLanguages({
+  //       nativeCodes: refreshedUser.nativeLanguages || [],
+  //       learnCodes: refreshedUser.learnLanguages || [],
+  //     });
+  //     setKeywords({
+  //       personality: refreshedUser.personalityKeywords || [],
+  //       hobby: refreshedUser.hobbyKeywords || [],
+  //       topic: refreshedUser.topicKeywords || [],
+  //     });
 
 
 
-      alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
-    } catch (error) {
-      console.error("프로필 이미지 기본이미지로 되돌리기 실패:", error);
-      alert("이미지 초기화 중 오류가 발생했습니다.");
-    }
-  };
+  //     alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
+  //   } catch (error) {
+  //     console.error("프로필 이미지 기본이미지로 되돌리기 실패:", error);
+  //     alert("이미지 초기화 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   const handlePostClick = (postId: number) => {
     navigate(`/study/${postId}`);
@@ -427,7 +427,7 @@ const Mypage = () => {
               onSave={handleProfileSave}
               onCancel={() => setIsEditMode(false)}
               onImageUpload={handleProfileImageUpload}
-              onImageReset={handleProfileImageReset} 
+              // onImageReset={handleProfileImageReset} 
             />
           );
         })()

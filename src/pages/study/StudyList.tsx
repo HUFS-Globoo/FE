@@ -527,7 +527,7 @@ useEffect(() => {
 
           <StudyListContainer>
             {studies.length === 0 && !isLoading ? (
-              <div style={{ padding: '4rem', textAlign: 'center' }}>검색 결과가 없습니다.</div>
+              <div style={{ padding: '4rem', textAlign: 'center' }}>모집하는 스터디가 없어요.</div>
             ) : (
               studies.map((study) => (
             <StudyCard 

@@ -274,6 +274,8 @@ const StudyList = () => {
           try {
             const res = await axiosInstance.get(`/api/profiles/${study.authorId}`);
 
+            console.log("[StudyList] author profile res:", res.data);
+
             return {
               ...study,
               authorCountry: res.data.country, 

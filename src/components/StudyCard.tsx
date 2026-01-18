@@ -25,6 +25,18 @@ const countryCharacterImages: { [key: string]: string } = {
   CN: ChinaProfileImg,
 };
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+
+const toAbsoluteUrl = (url: string) => {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  const normalizedBase = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${normalizedBase}${normalizedPath}`;
+};
+
+
 const CardContainer = styled.div`
   background-color: var(--white);
   border: 1px solid var(--gray);
@@ -122,6 +134,10 @@ const MoreButton = styled.span`
 
 const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardProps) => {
 
+  console.log("[StudyCard] authorProfileImageUrl:", study.authorProfileImageUrl);
+  console.log("[StudyCard] authorCountry:", authorCountry);
+
+
   const useDefaultProfile =
     typeof window !== "undefined" &&
     localStorage.getItem("useDefaultProfileImage") === "true";
@@ -146,8 +162,11 @@ const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardPr
   }
 
   const finalSrc = characterImage
-    ? characterImage.replace(/([^:]\/)\/+/g, "$1")
+    ? toAbsoluteUrl(characterImage).replace(/([^:]\/)\/+/g, "$1")
     : fallbackCharacter;
+
+  console.log("[StudyCard] finalSrc:", finalSrc);
+
   
   // 캠퍼스 
   const campusMap: { [key: string]: string } = {
@@ -182,7 +201,14 @@ const primaryLanguage = study.languages?.[0];
   return (
     <CardContainer onClick={onClick}>
       <ProfileSection>
-        <ProfileImage src={finalSrc} alt={study.authorNickname || "작성자"} />
+        <ProfileImage 
+        src={finalSrc} 
+        alt={study.authorNickname || "작성자"} 
+        onError={(e) => {
+          e.currentTarget.src = fallbackCharacter;
+  }}
+/>
+
       </ProfileSection>
       
       <ContentSection>

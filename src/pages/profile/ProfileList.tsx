@@ -213,12 +213,14 @@ const ProfileList: React.FC = () => {
     topicKeyword: "",
   });
 
-  const currentUserId = Number(localStorage.getItem("userId"));
+  const currentUserIdRaw = localStorage.getItem("userId");
+  const currentUserId = currentUserIdRaw ? Number(currentUserIdRaw) : null;
+  
   const useDefaultProfile =
     localStorage.getItem("useDefaultProfileImage") === "true";
 
 
-  // 프로필 조회 (필터 적용)
+  // 프로필 조회 (필터 적용)l  
   const fetchProfiles = async (page = 0) => {
     try {
       const params: any = { page, size: profilesPerPage };
@@ -251,6 +253,10 @@ const ProfileList: React.FC = () => {
   };
 
   const handleProfileClick = (userId: number) => {
+    if (currentUserId !== null && userId === currentUserId) {
+      navigate("/mypage");
+      return;
+    }
     navigate(`/profile/${userId}`);
   };
 

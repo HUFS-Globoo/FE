@@ -52,7 +52,6 @@ const countryCharacterImages: { [key: string]: string } = {
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
   AR: EgyptProfileImg,
-  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 
@@ -387,9 +386,8 @@ const ProfileCard = ({
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
     infoContent: infoContent || "",
-    profileImage: null,
+    profileImage: profileImageUrl || null,
   });
-
 
   useEffect(() => {
     setEditedData(prev => ({
@@ -434,8 +432,8 @@ const ProfileCard = ({
     setOpenDropdown(null);
   };
 
-  // const characterImage =
-  //   profileImageUrl || countryCharacterImages[country] || "https://via.placeholder.com/200";
+  const characterImage =
+    profileImageUrl || countryCharacterImages[country] || "https://via.placeholder.com/200";
 
 
     const extractKeywords = (keywords: any) => {
@@ -531,35 +529,17 @@ const [editedMbti, setEditedMbti] = useState(mbti);
     {
       icon: EmailIcon,
       label: "이메일",
-      value: email || "이메일은 비밀~",
+      value: email || "이메일은 비밀이에요",
       editable: false,
     },
   ];
-
-  // 2) country 정규화: 공백 제거 + 대문자 + 기본 KR
-const normalizedCountry = (country ?? "KR").trim().toUpperCase();
-
-// 3) 기본이미지 선택: 매핑 실패해도 KR로 떨어지게
-const defaultCountryImg =
-  countryCharacterImages[normalizedCountry] || KoreaProfileImg;
-
-// 4) 최종 표시 src: 업로드 이미지가 있으면 그걸, 없으면 국가 기본
-const displayImageSrc = profileImageUrl || defaultCountryImg;
-
-// 최종 이미지 src (여기에 추가)
-const imgSrc = editedData.profileImage || displayImageSrc;
-console.log("[ProfileCard] country(raw):", country);
-console.log("[ProfileCard] profileImageUrl(prop):", profileImageUrl);
-console.log("[ProfileCard] imgSrc(final):", imgSrc);
-// 해당 콘솔 나중에 지우기(서버 forbidden 이슈)
-
 
   return (
     <Card $isEditMode={isEditMode}>
       <TopSection>
       <LeftSection>
         <CharacterImage
-          src={imgSrc}
+          src={editedData.profileImage || characterImage}
           alt="프로필 이미지"
           onClick={() => {
             if (isOwner && isEditMode) {
@@ -590,13 +570,12 @@ console.log("[ProfileCard] imgSrc(final):", imgSrc);
               }));
               
             }
-              e.currentTarget.value = ""; //두번째 클릭 이슈 방지
           }}
         />
 
         {/* 이미지 리셋 버튼 추가*/}
 
-        {/* {isOwner && isEditMode && onImageReset && (
+        {isOwner && isEditMode && onImageReset && (
           <div
             style={{
               marginTop: "0.5rem",
@@ -619,7 +598,7 @@ console.log("[ProfileCard] imgSrc(final):", imgSrc);
              기본 이미지로 되돌리기
             </button>
           </div>
-        )} */}
+        )}
 
 
       <UserInfo>

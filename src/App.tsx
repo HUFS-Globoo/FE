@@ -10,6 +10,7 @@ import RandomMatch from "./pages/RandomMatch";
 
 // 회원가입 단계
 import SignUp1 from "./pages/signup/SignUp1";
+import SignUp2 from "./pages/signup/SignUp2";
 import SignUp3 from "./pages/signup/SignUp3";
 import SignUp4 from "./pages/signup/SignUp4";
 
@@ -25,6 +26,7 @@ import ProfileLanding from "./pages/profile/ProfileLanding";
 
 // 컴포넌트
 import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Context
 import { SignupProvider } from "./contexts/SignupContext";
@@ -40,24 +42,101 @@ function App() {
         {location.pathname !== "/login" && location.pathname !== "/" && <Header />}
 
         <Routes>
+          {/* 공개 페이지 (로그인 불필요) */}
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/mypage" element={<Mypage />} />
-          <Route path="/message" element={<Message />} />
-          <Route path="/random-match" element={<RandomMatch />} />
-
+          
+          {/* 회원가입 페이지 (로그인 불필요) */}
           <Route path="/signup/step1" element={<SignUp1 />} />
+          <Route path="/signup/step2" element={<SignUp2 />} />
           <Route path="/signup/step3" element={<SignUp3 />} />
           <Route path="/signup/step4" element={<SignUp4 />} />
 
-          <Route path="/study" element={<StudyList />} />
-          <Route path="/study/:id" element={<StudyDetail />} />
-          <Route path="/study/post" element={<StudyPost />} />
-          <Route path="/study/post/:id" element={<StudyPost />} />
+          {/* 보호된 페이지 (로그인 필요) - ProtectedRoute로 감싸기 */}
+          <Route 
+            path="/mypage" 
+            element={
+              <ProtectedRoute>
+                <Mypage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/message" 
+            element={
+              <ProtectedRoute>
+                <Message />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/random-match" 
+            element={
+              <ProtectedRoute>
+                <RandomMatch />
+              </ProtectedRoute>
+            } 
+          />
 
-          <Route path="/profile/landing" element={<ProfileLanding />} />
-          <Route path="/profile" element={<ProfileList />} />
-          <Route path="/profile/:userId" element={<ProfileDetail />} />
+          {/* 스터디 관련 페이지 (로그인 필요) */}
+          <Route 
+            path="/study" 
+            element={
+              <ProtectedRoute>
+                <StudyList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/study/:id" 
+            element={
+              <ProtectedRoute>
+                <StudyDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/study/post" 
+            element={
+              <ProtectedRoute>
+                <StudyPost />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/study/post/:id" 
+            element={
+              <ProtectedRoute>
+                <StudyPost />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* 프로필 관련 페이지 (로그인 필요) */}
+          <Route 
+            path="/profile/landing" 
+            element={
+              <ProtectedRoute>
+                <ProfileLanding />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfileList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile/:userId" 
+            element={
+              <ProtectedRoute>
+                <ProfileDetail />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </SignupProvider>
     </>

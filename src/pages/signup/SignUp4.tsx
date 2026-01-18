@@ -4,74 +4,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance";
 import { useSignup } from "../../contexts/SignupContext";
+import SignUpSidebar from '../../components/SignUpSidebar';
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-`
-
-const SignUpBox = styled.div`
-  width: 29.3125rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5.56rem;
-`
-
-const SignUpTitle = styled.div`
-  padding-top: 4.56rem;
-  font-family: 'Escoredream';
-  font-size: 2rem;
-  font-weight: 500;
-`
-
-const StepContainer = styled.div`
-  width: 14.3125rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3.75rem;
-`
-
-const StepBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  gap: 1rem;
-`
-
-const StepIcon = styled.div`
-  display: flex;
-  width: 3.125rem;
-  height: 3.125rem;
-  padding: 0.75rem 1.1875rem 0.5625rem 1rem;
-  box-sizing: border-box;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: #002D56;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 500;
-  aspect-ratio: 1/1;
-`
-
-const StepContent = styled.div`
-  width: 10.375rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.81rem;
-`
-
-const StepTitle = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
-`
-
-const StepDetail = styled.div`
-  font-size: 0.875rem;
-  font-weight: 300;
 `
 
 const ContentContainer = styled.div`
@@ -171,72 +109,6 @@ const KeywordItem = styled.div`
 
 `
 
-const ModalContainer = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); 
-  width: 43.25rem;
-  height: 22.375rem; 
-  padding: 0 3.875rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white; 
-  border-radius: 1rem; 
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  z-index: 10000;
-`;
-
- const CodeInputContainer = styled.div`
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 1.06rem;
-`
-const CodeInputBox = styled.div`
-  display: flex;
-  height: 4.5rem;
-  border-bottom: 0.0625rem solid #ABABAB;
-  box-sizing: border-box;
-`
-
-const CodeInputTitle = styled.div`
-  width: 10.25rem;
-  padding-left: 0.69rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-`
-const CodeInputItem = styled.input`
-  border: none;
-  width: 9.88rem;
-  &::placeholder {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #B1B1B1;
-  }
-
-  &:focus {
-    outline: none; 
-  }
-`
-const VerificationButton = styled.div`
-  display: flex;
-  width: 7.69rem;
-  height: 2.44rem;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.75rem;
-  background-color: var(--primary);
-  color: var(--white);
-`
-const ButtonWraaper = styled.div`
-display: flex;
-flex-direction: row;
-gap: 2rem;
-`
-
 const SignUp4 = () => {
 
   const navigate = useNavigate();
@@ -251,10 +123,7 @@ const SignUp4 = () => {
 
 
 
-  const { signupData, setSignupData } = useSignup();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [verificationCode, setVerificationCode] = useState(""); 
-  const [isVerified, setIsVerified] = useState(false);
+  const { signupData } = useSignup();
 
   const [selectedPersonality, setSelectedPersonality] = useState<string[]>(signupData.personalityKeywords || []);
   const [selectedHobby, setSelectedHobby] = useState<string[]>(signupData.hobbyKeywords || []);
@@ -269,31 +138,38 @@ const SignUp4 = () => {
   };
 
   const handleSubmit = async () => {
+    const onboardingToken = localStorage.getItem("onboardingToken");
+    
+    if (!onboardingToken) {
+      alert("인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.");
+      return;
+    }
+
     try {
-      const finalData = {
-        ...signupData,
-        mbti,
-        personalityKeywords: selectedPersonality,
-        hobbyKeywords: selectedHobby,
-        topicKeywords: selectedSubject,
-      };
-  
-      console.log("회원가입 요청 데이터:", finalData);
-  
+      // onboardingToken을 헤더에 넣어 step4 API 호출
       const response = await axiosInstance.post(
-        "/api/auth/signup",
-        JSON.stringify(finalData),
+        "/api/onboarding/step4",
+        {
+          mbti,
+          personalityKeywords: selectedPersonality,
+          hobbyKeywords: selectedHobby,
+          topicKeywords: selectedSubject,
+        },
         {
           headers: {
+            Authorization: `Bearer ${onboardingToken}`,
             "Content-Type": "application/json",
           },
-          transformRequest: [(data) => data], 
         }
       );
   
-      console.log("회원가입 성공:", response.data);
-     
-      setIsModalOpen(true);
+      console.log("회원가입 완료:", response.data);
+      alert("회원가입이 완료되었습니다!");
+      
+      // onboardingToken 정리
+      localStorage.removeItem("onboardingToken");
+      
+      navigate("/login");
     } catch (error: any) {
       console.error("회원가입 실패:", error.response?.data || error.message || error);
       alert(
@@ -302,91 +178,18 @@ const SignUp4 = () => {
       );
     }
   };
-  
-  const handleVerifyCode = async () => {
-    if (!verificationCode.trim()) {
-      alert("인증번호를 입력해주세요!");
-      return;
-    }
 
-    try {
-      const verifyData = {
-        email: signupData.email, 
-        code: verificationCode,  
-      };
 
-      console.log("인증 요청 데이터:", verifyData);
-
-      const res = await axiosInstance.post("/api/auth/verify-code", verifyData);
-
-      if (res.data.verified) {
-        alert("이메일 인증이 완료되었습니다!");
-        setIsVerified(true);
-        setIsModalOpen(false);
-        navigate("/login"); 
-      } else {
-        alert("인증에 실패했습니다. 코드를 다시 확인해주세요.");
-      }
-    } catch (error: any) {
-      console.error("인증 실패:", error.response?.data || error.message || error);
-      alert(error.response?.data?.message || "인증 중 오류가 발생했습니다.");
-    }
-  };
-  
-
-const handleResendCode = async () => {
-  try {
-    const resendData = {
-      email: signupData.email, 
-    };
-
-    console.log("인증번호 재전송 요청 데이터:", resendData);
-
-    const res = await axiosInstance.post("/api/auth/verification/resend", resendData);
-
-    if (res.data.ok) {
-      alert("인증번호가 재전송되었습니다. 메일함을 다시 확인해주세요!");
-    } else {
-      alert("재전송에 실패했습니다. 다시 시도해주세요.");
-    }
-  } catch (error: any) {
-    console.error("인증번호 재전송 실패:", error.response?.data || error.message || error);
-    alert(error.response?.data?.message || "인증번호 재전송 중 오류가 발생했습니다.");
-  }
-};
-
+  const steps = [
+    { number: 1, detail: "기본 정보 입력" },
+    { number: 2, detail: "학교 이메일 인증" },
+    { number: 3, detail: "언어 & 국적" },
+    { number: 4, detail: "나를 소개하는 키워드 선택" },
+  ];
 
   return (
     <Container>
-      <SignUpBox>
-        <SignUpTitle>회원가입</SignUpTitle>
-        <StepContainer>
-          <StepBox>
-            <StepIcon>1</StepIcon>
-            <StepContent>
-              <StepTitle>Step 1</StepTitle>
-              <StepDetail>기본 정보 입력</StepDetail>
-            </StepContent>
-          </StepBox>
-
-
-          <StepBox>
-            <StepIcon>2</StepIcon>
-            <StepContent>
-              <StepTitle>Step 2</StepTitle>
-              <StepDetail>언어 & 국적</StepDetail>
-            </StepContent>
-          </StepBox>
-
-          <StepBox>
-            <StepIcon>3</StepIcon>
-            <StepContent>
-              <StepTitle>Step 3</StepTitle>
-              <StepDetail>나를 소개하는 키워드 선택</StepDetail>
-            </StepContent>
-          </StepBox>
-        </StepContainer>
-      </SignUpBox>
+      <SignUpSidebar steps={steps} currentStep={4} />
 
       <ContentContainer>
           <ContentTitle>03 나를 소개하는 키워드를 선택해주세요 </ContentTitle>
@@ -471,35 +274,6 @@ const handleResendCode = async () => {
           </InputContainer>
           <SubmitButton onClick={handleSubmit} /> 
       </ContentContainer>
-
-      {isModalOpen && (
-      <ModalContainer>
-        <CodeInputContainer>
-          <p>이메일로 인증번호가 갔습니다!</p>
-          <CodeInputBox>
-            <CodeInputTitle className="Body1">인증 번호</CodeInputTitle>
-            <CodeInputItem
-                type="text"
-                placeholder="인증번호를 입력하세요"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)} 
-              />
-          </CodeInputBox>
-
-          <ButtonWraaper>
-            <VerificationButton className="Button2" onClick={handleVerifyCode}>
-              인증번호 확인
-            </VerificationButton>
-            <VerificationButton className="Button2" onClick={handleResendCode} >
-              인증번호 재전송
-            </VerificationButton>
-          </ButtonWraaper>
-
-        </CodeInputContainer>
-      </ModalContainer>
-      )}
-     
-
     </Container>
   );
 };

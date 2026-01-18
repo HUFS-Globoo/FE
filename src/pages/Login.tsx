@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import CharacterBlur from "../assets/character-blur.svg";
 import { useState } from "react";
@@ -7,8 +7,10 @@ import axiosInstance from "../../axiosInstance";
 
 const Container = styled.div`
   width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: row;
+  overflow: hidden;
 `
 
 const IntroContainer = styled.div`
@@ -21,6 +23,8 @@ const IntroContainer = styled.div`
   //justify-content: center;
   padding-top: 8rem;
   align-items: center;
+  overflow-y: auto;
+  flex-shrink: 0;
 `
 
 const MainCharacter = styled.img`
@@ -48,6 +52,8 @@ const LoginContainer = styled.div`
   gap: 4.56rem;
   padding-left: 11rem;
   padding-top: 12rem;
+  overflow-y: auto;
+  min-width: 0;
 `
 
 const LoginTitle = styled.div`
@@ -115,10 +121,10 @@ const SignUpContent = styled.div`
 const Login = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
- 
 
   const handleLogin = async () => {
     if (!username || !email || !password) {
@@ -141,16 +147,30 @@ const Login = () => {
 
       alert("로그인 성공!");
       console.log("로그인 응답:", response);
-      navigate("/");
+      
+      /**
+       * 로그인 성공 후 리다이렉트 처리
+       * 
+       * location.state?.from: ProtectedRoute에서 전달한 원래 접근하려던 페이지 경로
+       * 예: /mypage, /message, /study 등
+       * 
+       * 만약 from이 없으면 (직접 로그인 페이지로 온 경우) 메인 페이지(/)로 이동
+       */
+      const from = (location.state as { from?: string })?.from || "/";
+      navigate(from);
     } catch (error: any) {
       console.error("로그인 실패:", error);
+
+      const errorMessage = error.response?.data?.message || "";
+
       if (error.response?.status === 401) {
         alert("아이디 또는 비밀번호가 올바르지 않습니다.");
       } else {
-        alert("로그인 중 오류가 발생했습니다.");
+        alert(errorMessage || "로그인 중 오류가 발생했습니다.");
       }
     }
   };
+
 
 
   return (
@@ -189,7 +209,10 @@ const Login = () => {
           </InputBox>
           <SumbitContainer>
             <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
-            <SignUpContent onClick={() => navigate("/signup/step1")}>회원이 아니신가요? <span style={{color:"var(--primary)", cursor:"pointer"}} >회원가입</span></SignUpContent>
+            <SignUpContent onClick={() => navigate("/signup/step1")}>
+              회원이 아니신가요?{" "}
+              <span style={{color:"var(--primary)", cursor:"pointer"}} >회원가입</span>
+            </SignUpContent>
           </SumbitContainer>
           
         </InputContainer>

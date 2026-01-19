@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
+import type { KeywordItem } from "../types/mypage&profile.types";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
 import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
@@ -9,7 +10,6 @@ import EditIcon from "../assets/ic-edit.svg";
 import CampusIcon from "../assets/ic-campus.svg";
 import LanguageIcon from "../assets/ic-language-tag.svg";
 import EmailIcon from "../assets/ic-email.svg";
-
 
 interface ProfileCardProps {
   userId?: number;
@@ -24,12 +24,8 @@ interface ProfileCardProps {
 
 
   keywords:
-    | {
-        personalityKeywords?: string[];
-        hobbyKeywords?: string[];
-        topicKeywords?: string[];
-      }
-    | Array<{ id?: number; name: string }>
+    | { personalityKeywords?: string[]; hobbyKeywords?: string[]; topicKeywords?: string[] }
+    | KeywordItem[]
     | string[];
 
   campus: "GLOBAL" | "SEOUL";
@@ -436,42 +432,47 @@ const ProfileCard = ({
     profileImageUrl || countryCharacterImages[country] || "https://via.placeholder.com/200";
 
 
-    const extractKeywords = (keywords: any) => {
-      if (!keywords || typeof keywords !== "object") return [];
-    
-      return [
-        ...(keywords.personalityKeywords || []),
-        ...(keywords.hobbyKeywords || []),
-        ...(keywords.topicKeywords || []),
-      ];
-    };
+type ChipCategory = "PERSONALITY" | "HOBBY" | "TOPIC" | "DEFAULT";
 
-    const flatKeywords = extractKeywords(keywords);
-    
-    const processedKeywords = flatKeywords.map((name: string) => {
-      const personalityList = [
-        "활발한", "솔직한", "차분한", "유쾌한", "친절한",
-        "도전적", "신중한", "긍정적", "냉정한", "열정적인"
-      ];
-    
-      const hobbyList = [
-        "영화 시청", "음악 감상", "요리", "독서", "카페가기",
-        "운동", "산책", "사진 촬영", "게임", "여행",
-      ];
-    
-      const topicList = [
-        "음악", "아이돌", "패션/뷰티", "스포츠", "영화/드라마",
-        "공부", "자기계발", "책", "환경", "동물"
-      ];
-    
-      let category = "DEFAULT";
-      if (personalityList.includes(name)) category = "PERSONALITY";
-      else if (hobbyList.includes(name)) category = "HOBBY";
-      else if (topicList.includes(name)) category = "TOPIC";
-    
-      return { name, category };
-    });
+const normalizeKeywords = (
+  keywords: ProfileCardProps["keywords"]
+): { name: string; category: ChipCategory }[] => {
+  if (!keywords) return [];
 
+  // 1) object 그룹형: { personalityKeywords, hobbyKeywords, topicKeywords }
+  if (!Array.isArray(keywords)) {
+    return [
+      ...(keywords.personalityKeywords ?? []).map((name) => ({
+        name,
+        category: "PERSONALITY" as const,
+      })),
+      ...(keywords.hobbyKeywords ?? []).map((name) => ({
+        name,
+        category: "HOBBY" as const,
+      })),
+      ...(keywords.topicKeywords ?? []).map((name) => ({
+        name,
+        category: "TOPIC" as const,
+      })),
+    ];
+  }
+
+  // 2) string[] or KeywordItem[]
+  return keywords
+    .map((k) => {
+      if (typeof k === "string") {
+        return { name: k, category: "DEFAULT" as const };
+      }
+      // KeywordItem
+      return {
+        name: k.name,
+        category: (k.category ?? "DEFAULT") as ChipCategory,
+      };
+    })
+    .filter((k) => k.name);
+};
+
+const processedKeywords = normalizeKeywords(keywords);
 
 
 const [isEditingMbti, setIsEditingMbti] = useState(false);
@@ -678,7 +679,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
                 <Tag
                   key={index}
                   $category={keyword.category}
-                  className="Body2"
+                  className="Body3"
                 >
                   # {keyword.name}
                 </Tag>

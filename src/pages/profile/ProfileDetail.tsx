@@ -143,7 +143,7 @@ const ProfileDetail = () => {
           profileImageUrl: profileImageUrl, 
           introTitle: data.infoTitle,
           introContent: data.infoContent,
-          keywords: data.keywords.map((k: any) => k.name),
+          keywords: data.keywords,
           languages: {
             native: data.nativeLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),
             learn: data.learnLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),

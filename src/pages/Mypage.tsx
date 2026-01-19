@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
@@ -61,38 +61,45 @@ const Mypage = () => {
     Object.entries(LANGUAGE_MAP).map(([k, v]) => [v, k])
   );
 
-  useEffect(() => {
-    const fetchUserData = async () => {
+  const fetchMyKeywords = useCallback(async () => {
       try {
-        const res = await axiosInstance.get("/api/users/me");
-        const user = res.data;
+        const res = await axiosInstance.get("/api/users/me/keywords");
+        const kw = res.data;
 
-         const useDefaultProfile =
-          localStorage.getItem("useDefaultProfileImage") === "true";
-
-        if (useDefaultProfile) {
-          user.profileImageUrl = null;
-        }
-
-        setUserData(user);
-
-        setLanguages({
-          nativeCodes: user.nativeLanguages || [],
-          learnCodes: user.learnLanguages || [],
-        });
         setKeywords({
-          personality: user.personalityKeywords || [],
-          hobby: user.hobbyKeywords || [],
-          topic: user.topicKeywords || [],
+          personality: kw.personality ?? [],
+          hobby: kw.hobby ?? [],
+          topic: kw.topic ?? [],
         });
 
-        console.log("내 정보:", user);
+        console.log("내 키워드:", kw);
       } catch (error) {
-        console.error("마이페이지 데이터 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("내 키워드 조회 실패:", error);
       }
-    };
+    }, []);
+    
+  useEffect(() => {
+
+    const fetchUserData = async () => {
+    try {
+      const res = await axiosInstance.get("/api/users/me");
+      const user = res.data;
+
+      const useDefaultProfile =
+        localStorage.getItem("useDefaultProfileImage") === "true";
+      if (useDefaultProfile) user.profileImageUrl = null;
+
+      setUserData(user);
+      setLanguages({
+        nativeCodes: user.nativeLanguages || [],
+        learnCodes: user.learnLanguages || [],
+      });
+
+      console.log("내 정보:", user);
+    } catch (error) {
+      console.error("마이페이지 데이터 조회 실패:", error);
+    }
+  };
 
     const fetchMyPosts = async () => {
       try {
@@ -168,10 +175,19 @@ const Mypage = () => {
       }
     };
 
-    fetchUserData();
-    fetchMyPosts();
-    fetchMyComments();
-  }, []);
+    (async () => {
+    try {
+      await Promise.all([
+        fetchUserData(),
+        fetchMyKeywords(),
+        fetchMyPosts(),
+        fetchMyComments(),
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  })();
+}, [fetchMyKeywords]);
 
  const handleProfileSave = async (updatedData: any) => {
   try {
@@ -185,10 +201,6 @@ const Mypage = () => {
       campus: updatedData.campus || userData.campus,
       country: updatedData.country || userData.country,
       email: userData.email,
-      personalityKeywords:
-        updatedData.personalityKeywords || keywords.personality,
-      hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
-      topicKeywords: updatedData.topicKeywords || keywords.topic,
     };
 
     // 🔹 profileImageUrl은 여기서 아예 안 보냄
@@ -240,11 +252,7 @@ const Mypage = () => {
       learnCodes: refreshedUser.learnLanguages || [],
     });
 
-    setKeywords({
-      personality: refreshedUser.personalityKeywords || [],
-      hobby: refreshedUser.hobbyKeywords || [],
-      topic: refreshedUser.topicKeywords || [],
-    });
+    await fetchMyKeywords();
 
     setIsEditMode(false);
   } catch (error) {
@@ -252,7 +260,7 @@ const Mypage = () => {
     alert("프로필 수정 중 오류가 발생했습니다.");
   }
 };
-  
+
   
 
   // 프로필 이미지 업로드

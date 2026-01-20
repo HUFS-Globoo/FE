@@ -34,6 +34,24 @@ import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 import axiosInstance from "../../../axiosInstance";
 
+const BASE_URL = axiosInstance.defaults.baseURL || "";
+
+const toAbsoluteUrl = (url: string) => {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  const normalizedBase = BASE_URL.endsWith("/")
+    ? BASE_URL.slice(0, -1)
+    : BASE_URL;
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${normalizedBase}${normalizedPath}`;
+};
+
+const normalizeImageUrl = (url: string | null) => {
+  if (!url) return null;
+  return toAbsoluteUrl(url).replace(/([^:]\/)\/+/g, "$1");
+};
+
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -495,36 +513,28 @@ useEffect(() => {
 
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
-    const authorCountryCode =
-  (studyData as any).authorCountry ||
-  (studyData as any).authorNation ||
-  userMe?.country; // 없으면 내 country라도 사용
+    const authorCountryCode = studyData.authorCountry;
 
     const fallbackCharacter =
-  (authorCountryCode &&
-    countryCharacterImages[
-      authorCountryCode as keyof typeof countryCharacterImages
-    ]) ||
-  KoreaProfileImg;
+      (authorCountryCode &&
+        countryCharacterImages[
+          authorCountryCode as keyof typeof countryCharacterImages
+        ]) ||
+      KoreaProfileImg;
 
-  let characterImage = fallbackCharacter;
+    let characterImage: string | null = fallbackCharacter;
 
-  if (isAuthor) {
-  if (useDefaultProfile || !userMe?.profileImageUrl) {
-    // 기본이미지 모드 → fallback 사용
-    characterImage = fallbackCharacter;
-  } else if (userMe.profileImageUrl) {
-    characterImage = userMe.profileImageUrl;
-  }
-} else if (studyData.authorProfileImageUrl) {
-  // 남이 쓴 글이면 서버에서 온 authorProfileImageUrl 그대로
-  characterImage = studyData.authorProfileImageUrl;
-}
+    if (isAuthor) {
+      if (useDefaultProfile || !userMe?.profileImageUrl) {
+        characterImage = fallbackCharacter;
+      } else if (userMe.profileImageUrl) {
+        characterImage = userMe.profileImageUrl;
+      }
+    } else if (studyData.authorProfileImageUrl) {
+      characterImage = studyData.authorProfileImageUrl;
+    }
 
-  // 혹시 모르니 슬래시 정리
-  if (characterImage) {
-  characterImage = characterImage.replace(/([^:]\/)\/+/g, "$1");
-}
+    const finalAuthorImage = normalizeImageUrl(characterImage) || fallbackCharacter;
 
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
@@ -615,7 +625,13 @@ useEffect(() => {
                     <StudyDetailCard>
                         <StudyHeader>
                             <StudyAuthorSection>
-                                <StudyAuthorImage src={characterImage} alt="작성자" />
+                                <StudyAuthorImage
+                                  src={finalAuthorImage}
+                                  alt="작성자"
+                                  onError={(e) => {
+                                    e.currentTarget.src = fallbackCharacter;
+                                  }}
+                                />
                                 <AuthorName className="H4">
                                     {studyData.authorNickname}
                                 </AuthorName>

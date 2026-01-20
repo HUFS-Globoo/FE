@@ -169,6 +169,13 @@ const CommentTag = styled.span`
 const OriginalPostTitle = styled.h4`
   margin: 0 0 1rem 0;
   color: var(--black);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--primary);
+    text-decoration: underline;
+  }
 `;
 
 const CommentContent = styled.p`
@@ -208,10 +215,12 @@ const CommentList = ({
   comments,
   onCommentEdit,
   onCommentDelete,
+  onPostClick,
 }: {
   comments: Comment[];
   onCommentEdit: (commentId: number, postId: number, content: string) => void;
   onCommentDelete: (commentId: number, postId: number) => void;
+  onPostClick: (postId: number) => void;
 }) => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<string>("");
@@ -244,7 +253,10 @@ const CommentList = ({
               </CommentTags>
             </CommentHeader>
             
-            <OriginalPostTitle className="H4">
+            <OriginalPostTitle 
+              className="H4"
+              onClick={() => onPostClick(comment.postId)}
+            >
               {comment.postTitle}
             </OriginalPostTitle>
             
@@ -385,6 +397,7 @@ const ActivityTabs = ({ activeTab,
         comments={comments}
     onCommentEdit={onCommentEdit}
     onCommentDelete={onCommentDelete}
+    onPostClick={onPostClick}
         />
       )}
     </Container>

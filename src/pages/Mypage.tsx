@@ -127,47 +127,29 @@ const Mypage = () => {
 
     const fetchMyComments = async () => {
       try {
-        const res = await axiosInstance.get("/api/users/me/comments");
-        const data = res.data as any[];
+        const res = await axiosInstance.get("/api/users/me/study-comments");
+        // API 응답 구조: { success: true, message: "Success", data: [...] }
+        const data = res.data.data || res.data || [];
 
-        const mapped: Comment[] = await Promise.all(
-          data.map(async (comment) => {
-            try {
-              const postRes = await axiosInstance.get(
-                `/api/studies/${comment.postId}`
-              );
-              const post = postRes.data.data;
+        const mapped: Comment[] = data.map((comment: any) => {
+          const study = comment.study || {};
+          
+          const tags = [
+            ...(study.campuses || []),
+            ...(study.languages || []),
+          ];
 
-              const tags = [
-                ...(post.campuses || []),
-                ...(post.languages || []),
-              ];
-
-              return {
-                id: comment.id,
-                postId: comment.postId,
-                postTitle: post.title,
-                content: comment.content,
-                status: post.status as "모집중" | "마감",
-                currentParticipants: post.currentParticipants,
-                maxParticipants: post.capacity,
-                tags,
-              } as Comment;
-            } catch (e) {
-              console.error(
-                `댓글 ${comment.id}의 게시글 정보 조회 실패:`,
-                e
-              );
-
-              return {
-                id: comment.id,
-                postId: comment.postId,
-                postTitle: "(게시글 정보를 가져오지 못했습니다)",
-                content: comment.content,
-              } as Comment;
-            }
-          })
-        );
+          return {
+            id: comment.commentId,
+            postId: study.postId,
+            postTitle: study.title || "(제목 없음)",
+            content: comment.content,
+            status: study.status as "모집중" | "마감",
+            currentParticipants: study.currentParticipants || 0,
+            maxParticipants: study.capacity || 0,
+            tags,
+          } as Comment;
+        });
 
         setMyComments(mapped);
       } catch (error) {

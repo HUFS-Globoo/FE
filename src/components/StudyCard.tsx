@@ -11,7 +11,6 @@ interface StudyCardProps {
   study: StudyItem;
   onClick?: () => void;
   currentUserId?: number;
-  authorCountry?: string;
 }
 
 // 국가별 캐릭터 이미지 매핑
@@ -132,17 +131,17 @@ const MoreButton = styled.span`
   }
 `;
 
-const StudyCard = ({ study, onClick, currentUserId, authorCountry }: StudyCardProps) => {
+const StudyCard = ({ study, onClick, currentUserId }: StudyCardProps) => {
 
   console.log("[StudyCard] authorProfileImageUrl:", study.authorProfileImageUrl);
-  console.log("[StudyCard] authorCountry:", authorCountry);
+  console.log("[StudyCard] authorCountry:", study.authorCountry);
 
 
   const useDefaultProfile =
     typeof window !== "undefined" &&
     localStorage.getItem("useDefaultProfileImage") === "true";
 
-  const authorCountryCode = authorCountry ?? null;
+  const authorCountryCode = study.authorCountry ?? null;
   const fallbackCharacter =
     (authorCountryCode &&
       countryCharacterImages[

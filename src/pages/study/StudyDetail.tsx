@@ -295,35 +295,12 @@ const fetchComments = useCallback(async () => {
     const res = await axiosInstance.get(`/api/study/posts/${studyId}/comments`);
     const rawComments = res.data.content;
 
-    const commentsWithAuthorInfo = await Promise.all(
-      rawComments.map(async (comment: any) => {
-        try {
-          // ⬇⬇⬇ 이게 정확한 댓글 작성자 정보 API 
-          const profileRes = await axiosInstance.get(`/api/profiles/${comment.author.id}`);
+    // 디버깅: API 응답 구조 확인
+    console.log("댓글 API 응답:", res.data);
+    console.log("첫 번째 댓글 author 구조:", rawComments[0]?.author);
 
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: profileRes.data.country,
-              profileImageUrl: profileRes.data.profileImageUrl,
-            },
-          };
-        } catch (e) {
-          console.error("댓글 작성자 정보 조회 실패:", comment.author.id, e);
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: "KR",
-              profileImageUrl: null,
-            },
-          };
-        }
-      })
-    );
-
-    setComments(commentsWithAuthorInfo);
+    // 백엔드에서 이미 author.country를 포함하여 응답하므로 추가 API 호출 불필요
+    setComments(rawComments);
 
   } catch (e) {
     console.error("댓글 조회 실패:", e);

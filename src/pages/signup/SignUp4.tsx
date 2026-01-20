@@ -89,6 +89,17 @@ const Option = styled.div`
 const KeywordContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+`
+
+const ErrorMessage = styled.div`
+  color: #ff4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fff5f5;
+  border-radius: 0.5rem;
+  border: 1px solid #ffcccc;
 `
 
 const KeywordBox = styled.div`
@@ -133,8 +144,21 @@ const SignUp4 = () => {
     if (current.includes(keyword)) {
       setState(current.filter((item) => item !== keyword));
     } else {
+      // 5개 초과 선택 방지
+      if (current.length >= 5) {
+        alert("키워드는 3-5개 선택해주세요.");
+        return;
+      }
       setState([...current, keyword]);
     }
+  };
+
+  const validateKeywords = (keywords: string[], keywordType: string): boolean => {
+    if (keywords.length < 3 || keywords.length > 5) {
+      alert("키워드는 3-5개 선택해주세요.");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async () => {
@@ -142,6 +166,17 @@ const SignUp4 = () => {
     
     if (!onboardingToken) {
       alert("인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.");
+      return;
+    }
+
+    // 키워드 유효성 검증 (각 키워드 타입별로 3-5개 범위 확인)
+    if (!validateKeywords(selectedPersonality, "성격")) {
+      return;
+    }
+    if (!validateKeywords(selectedHobby, "취미")) {
+      return;
+    }
+    if (!validateKeywords(selectedSubject, "주제")) {
       return;
     }
 
@@ -220,7 +255,7 @@ const SignUp4 = () => {
               </SelectedBox>
             </MbtiInputContainer>
             <KeywordContainer>
-            <p style={{ fontSize: "1.25rem" }}>자신의 성격에 맞는 키워드를 선택해주세요</p>
+            <p style={{ fontSize: "1.25rem" }}>자신의 성격에 맞는 키워드를 선택해주세요 <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>(3-5개 선택)</span></p>
             <KeywordBox>
               {personality.map((persona) => (
                 <KeywordItem
@@ -237,7 +272,7 @@ const SignUp4 = () => {
               ))}
             </KeywordBox>
 
-            <p style={{ fontSize: "1.25rem" }}>관심있는 취미를 선택해주세요</p>
+            <p style={{ fontSize: "1.25rem" }}>관심있는 취미를 선택해주세요 <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>(3-5개 선택)</span></p>
             <KeywordBox>
               {hobbis.map((hobby) => (
                 <KeywordItem
@@ -254,7 +289,7 @@ const SignUp4 = () => {
               ))}
             </KeywordBox>
 
-            <p style={{ fontSize: "1.25rem" }}>관심있는 주제를 선택해주세요</p>
+            <p style={{ fontSize: "1.25rem" }}>관심있는 주제를 선택해주세요 <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>(3-5개 선택)</span></p>
             <KeywordBox>
               {subjects.map((subject) => (
                 <KeywordItem

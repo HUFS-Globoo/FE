@@ -34,24 +34,6 @@ import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 import axiosInstance from "../../../axiosInstance";
 
-const BASE_URL = axiosInstance.defaults.baseURL || "";
-
-const toAbsoluteUrl = (url: string) => {
-  if (!url) return url;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-
-  const normalizedBase = BASE_URL.endsWith("/")
-    ? BASE_URL.slice(0, -1)
-    : BASE_URL;
-  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
-  return `${normalizedBase}${normalizedPath}`;
-};
-
-const normalizeImageUrl = (url: string | null) => {
-  if (!url) return null;
-  return toAbsoluteUrl(url).replace(/([^:]\/)\/+/g, "$1");
-};
-
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -60,6 +42,24 @@ const countryCharacterImages: { [key: string]: string } = {
     IT: ItalyProfileImg,
     AR: EgyptProfileImg,
     CN: ChinaProfileImg,
+};
+
+// vite 환경변수 타입 경고를 피하기 위해 any 캐스팅
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL as string;
+
+/**
+ * 프로필 이미지가 백엔드에서 상대경로로 내려올 때를 대비해 절대경로로 변환.
+ * 이미 절대경로면 그대로 반환한다.
+ */
+const toAbsoluteUrl = (url: string | null | undefined) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  const normalizedBase = BASE_URL?.endsWith("/")
+    ? BASE_URL.slice(0, -1)
+    : BASE_URL || "";
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return normalizedBase ? `${normalizedBase}${normalizedPath}` : normalizedPath;
 };
 
 const Container = styled.div`
@@ -285,6 +285,10 @@ const StudyDetail = () => {
 
     const effectiveUserProfileImageUrl =
   useDefaultProfile ? null : userMe?.profileImageUrl ?? null;
+
+    const sanitizedUserProfileImageUrl = effectiveUserProfileImageUrl
+  ? toAbsoluteUrl(effectiveUserProfileImageUrl).replace(/([^:]\/)\/+/g, "$1")
+  : null;
 
     
     useEffect(() => {
@@ -516,25 +520,27 @@ useEffect(() => {
     const authorCountryCode = studyData.authorCountry;
 
     const fallbackCharacter =
-      (authorCountryCode &&
-        countryCharacterImages[
-          authorCountryCode as keyof typeof countryCharacterImages
-        ]) ||
-      KoreaProfileImg;
+  (authorCountryCode &&
+    countryCharacterImages[
+      authorCountryCode as keyof typeof countryCharacterImages
+    ]) ||
+  KoreaProfileImg;
 
-    let characterImage: string | null = fallbackCharacter;
+  let authorProfileImageUrl: string | null = null;
 
-    if (isAuthor) {
-      if (useDefaultProfile || !userMe?.profileImageUrl) {
-        characterImage = fallbackCharacter;
-      } else if (userMe.profileImageUrl) {
-        characterImage = userMe.profileImageUrl;
-      }
-    } else if (studyData.authorProfileImageUrl) {
-      characterImage = studyData.authorProfileImageUrl;
-    }
+  if (isAuthor) {
+    // 내가 쓴 글이면 내 프로필 이미지를 사용(기본이미지 모드면 null)
+    authorProfileImageUrl = useDefaultProfile ? null : userMe?.profileImageUrl ?? null;
+  } else if (studyData.authorProfileImageUrl) {
+    // 남이 쓴 글이면 서버에서 내려준 작성자 이미지 사용
+    authorProfileImageUrl = studyData.authorProfileImageUrl;
+  }
 
-    const finalAuthorImage = normalizeImageUrl(characterImage) || fallbackCharacter;
+  const sanitizedAuthorProfileImageUrl = authorProfileImageUrl
+    ? toAbsoluteUrl(authorProfileImageUrl).replace(/([^:]\/)\/+/g, "$1")
+    : null;
+
+  const finalAuthorProfileImage = sanitizedAuthorProfileImageUrl || fallbackCharacter;
 
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
@@ -576,7 +582,7 @@ useEffect(() => {
         return (
           <>
             <ProfileImage
-              src={effectiveUserProfileImageUrl || defaultCharacter}
+              src={sanitizedUserProfileImageUrl || defaultCharacter}
               alt="프로필"
             />
             <UserInfo>
@@ -626,12 +632,9 @@ useEffect(() => {
                         <StudyHeader>
                             <StudyAuthorSection>
                                 <StudyAuthorImage
-                                  src={finalAuthorImage}
-                                  alt="작성자"
-                                  onError={(e) => {
-                                    e.currentTarget.src = fallbackCharacter;
-                                  }}
-                                />
+                  src={finalAuthorProfileImage}
+                  alt="작성자"
+                />
                                 <AuthorName className="H4">
                                     {studyData.authorNickname}
                                 </AuthorName>
@@ -706,7 +709,7 @@ useEffect(() => {
                       onEditComment={handleEditComment}
                       onDeleteComment={handleDeleteComment}
                       isCommentsLoading={isCommentsLoading}
-                      currentUserProfileImageUrl={effectiveUserProfileImageUrl}
+                      currentUserProfileImageUrl={sanitizedUserProfileImageUrl}
                     />
                 </RightPanel>
             </ContentWrapper>

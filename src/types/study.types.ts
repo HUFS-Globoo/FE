@@ -61,9 +61,9 @@ export interface CommentAuthor {
   id: number; 
   nickname: string;
   profileImageUrl: string | null;
+  country: string;
 }
 
-// 댓글 
 // 댓글 
 export interface StudyComment {
   id: number; 

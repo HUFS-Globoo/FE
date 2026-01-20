@@ -34,6 +34,24 @@ import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
 import ChinaProfileImg from "../../assets/img-profile1-China.svg";
 import axiosInstance from "../../../axiosInstance";
 
+const BASE_URL = axiosInstance.defaults.baseURL || "";
+
+const toAbsoluteUrl = (url: string) => {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  const normalizedBase = BASE_URL.endsWith("/")
+    ? BASE_URL.slice(0, -1)
+    : BASE_URL;
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${normalizedBase}${normalizedPath}`;
+};
+
+const normalizeImageUrl = (url: string | null) => {
+  if (!url) return null;
+  return toAbsoluteUrl(url).replace(/([^:]\/)\/+/g, "$1");
+};
+
 
 // 국가별 캐릭터 이미지 매핑
 const countryCharacterImages: { [key: string]: string } = {
@@ -295,35 +313,12 @@ const fetchComments = useCallback(async () => {
     const res = await axiosInstance.get(`/api/study/posts/${studyId}/comments`);
     const rawComments = res.data.content;
 
-    const commentsWithAuthorInfo = await Promise.all(
-      rawComments.map(async (comment: any) => {
-        try {
-          // ⬇⬇⬇ 이게 정확한 댓글 작성자 정보 API 
-          const profileRes = await axiosInstance.get(`/api/profiles/${comment.author.id}`);
+    // 디버깅: API 응답 구조 확인
+    console.log("댓글 API 응답:", res.data);
+    console.log("첫 번째 댓글 author 구조:", rawComments[0]?.author);
 
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: profileRes.data.country,
-              profileImageUrl: profileRes.data.profileImageUrl,
-            },
-          };
-        } catch (e) {
-          console.error("댓글 작성자 정보 조회 실패:", comment.author.id, e);
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: "KR",
-              profileImageUrl: null,
-            },
-          };
-        }
-      })
-    );
-
-    setComments(commentsWithAuthorInfo);
+    // 백엔드에서 이미 author.country를 포함하여 응답하므로 추가 API 호출 불필요
+    setComments(rawComments);
 
   } catch (e) {
     console.error("댓글 조회 실패:", e);
@@ -518,36 +513,28 @@ useEffect(() => {
 
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
-    const authorCountryCode =
-  (studyData as any).authorCountry ||
-  (studyData as any).authorNation ||
-  userMe?.country; // 없으면 내 country라도 사용
+    const authorCountryCode = studyData.authorCountry;
 
     const fallbackCharacter =
-  (authorCountryCode &&
-    countryCharacterImages[
-      authorCountryCode as keyof typeof countryCharacterImages
-    ]) ||
-  KoreaProfileImg;
+      (authorCountryCode &&
+        countryCharacterImages[
+          authorCountryCode as keyof typeof countryCharacterImages
+        ]) ||
+      KoreaProfileImg;
 
-  let characterImage = fallbackCharacter;
+    let characterImage: string | null = fallbackCharacter;
 
-  if (isAuthor) {
-  if (useDefaultProfile || !userMe?.profileImageUrl) {
-    // 기본이미지 모드 → fallback 사용
-    characterImage = fallbackCharacter;
-  } else if (userMe.profileImageUrl) {
-    characterImage = userMe.profileImageUrl;
-  }
-} else if (studyData.authorProfileImageUrl) {
-  // 남이 쓴 글이면 서버에서 온 authorProfileImageUrl 그대로
-  characterImage = studyData.authorProfileImageUrl;
-}
+    if (isAuthor) {
+      if (useDefaultProfile || !userMe?.profileImageUrl) {
+        characterImage = fallbackCharacter;
+      } else if (userMe.profileImageUrl) {
+        characterImage = userMe.profileImageUrl;
+      }
+    } else if (studyData.authorProfileImageUrl) {
+      characterImage = studyData.authorProfileImageUrl;
+    }
 
-  // 혹시 모르니 슬래시 정리
-  if (characterImage) {
-  characterImage = characterImage.replace(/([^:]\/)\/+/g, "$1");
-}
+    const finalAuthorImage = normalizeImageUrl(characterImage) || fallbackCharacter;
 
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
@@ -638,7 +625,13 @@ useEffect(() => {
                     <StudyDetailCard>
                         <StudyHeader>
                             <StudyAuthorSection>
-                                <StudyAuthorImage src={characterImage} alt="작성자" />
+                                <StudyAuthorImage
+                                  src={finalAuthorImage}
+                                  alt="작성자"
+                                  onError={(e) => {
+                                    e.currentTarget.src = fallbackCharacter;
+                                  }}
+                                />
                                 <AuthorName className="H4">
                                     {studyData.authorNickname}
                                 </AuthorName>

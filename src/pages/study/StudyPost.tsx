@@ -16,7 +16,7 @@ const countryCharacterImages: { [key: string]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
+  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 

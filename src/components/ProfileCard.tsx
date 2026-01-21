@@ -47,7 +47,7 @@ const countryCharacterImages: { [key: string]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
+  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 
@@ -67,6 +67,7 @@ const languageOptions = [
 
 const Card = styled.div<{ $isEditMode: boolean }>`
   width: 100%;
+  box-sizing: border-box;
   background-color: var(--white);
   border: 1px solid var(--gray);
   border-radius: 1rem;
@@ -82,6 +83,7 @@ const TopSection = styled.div`
   display: flex;
   gap: 3rem;
   margin-bottom: 3rem;
+  min-width: 0;
 `;
 
 const LeftSection = styled.div`
@@ -116,6 +118,7 @@ const UserMbti = styled.div`
 
 const RightSection = styled.div`
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -260,7 +263,7 @@ const CancelButton = styled.button`
 
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
 `;
 

@@ -20,6 +20,30 @@ const ContentWrapper = styled.div`
   padding: 0 2rem;
 `;
 
+const WithdrawButtonRow = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;`;
+
+const WithdrawButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--gray-wf);
+  background-color: var(--white);
+  color: var(--gray-700);
+  cursor: pointer;
+  
+  &:hover {
+    background-color: var(--gray-400);
+    background: var(--gray-text-filled);
+  }
+
+  &:active {
+  transform: translateY(1px);
+}
+`;
+
 const PageTitle = styled.h1`
   margin-bottom: 2.5rem;
 `;
@@ -393,6 +417,30 @@ const Mypage = () => {
     }
   };
 
+  //탈퇴
+  const handleWithdraw = async () => {
+  const ok = window.confirm(
+    "정말 회원탈퇴 하시겠습니까?\n탈퇴 후에는 계정을 복구할 수 없어요."
+  );
+  if (!ok) return;
+
+  try {
+    await axiosInstance.delete("/api/users/me");
+
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken"); 
+    localStorage.removeItem("userId");
+
+    alert("회원탈퇴가 완료되었습니다.");
+
+    navigate("/signup/step1");
+  } catch (error) {
+    console.error("회원탈퇴 실패:", error);
+    alert("회원탈퇴 중 오류가 발생했습니다.");
+  }
+};
+
+
   return (
     <Container>
       <ContentWrapper>
@@ -405,6 +453,7 @@ const Mypage = () => {
             : null;
         
           return (
+            <>
             <ProfileCard
               key={`${cleanedProfileUrl}-${userData._updateKey || ""}`}
               userId={userData.id}
@@ -437,6 +486,12 @@ const Mypage = () => {
               onImageUpload={handleProfileImageUpload}
               // onImageReset={handleProfileImageReset} 
             />
+              <WithdrawButtonRow>
+                <WithdrawButton onClick={handleWithdraw} className="Button1">
+                  회원탈퇴
+                </WithdrawButton>
+              </WithdrawButtonRow>
+            </>
           );
         })()
       )}

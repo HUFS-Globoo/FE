@@ -14,6 +14,13 @@ interface Language {
   name: string;
 }
 
+type KeywordCategory = "PERSONALITY" | "HOBBY" | "TOPIC";
+
+type KeywordItem = {
+  id: number;
+  category: KeywordCategory;
+  name: string;
+};
 export interface ProfileCardItem {
   userId: number;
   nickname: string;
@@ -23,7 +30,7 @@ export interface ProfileCardItem {
   profileImageUrl: string | null;
   nativeLanguages: Language[];
   learnLanguages: Language[];
-  keywords: { id: number; name: string }[];
+  keywords: KeywordItem[];
   infoTitle: string | null;
   infoContent: string | null;
 }
@@ -419,7 +426,7 @@ const ProfileList: React.FC = () => {
           native: profile.nativeLanguages.map((l) => l.code),
           learn: profile.learnLanguages.map((l) => l.code),
         }}
-        keywords={profile.keywords.map((k) => k.name)}
+        keywords={profile.keywords}
         intro={
           profile.infoTitle && profile.infoContent
             ? `${profile.infoTitle}\n${profile.infoContent}`

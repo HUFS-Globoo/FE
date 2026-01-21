@@ -24,7 +24,7 @@ const WithdrawButtonRow = styled.div`
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;`;
+  margin-top: 64px;`;
 
 const WithdrawButton = styled.button`
   padding: 0.75rem 1.5rem;
@@ -429,7 +429,6 @@ const handleProfileImageReset = async () => {
             : null;
         
           return (
-            <>
             <ProfileCard
               key={`${cleanedProfileUrl}-${userData._updateKey || ""}`}
               userId={userData.id}
@@ -462,12 +461,6 @@ const handleProfileImageReset = async () => {
               onImageUpload={handleProfileImageUpload}
               onImageReset={handleProfileImageReset} 
             />
-              <WithdrawButtonRow>
-                <WithdrawButton onClick={handleWithdraw} className="Button1">
-                  회원탈퇴
-                </WithdrawButton>
-              </WithdrawButtonRow>
-            </>
           );
         })()
       )}
@@ -482,6 +475,12 @@ const handleProfileImageReset = async () => {
           onCommentEdit={handleCommentEdit}          
           onCommentDelete={handleCommentDelete}
         />
+
+        <WithdrawButtonRow>
+            <WithdrawButton onClick={handleWithdraw} className="Button1">
+              회원탈퇴
+            </WithdrawButton>
+        </WithdrawButtonRow>
       </ContentWrapper>
     </Container>
   );

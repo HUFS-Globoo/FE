@@ -49,7 +49,7 @@ const bannerWrapper: { [key: CountryCode]: string } = {
   US: AmericaBannerImg,
   KR: KoreaBannerImg,
   IT: ItalyBannerImg,
-  AR: EgyptBannerImg,
+  EG: EgyptBannerImg,
   CN: ChinaBannerImg,
 };
 

@@ -84,6 +84,7 @@ const MessageNickname = styled.div`
 const CharacterImage = styled.img`
   width: 3rem;
   height: 3.497rem;
+  object-fit: cover;
 `
 const ChatContainer = styled.div`
   display: flex;
@@ -121,6 +122,7 @@ const ChatHeader = styled.div`
 const ChatProfileImg = styled.img`
   width: 5rem;
   height: 5.82838rem;
+  object-fit: cover;
 `
 
 const ChatNicname = styled.div`

@@ -264,7 +264,7 @@ const CancelButton = styled.button`
 const ContactGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 0.5rem; 
 `;
 
 const ContactContentWrapper = styled.div`
@@ -291,6 +291,7 @@ const ContactItem = styled.div<{ $isEditable?: boolean }>`
 const ContactIconWrapper = styled.div`
   width: 2.5rem;
   height: 2.5rem;
+  flex: 0 0 2.5rem; /* 이메일처럼 내용이 길어도 아이콘 배경은 줄어들지 않도록 고정 */
   background-color: var(--primary);
   border-radius: 0.5rem;
   display: flex;
@@ -310,54 +311,23 @@ const ContactLabel = styled.div`
 
 const ContactValue = styled.div`
   color: var(--black);
+  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const DropdownContainer = styled.div`
   position: relative;
 `;
 
-const DropdownButton = styled.button`
+const SelectInput = styled.select`
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
   background-color: var(--white);
   color: var(--black);
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-size: 0.875rem;
-
-  &:hover {
-    border-color: var(--skyblue);
-  }
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.25rem;
-  background-color: var(--white);
-  border: 1px solid var(--gray);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  max-height: 200px;
-  overflow-y: auto;
-`;
-
-const DropdownItem = styled.div`
-  padding: 0.75rem 1rem;
   cursor: pointer;
-  font-size: 0.875rem;
-
-  &:hover {
-    background-color: var(--gray-text-filled);
-  }
 `;
 
 const ProfileCard = ({
@@ -397,30 +367,11 @@ const ProfileCard = ({
   
   
 
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [selectedValues, setSelectedValues] = useState({
     campus: campus,
     nativeLanguages: nativeLanguages,
     learnLanguages: learnLanguages,
   });
-
-  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const isOutside = Object.values(dropdownRefs.current).every(
-        (ref) => ref && !ref.contains(event.target as Node)
-      );
-      if (isOutside) setOpenDropdown(null);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name);
-  };
 
   const handleSelect = (name: string, value: string) => {
     if (name === "campus") {
@@ -428,7 +379,6 @@ const ProfileCard = ({
     } else if (name === "nativeLanguages" || name === "learnLanguages") {
       setSelectedValues({ ...selectedValues, [name]: [value] });
     }
-    setOpenDropdown(null);
   };
 
   const characterImage =
@@ -692,44 +642,49 @@ const [editedMbti, setEditedMbti] = useState(mbti);
 
 
           <ContactGrid>
-            {contactItems.map((item, index) => (
-              <ContactItem key={index} $isEditable={isOwner && isEditMode && item.editable}>
+            {contactItems.map((item) => (
+              <ContactItem
+                key={item.dropdownName ?? item.label}
+                $isEditable={isOwner && isEditMode && item.editable}
+              >
                 <ContactContentWrapper>
-                  <ContactIconWrapper>
-                    <img src={item.icon} alt={item.label} />
-                  </ContactIconWrapper>
+                  <ContactIconWrapper>
+                    <img src={item.icon} alt={item.label} />
+                  </ContactIconWrapper>
 
-                    <ContactTextWrapper> 
-                        <ContactLabel className="H4">{item.label}</ContactLabel>
-                    
-                        {isOwner && isEditMode && item.editable && item.options ? (
-                        <DropdownContainer ref={(el: HTMLDivElement | null) => {dropdownRefs.current[item.dropdownName!] = el;}}>
-                            <DropdownButton onClick={() => toggleDropdown(item.dropdownName!)}>
-                              <span className="Body2">{item.value}</span>
-                              <span>▼</span>
-                            </DropdownButton>
-                            {openDropdown === item.dropdownName && (
-                              <DropdownMenu>
-                                {item.options.map((option) => (
-                                  <DropdownItem
-                                    key={option.value}
-                                    onClick={() => handleSelect(item.dropdownName!, option.value)}
-                                    className="Body2"
-                                  >
-                                    {option.label}
-                                  </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                            )}
-                        </DropdownContainer>
-                    ) : (
-                        <ContactValue className="Body1">{item.value}</ContactValue>
-                    )}
-                    </ContactTextWrapper>
+                  <ContactTextWrapper>
+                    <ContactLabel className="H4">{item.label}</ContactLabel>
+
+                    {isOwner && isEditMode && item.editable && item.options ? (
+                      <DropdownContainer>
+                        <SelectInput
+                          className="Body2"
+                          value={
+                            item.dropdownName === "campus"
+                              ? selectedValues.campus
+                              : item.dropdownName === "nativeLanguages"
+                              ? selectedValues.nativeLanguages[0] ?? ""
+                              : selectedValues.learnLanguages[0] ?? ""
+                          }
+                          onChange={(e) =>
+                            handleSelect(item.dropdownName!, e.target.value)
+                          }
+                        >
+                          {item.options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </SelectInput>
+                      </DropdownContainer>
+                    ) : (
+                      <ContactValue className="Body1">{item.value}</ContactValue>
+                    )}
+                  </ContactTextWrapper>
                 </ContactContentWrapper>
-              </ContactItem>
-            ))}
-          </ContactGrid>
+              </ContactItem>
+            ))}
+          </ContactGrid>
 
           {isOwner && (
             <>

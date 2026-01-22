@@ -49,41 +49,26 @@ const UserLanguageTitle = styled.div`
   align-items: center;
 `
 
-const SelectedBox = styled.div<{ isSelected: boolean }>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  //padding: 0.6rem 0;
+const SelectInput = styled.select`
   width: 18.06rem;
-  cursor: pointer;
-  color: ${({ isSelected }) => (isSelected ? "var(--black)" : "#ABABAB")};
-`;
-
-const Arrow = styled.span<{ open: boolean }>`
-  font-size: 0.8rem;
-  margin-left: auto;
-  transform: ${({ open }) => (open ? "rotate(180deg)" : "rotate(0deg)")};
-  transition: 0.3s;
-`;
-
-const OptionList = styled.div`
-  position: absolute;
-  top: calc(100% - 0.9rem);
-  right: 0;
-  width: fit-content;
-  background: var(--white);
-  border-radius: 0.5rem;
-  border: 1px solid var(--gray);
-  z-index: 10; 
-  color: var(--black);
-`;
-
-const Option = styled.div`
   padding: 0.6rem;
+  border: none;
+  background-color: transparent;
+  color: var(--black);
+  font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23ABABAB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  padding-right: 2rem;
 
-  &:hover {
-    background-color: #f5f5f5;
+  option {
+    color: var(--black);
+    background-color: var(--white);
+    text-decoration: none;
   }
 `;
 
@@ -123,9 +108,6 @@ const SignUp3 = () => {
     reverseNationMap[signupData.nationalityCode || "KR"] || "대한민국"
   );
 
-  const [useLangOpen, setUseLangOpen] = useState(false);
-  const [prefLangOpen, setPrefLangOpen] = useState(false);
-  const [nationalityOpen, setNationalityOpen] = useState(false);
   
   const handleNext = async () => {
     const onboardingToken = localStorage.getItem("onboardingToken");
@@ -197,54 +179,43 @@ const SignUp3 = () => {
           <InputContainer>
             <UserLanguageInputContainer className="Body1">
               <UserLanguageTitle className="Body1">사용 언어</UserLanguageTitle>
-              <SelectedBox isSelected={!!useLang} onClick={() => setUseLangOpen(!useLangOpen)}>
-                {useLang}
-                <Arrow open={useLangOpen}>▾</Arrow>
-
-                {useLangOpen && (
-                  <OptionList>
-                    {languages.map((lang) => (
-                      <Option key={lang} onClick={() => { setUseLang(lang); setUseLangOpen(false); }}>
-                        {lang}
-                      </Option>
-                    ))}
-                  </OptionList>
-                )}
-              </SelectedBox>
+              <SelectInput
+                value={useLang}
+                onChange={(e) => setUseLang(e.target.value)}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </SelectInput>
             </UserLanguageInputContainer>
             <UserLanguageInputContainer className="Body1">
               <UserLanguageTitle className="Body1">선호 언어</UserLanguageTitle>
-              <SelectedBox isSelected={!!prefLang} onClick={() => setPrefLangOpen(!prefLangOpen)}>
-                {prefLang}
-                <Arrow open={prefLangOpen}>▾</Arrow>
-
-                {prefLangOpen && (
-                  <OptionList>
-                    {languages.map((lang) => (
-                      <Option key={lang} onClick={() => {setPrefLang(lang); setPrefLangOpen(false); }}>
-                        {lang}
-                      </Option>
-                    ))}
-                  </OptionList>
-                )}
-              </SelectedBox>
+              <SelectInput
+                value={prefLang}
+                onChange={(e) => setPrefLang(e.target.value)}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </SelectInput>
             </UserLanguageInputContainer>
 
           <UserLanguageInputContainer  className="Body1">
             <UserLanguageTitle  className="Body1">국적</UserLanguageTitle>
-            <SelectedBox isSelected={!!nationality} onClick={() => setNationalityOpen(!nationalityOpen)}>
-              {nationality}
-              <Arrow open={nationalityOpen}>▾</Arrow>
-              {nationalityOpen && (
-                <OptionList>
-                  {nationalities.map((nation) => (
-                    <Option key={nation} onClick={() => { setNationality(nation); setNationalityOpen(false); }}>
-                      {nation}
-                    </Option>
-                  ))}
-                </OptionList>
-              )}
-            </SelectedBox>
+            <SelectInput
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value)}
+            >
+              {nationalities.map((nation) => (
+                <option key={nation} value={nation}>
+                  {nation}
+                </option>
+              ))}
+            </SelectInput>
           </UserLanguageInputContainer>
           </InputContainer>
           <SubmitButton onClick={handleNext}/>

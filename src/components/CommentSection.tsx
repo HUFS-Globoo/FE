@@ -28,6 +28,21 @@ const countryCharacterImages: { [key: string]: string } = {
   CN: ChinaProfileImg,
 };
 
+// 업로드 경로일 경우 API BASE URL을 붙여 정규화
+const normalizeProfileUrl = (url?: string | null) => {
+  if (!url || url.trim() === "") return null;
+
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+  const cleanBase =
+    BASE_URL && BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
+
+  // '/uploads/...' 또는 'uploads/...' 형태면 BASE_URL 붙이기
+  if (url.startsWith("/uploads")) return `${cleanBase}${url}`.replace(/([^:]\/)\/+/g, "$1");
+  if (url.startsWith("uploads/")) return `${cleanBase}/${url}`.replace(/([^:]\/)\/+/g, "$1");
+
+  return url.replace(/([^:]\/)\/+/g, "$1");
+};
+
 const getCommentProfileImage = (
   comment: StudyComment,
   currentUserId: number,
@@ -36,9 +51,11 @@ const getCommentProfileImage = (
   const useDefaultProfile =
     localStorage.getItem("useDefaultProfileImage") === "true";
 
-  const country = (comment.author as any).country as string | undefined;
-  const fallbackCharacter = country && countryCharacterImages[country]
-    ? countryCharacterImages[country]
+  // country 값이 없거나 undefined일 수 있으므로 안전하게 처리
+  const country = comment.author?.country;
+  const countryUpper = country ? country.toUpperCase() : null;
+  const fallbackCharacter = countryUpper && countryCharacterImages[countryUpper]
+    ? countryCharacterImages[countryUpper]
     : KoreaProfileImg;
 
   // 🔹 내가 쓴 댓글인 경우
@@ -49,9 +66,10 @@ const getCommentProfileImage = (
     }
 
     // 🔸 기본이미지 모드가 아니면: 최신 프로필 > 서버 author.profileImageUrl
+    const profileUrl = normalizeProfileUrl(comment.author?.profileImageUrl);
     const src =
       currentUserProfileImageUrl ||
-      comment.author.profileImageUrl ||
+      (profileUrl && profileUrl.trim() !== "" ? profileUrl : null) ||
       null;
 
     if (src) {
@@ -63,8 +81,9 @@ const getCommentProfileImage = (
   }
 
   // 🔹 다른 사람이 쓴 댓글 (기본모드 플래그 신경 안 씀)
-  if (comment.author.profileImageUrl) {
-    return comment.author.profileImageUrl.replace(/([^:]\/)\/+/g, "$1");
+  const profileUrl = normalizeProfileUrl(comment.author?.profileImageUrl);
+  if (profileUrl && profileUrl.trim() !== "") {
+    return profileUrl.replace(/([^:]\/)\/+/g, "$1");
   }
 
   return fallbackCharacter;
@@ -252,7 +271,10 @@ useEffect(() => {
   console.log("댓글 리스트:", comments.map(c => ({
     commentId: c.id,
     authorId: c.author.id,
-    authorNickname: c.author.nickname
+    authorNickname: c.author.nickname,
+    authorProfileImageUrl: c.author.profileImageUrl,
+    authorCountry: c.author.country,
+    fullAuthor: c.author
   })));
 }, [comments, currentUserId]);
 

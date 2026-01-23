@@ -18,7 +18,6 @@ const countryCharacterImages: { [key: string]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
   EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
@@ -76,6 +75,7 @@ const ProfileImage = styled.img`
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  object-fit: cover;
   background-color: var(--gray);
 `;
 
@@ -268,29 +268,8 @@ const StudyList = () => {
       const response: any = await getStudies(filters);
       const rawList = response.data || [];
   
-
-      const listWithAuthorCountry = await Promise.all(
-        rawList.map(async (study: any) => {
-          try {
-            const res = await axiosInstance.get(`/api/profiles/${study.authorId}`);
-
-            console.log("[StudyList] author profile res:", res.data);
-
-            return {
-              ...study,
-              authorCountry: res.data.country, 
-            };
-          } catch (err) {
-            console.error("author 정보 조회 실패:", err);
-            return {
-              ...study,
-              authorCountry: "KR", 
-            };
-          }
-        })
-      );
-  
-      setStudies(listWithAuthorCountry);
+      // 백엔드에서 이미 authorCountry를 포함하여 응답하므로 추가 API 호출 불필요
+      setStudies(rawList);
       setTotalPages(1);
   
     } catch (err) {
@@ -535,7 +514,6 @@ useEffect(() => {
             <StudyCard 
               key={study.id} 
               study={study}
-              authorCountry={study.authorCountry}  
               onClick={() => handleStudyClick(study.id)}
               currentUserId={userMe?.id}
             />

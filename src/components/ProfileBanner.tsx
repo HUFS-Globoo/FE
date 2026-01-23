@@ -22,6 +22,13 @@ interface LanguagePair {
   learn: LanguageCode[];
 }
 
+type KeywordCategory = "PERSONALITY" | "HOBBY" | "TOPIC";
+
+type KeywordItem = {
+  id: number;
+  category: KeywordCategory;
+  name: string;
+};
 export interface ProfileBannerProps {
   userId: number;
   nickname: string;
@@ -30,7 +37,7 @@ export interface ProfileBannerProps {
   mbti: string | null;
   profileImageUrl: string | null; 
   languages: LanguagePair;
-  keywords: string[];
+  keywords: KeywordItem[];
   intro: string | null;
   onClick?: () => void;
 }
@@ -40,7 +47,7 @@ const countryCharacterImages: { [key: CountryCode]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
+  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 
@@ -49,7 +56,7 @@ const bannerWrapper: { [key: CountryCode]: string } = {
   US: AmericaBannerImg,
   KR: KoreaBannerImg,
   IT: ItalyBannerImg,
-  AR: EgyptBannerImg,
+  EG: EgyptBannerImg,
   CN: ChinaBannerImg,
 };
 
@@ -110,6 +117,8 @@ const TopKeywordChip = styled.span`
   color: var(--gray-700);
   white-space: nowrap;
 `;
+
+
 
 // 메인 콘텐츠 영역 (프로필 이미지 + 소개글)
 const MainContent = styled.div`
@@ -222,10 +231,6 @@ export const getCleanImageUrl = (url: string | null, fallback: string) => {
   return `${base}/${url.replace(/^\//, "")}?t=${Date.now()}`;
 };
 
-
-
-
-
 const ProfileBanner = ({ 
   profileImageUrl,
   country,
@@ -245,7 +250,11 @@ const ProfileBanner = ({
   ? getCleanImageUrl(profileImageUrl, "")
   : defaultCharacter;
 
+  const pickOne = (cat: "PERSONALITY" | "HOBBY" | "TOPIC") =>
+  keywords.find((k) => k.category === cat)?.name;
 
+const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")]
+  .filter(Boolean) as string[];
 
 
 
@@ -284,10 +293,13 @@ const ProfileBanner = ({
     <CardWrapper $country={validCountry} onClick={onClick}>
       <ContentContainer>
         <TopKeywordTags>
-          {keywords.slice(0, 3).map((keyword, index) => (
-            <TopKeywordChip className="Button2" key={`keyword-${index}`}>#{keyword}</TopKeywordChip>
+          {top3Keywords.map((keyword, index) => (
+            <TopKeywordChip className="Button2" key={`keyword-${index}`}>
+              #{keyword}
+            </TopKeywordChip>
           ))}
         </TopKeywordTags>
+
 
         <MainContent>
           <LeftSection>

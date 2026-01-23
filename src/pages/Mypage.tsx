@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
@@ -18,6 +18,30 @@ const ContentWrapper = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+`;
+
+const WithdrawButtonRow = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 64px;`;
+
+const WithdrawButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--gray-wf);
+  background-color: var(--white);
+  color: var(--gray-700);
+  cursor: pointer;
+  
+  &:hover {
+    background-color: var(--gray-400);
+    background: var(--gray-text-filled);
+  }
+
+  &:active {
+  transform: translateY(1px);
+}
 `;
 
 const PageTitle = styled.h1`
@@ -61,38 +85,45 @@ const Mypage = () => {
     Object.entries(LANGUAGE_MAP).map(([k, v]) => [v, k])
   );
 
-  useEffect(() => {
-    const fetchUserData = async () => {
+  const fetchMyKeywords = useCallback(async () => {
       try {
-        const res = await axiosInstance.get("/api/users/me");
-        const user = res.data;
+        const res = await axiosInstance.get("/api/users/me/keywords");
+        const kw = res.data;
 
-         const useDefaultProfile =
-          localStorage.getItem("useDefaultProfileImage") === "true";
-
-        if (useDefaultProfile) {
-          user.profileImageUrl = null;
-        }
-
-        setUserData(user);
-
-        setLanguages({
-          nativeCodes: user.nativeLanguages || [],
-          learnCodes: user.learnLanguages || [],
-        });
         setKeywords({
-          personality: user.personalityKeywords || [],
-          hobby: user.hobbyKeywords || [],
-          topic: user.topicKeywords || [],
+          personality: kw.personality ?? [],
+          hobby: kw.hobby ?? [],
+          topic: kw.topic ?? [],
         });
 
-        console.log("내 정보:", user);
+        console.log("내 키워드:", kw);
       } catch (error) {
-        console.error("마이페이지 데이터 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("내 키워드 조회 실패:", error);
       }
-    };
+    }, []);
+    
+  useEffect(() => {
+
+    const fetchUserData = async () => {
+    try {
+      const res = await axiosInstance.get("/api/users/me");
+      const user = res.data;
+
+      const useDefaultProfile =
+        localStorage.getItem("useDefaultProfileImage") === "true";
+      if (useDefaultProfile) user.profileImageUrl = null;
+
+      setUserData(user);
+      setLanguages({
+        nativeCodes: user.nativeLanguages || [],
+        learnCodes: user.learnLanguages || [],
+      });
+
+      console.log("내 정보:", user);
+    } catch (error) {
+      console.error("마이페이지 데이터 조회 실패:", error);
+    }
+  };
 
     const fetchMyPosts = async () => {
       try {
@@ -168,10 +199,19 @@ const Mypage = () => {
       }
     };
 
-    fetchUserData();
-    fetchMyPosts();
-    fetchMyComments();
-  }, []);
+    (async () => {
+    try {
+      await Promise.all([
+        fetchUserData(),
+        fetchMyKeywords(),
+        fetchMyPosts(),
+        fetchMyComments(),
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  })();
+}, [fetchMyKeywords]);
 
  const handleProfileSave = async (updatedData: any) => {
   try {
@@ -185,10 +225,6 @@ const Mypage = () => {
       campus: updatedData.campus || userData.campus,
       country: updatedData.country || userData.country,
       email: userData.email,
-      personalityKeywords:
-        updatedData.personalityKeywords || keywords.personality,
-      hobbyKeywords: updatedData.hobbyKeywords || keywords.hobby,
-      topicKeywords: updatedData.topicKeywords || keywords.topic,
     };
 
     // 🔹 profileImageUrl은 여기서 아예 안 보냄
@@ -240,11 +276,7 @@ const Mypage = () => {
       learnCodes: refreshedUser.learnLanguages || [],
     });
 
-    setKeywords({
-      personality: refreshedUser.personalityKeywords || [],
-      hobby: refreshedUser.hobbyKeywords || [],
-      topic: refreshedUser.topicKeywords || [],
-    });
+    await fetchMyKeywords();
 
     setIsEditMode(false);
   } catch (error) {
@@ -252,7 +284,7 @@ const Mypage = () => {
     alert("프로필 수정 중 오류가 발생했습니다.");
   }
 };
-  
+
   
 
   // 프로필 이미지 업로드
@@ -286,62 +318,38 @@ const Mypage = () => {
       alert("이미지 업로드 중 오류가 발생했습니다.");
     }
   };
-  // 이미지 리셋 핸들러 추가(이미지 삭제 할 수 있도록)
-  //  const handleProfileImageReset = async () => {
-  //   if (!userData) return;
 
-  //   if (!window.confirm("업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?")) {
-  //     return;
-  //   }
+  //이미지 리셋 헨들러(업로드한 이미지 -> 기본 국적 이미지로 변경)
+const handleProfileImageReset = async () => {
+  if (!userData) return;
 
-  //   try {
-  //     // 현재 state에 있는 값들 그대로 보내고, profileImageUrl만 null로 바꿔서 보낸다.
-  //     const finalData = {
-  //       name: userData.name,
-  //       nickname: userData.nickname,
-  //       mbti: userData.mbti,
-  //       profileImageUrl: null, // 이미지 제거
-  //       infoTitle: userData.infoTitle,
-  //       infoContent: userData.infoContent,
-  //       campus: userData.campus,
-  //       country: userData.country,
-  //       email: userData.email,
-  //       nativeLanguages: languages.nativeCodes,
-  //       learnLanguages: languages.learnCodes,
-  //       personalityKeywords: keywords.personality,
-  //       hobbyKeywords: keywords.hobby,
-  //       topicKeywords: keywords.topic,
-  //     };
+  const ok = window.confirm(
+    "업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?"
+  );
+  if (!ok) return;
 
-  //     await axiosInstance.patch("/api/users/me", finalData);
+  try {
+    await axiosInstance.delete("/api/users/me/profile-image");
 
-  //     // 다시 내 정보 불러오기
-  //     const refreshed = await axiosInstance.get("/api/users/me");
-  //     const refreshedUser = refreshed.data;
+    localStorage.setItem("useDefaultProfileImage", "true");
 
-  //     localStorage.setItem("useDefaultProfileImage", "true");
+    const refreshed = await axiosInstance.get("/api/users/me");
+    const refreshedUser = refreshed.data;
 
-  //     refreshedUser.profileImageUrl = null; //강제로 되돌리기(백에서 null 안줘도 프론트에서 처리)
+    refreshedUser.profileImageUrl = null;
 
-  //     setUserData(refreshedUser);
-  //     setLanguages({
-  //       nativeCodes: refreshedUser.nativeLanguages || [],
-  //       learnCodes: refreshedUser.learnLanguages || [],
-  //     });
-  //     setKeywords({
-  //       personality: refreshedUser.personalityKeywords || [],
-  //       hobby: refreshedUser.hobbyKeywords || [],
-  //       topic: refreshedUser.topicKeywords || [],
-  //     });
+    setUserData({
+      ...refreshedUser,
+      _updateKey: Date.now(),
+    });
 
+    alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
+  } catch (error) {
+    console.error("프로필 이미지 삭제(리셋) 실패:", error);
+    alert("이미지 초기화 중 오류가 발생했습니다.");
+  }
+};
 
-
-  //     alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
-  //   } catch (error) {
-  //     console.error("프로필 이미지 기본이미지로 되돌리기 실패:", error);
-  //     alert("이미지 초기화 중 오류가 발생했습니다.");
-  //   }
-  // };
 
   const handlePostClick = (postId: number) => {
     navigate(`/study/${postId}`);
@@ -385,6 +393,30 @@ const Mypage = () => {
     }
   };
 
+  //탈퇴
+  const handleWithdraw = async () => {
+  const ok = window.confirm(
+    "정말 회원탈퇴 하시겠습니까?\n탈퇴 후에는 계정을 복구할 수 없어요."
+  );
+  if (!ok) return;
+
+  try {
+    await axiosInstance.delete("/api/users/me");
+
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken"); 
+    localStorage.removeItem("userId");
+
+    alert("회원탈퇴가 완료되었습니다.");
+
+    navigate("/signup/step1");
+  } catch (error) {
+    console.error("회원탈퇴 실패:", error);
+    alert("회원탈퇴 중 오류가 발생했습니다.");
+  }
+};
+
+
   return (
     <Container>
       <ContentWrapper>
@@ -427,7 +459,7 @@ const Mypage = () => {
               onSave={handleProfileSave}
               onCancel={() => setIsEditMode(false)}
               onImageUpload={handleProfileImageUpload}
-              // onImageReset={handleProfileImageReset} 
+              onImageReset={handleProfileImageReset} 
             />
           );
         })()
@@ -443,6 +475,12 @@ const Mypage = () => {
           onCommentEdit={handleCommentEdit}          
           onCommentDelete={handleCommentDelete}
         />
+
+        <WithdrawButtonRow>
+            <WithdrawButton onClick={handleWithdraw} className="Button1">
+              회원탈퇴
+            </WithdrawButton>
+        </WithdrawButtonRow>
       </ContentWrapper>
     </Container>
   );

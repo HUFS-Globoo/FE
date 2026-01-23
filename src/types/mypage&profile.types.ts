@@ -28,9 +28,13 @@ export interface LanguageItem {
   type: 'NATIVE' | 'LEARN';
 }
 
+export type KeywordCategory = "PERSONALITY" | "HOBBY" | "TOPIC";
+
 export interface KeywordItem {
   id: number;
   name: string;
+  category: KeywordCategory;
+
 }
 
 // 언어 조회/수정 타입
@@ -83,7 +87,7 @@ export interface Post {
 // ------메타데이터 타입 
 
 // 키워드 그룹 조회
-export interface KeywordItem {
+export interface KeywordMetaItem {
   id: number;
   name: string;
   active: boolean;
@@ -91,13 +95,13 @@ export interface KeywordItem {
 }
 
 export interface GroupedKeywordsResponse {
-  personality: KeywordItem[];
-  hobby: KeywordItem[];
-  topic: KeywordItem[];
+  personality: KeywordMetaItem[];
+  hobby: KeywordMetaItem[];
+  topic: KeywordMetaItem[];
 }
 
 // 언어 목록
-export interface LanguageItem {
+export interface LanguageMetaItem {
   code: string;
   name: string;
 }

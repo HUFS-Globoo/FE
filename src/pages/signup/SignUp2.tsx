@@ -150,6 +150,7 @@ const SignUp2 = () => {
         phoneNumber: signupData.phoneNumber || null,
         birthDate: signupData.birthDate || null,
         gender: signupData.gender || null,
+        campus: campus,
       };
 
       console.log("회원가입 요청 데이터:", signupRequestData);
@@ -164,8 +165,8 @@ const SignUp2 = () => {
       
       alert("인증번호가 전송되었습니다. 메일함을 확인해주세요!");
       setIsCodeSent(true);
-      // 이메일을 signupData에 저장
-      setSignupData({ ...signupData, email: email });
+      // 이메일과 캠퍼스를 signupData에 저장
+      setSignupData({ ...signupData, email: email, campus: campus });
     } catch (error: any) {
       console.error("회원가입 요청 실패:", error.response?.data || error.message || error);
       alert(error.response?.data?.message || "인증번호 전송 중 오류가 발생했습니다.");
@@ -216,6 +217,7 @@ const SignUp2 = () => {
       const response = await axiosInstance.post("/api/auth/verify-code", {
         email: email,
         code: verificationCode,
+        campus: campus,
       });
 
       if (response.data.verified) {
@@ -262,11 +264,17 @@ const SignUp2 = () => {
           <ContentTitle>02 학교 이메일로 인증해주세요 </ContentTitle>
           <InputContainer>
             <SelectContainer>
-              <Label onClick={() => setCampus("GLOBAL")}>
+              <Label onClick={() => {
+                setCampus("GLOBAL");
+                setSignupData({ ...signupData, campus: "GLOBAL" });
+              }}>
                 <Circle selected={campus === "GLOBAL"} />
                 글로벌
               </Label>
-              <Label onClick={() => setCampus("SEOUL")}>
+              <Label onClick={() => {
+                setCampus("SEOUL");
+                setSignupData({ ...signupData, campus: "SEOUL" });
+              }}>
                 <Circle selected={campus === "SEOUL"} />
                 서울
               </Label>

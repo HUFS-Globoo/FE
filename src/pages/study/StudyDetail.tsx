@@ -40,8 +40,26 @@ const countryCharacterImages: { [key: string]: string } = {
     US: AmericaProfileImg,
     KR: KoreaProfileImg,
     IT: ItalyProfileImg,
-    AR: EgyptProfileImg,
+    EG: EgyptProfileImg,
     CN: ChinaProfileImg,
+};
+
+// vite 환경변수 타입 경고를 피하기 위해 any 캐스팅
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL as string;
+
+/**
+ * 프로필 이미지가 백엔드에서 상대경로로 내려올 때를 대비해 절대경로로 변환.
+ * 이미 절대경로면 그대로 반환한다.
+ */
+const toAbsoluteUrl = (url: string | null | undefined) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  const normalizedBase = BASE_URL?.endsWith("/")
+    ? BASE_URL.slice(0, -1)
+    : BASE_URL || "";
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return normalizedBase ? `${normalizedBase}${normalizedPath}` : normalizedPath;
 };
 
 const Container = styled.div`
@@ -89,6 +107,7 @@ const ProfileImage = styled.img`
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  object-fit: cover;
   background-color: var(--gray);
 `;
 
@@ -268,6 +287,10 @@ const StudyDetail = () => {
     const effectiveUserProfileImageUrl =
   useDefaultProfile ? null : userMe?.profileImageUrl ?? null;
 
+    const sanitizedUserProfileImageUrl = effectiveUserProfileImageUrl
+  ? toAbsoluteUrl(effectiveUserProfileImageUrl).replace(/([^:]\/)\/+/g, "$1")
+  : null;
+
     
     useEffect(() => {
   const fetchUserMe = async () => {
@@ -295,35 +318,12 @@ const fetchComments = useCallback(async () => {
     const res = await axiosInstance.get(`/api/study/posts/${studyId}/comments`);
     const rawComments = res.data.content;
 
-    const commentsWithAuthorInfo = await Promise.all(
-      rawComments.map(async (comment: any) => {
-        try {
-          // ⬇⬇⬇ 이게 정확한 댓글 작성자 정보 API 
-          const profileRes = await axiosInstance.get(`/api/profiles/${comment.author.id}`);
+    // 디버깅: API 응답 구조 확인
+    console.log("댓글 API 응답:", res.data);
+    console.log("첫 번째 댓글 author 구조:", rawComments[0]?.author);
 
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: profileRes.data.country,
-              profileImageUrl: profileRes.data.profileImageUrl,
-            },
-          };
-        } catch (e) {
-          console.error("댓글 작성자 정보 조회 실패:", comment.author.id, e);
-          return {
-            ...comment,
-            author: {
-              ...comment.author,
-              country: "KR",
-              profileImageUrl: null,
-            },
-          };
-        }
-      })
-    );
-
-    setComments(commentsWithAuthorInfo);
+    // 백엔드에서 이미 author.country를 포함하여 응답하므로 추가 API 호출 불필요
+    setComments(rawComments);
 
   } catch (e) {
     console.error("댓글 조회 실패:", e);
@@ -518,10 +518,7 @@ useEffect(() => {
 
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
-    const authorCountryCode =
-  (studyData as any).authorCountry ||
-  (studyData as any).authorNation ||
-  userMe?.country; // 없으면 내 country라도 사용
+    const authorCountryCode = studyData.authorCountry;
 
     const fallbackCharacter =
   (authorCountryCode &&
@@ -530,24 +527,21 @@ useEffect(() => {
     ]) ||
   KoreaProfileImg;
 
-  let characterImage = fallbackCharacter;
+  let authorProfileImageUrl: string | null = null;
 
   if (isAuthor) {
-  if (useDefaultProfile || !userMe?.profileImageUrl) {
-    // 기본이미지 모드 → fallback 사용
-    characterImage = fallbackCharacter;
-  } else if (userMe.profileImageUrl) {
-    characterImage = userMe.profileImageUrl;
+    // 내가 쓴 글이면 내 프로필 이미지를 사용(기본이미지 모드면 null)
+    authorProfileImageUrl = useDefaultProfile ? null : userMe?.profileImageUrl ?? null;
+  } else if (studyData.authorProfileImageUrl) {
+    // 남이 쓴 글이면 서버에서 내려준 작성자 이미지 사용
+    authorProfileImageUrl = studyData.authorProfileImageUrl;
   }
-} else if (studyData.authorProfileImageUrl) {
-  // 남이 쓴 글이면 서버에서 온 authorProfileImageUrl 그대로
-  characterImage = studyData.authorProfileImageUrl;
-}
 
-  // 혹시 모르니 슬래시 정리
-  if (characterImage) {
-  characterImage = characterImage.replace(/([^:]\/)\/+/g, "$1");
-}
+  const sanitizedAuthorProfileImageUrl = authorProfileImageUrl
+    ? toAbsoluteUrl(authorProfileImageUrl).replace(/([^:]\/)\/+/g, "$1")
+    : null;
+
+  const finalAuthorProfileImage = sanitizedAuthorProfileImageUrl || fallbackCharacter;
 
 
     // 캠퍼스 및 언어 매핑 (기존 로직 유지)
@@ -589,7 +583,7 @@ useEffect(() => {
         return (
           <>
             <ProfileImage
-              src={effectiveUserProfileImageUrl || defaultCharacter}
+              src={sanitizedUserProfileImageUrl || defaultCharacter}
               alt="프로필"
             />
             <UserInfo>
@@ -638,7 +632,10 @@ useEffect(() => {
                     <StudyDetailCard>
                         <StudyHeader>
                             <StudyAuthorSection>
-                                <StudyAuthorImage src={characterImage} alt="작성자" />
+                                <StudyAuthorImage
+                  src={finalAuthorProfileImage}
+                  alt="작성자"
+                />
                                 <AuthorName className="H4">
                                     {studyData.authorNickname}
                                 </AuthorName>
@@ -713,7 +710,7 @@ useEffect(() => {
                       onEditComment={handleEditComment}
                       onDeleteComment={handleDeleteComment}
                       isCommentsLoading={isCommentsLoading}
-                      currentUserProfileImageUrl={effectiveUserProfileImageUrl}
+                      currentUserProfileImageUrl={sanitizedUserProfileImageUrl}
                     />
                 </RightPanel>
             </ContentWrapper>

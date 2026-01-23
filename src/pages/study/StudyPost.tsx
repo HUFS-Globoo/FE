@@ -16,7 +16,7 @@ const countryCharacterImages: { [key: string]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
+  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 
@@ -74,6 +74,7 @@ const ProfileImage = styled.img`
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  object-fit: cover;
   background-color: var(--gray);
 `;
 

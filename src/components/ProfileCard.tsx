@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
+import type { KeywordItem } from "../types/mypage&profile.types";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
 import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
@@ -9,7 +10,6 @@ import EditIcon from "../assets/ic-edit.svg";
 import CampusIcon from "../assets/ic-campus.svg";
 import LanguageIcon from "../assets/ic-language-tag.svg";
 import EmailIcon from "../assets/ic-email.svg";
-
 
 interface ProfileCardProps {
   userId?: number;
@@ -24,12 +24,8 @@ interface ProfileCardProps {
 
 
   keywords:
-    | {
-        personalityKeywords?: string[];
-        hobbyKeywords?: string[];
-        topicKeywords?: string[];
-      }
-    | Array<{ id?: number; name: string }>
+    | { personalityKeywords?: string[]; hobbyKeywords?: string[]; topicKeywords?: string[] }
+    | KeywordItem[]
     | string[];
 
   campus: "GLOBAL" | "SEOUL";
@@ -51,7 +47,7 @@ const countryCharacterImages: { [key: string]: string } = {
   US: AmericaProfileImg,
   KR: KoreaProfileImg,
   IT: ItalyProfileImg,
-  AR: EgyptProfileImg,
+  EG: EgyptProfileImg,
   CN: ChinaProfileImg,
 };
 
@@ -71,6 +67,7 @@ const languageOptions = [
 
 const Card = styled.div<{ $isEditMode: boolean }>`
   width: 100%;
+  box-sizing: border-box;
   background-color: var(--white);
   border: 1px solid var(--gray);
   border-radius: 1rem;
@@ -86,6 +83,7 @@ const TopSection = styled.div`
   display: flex;
   gap: 3rem;
   margin-bottom: 3rem;
+  min-width: 0;
 `;
 
 const LeftSection = styled.div`
@@ -120,6 +118,7 @@ const UserMbti = styled.div`
 
 const RightSection = styled.div`
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -264,8 +263,8 @@ const CancelButton = styled.button`
 
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem; 
 `;
 
 const ContactContentWrapper = styled.div`
@@ -292,6 +291,7 @@ const ContactItem = styled.div<{ $isEditable?: boolean }>`
 const ContactIconWrapper = styled.div`
   width: 2.5rem;
   height: 2.5rem;
+  flex: 0 0 2.5rem; /* 이메일처럼 내용이 길어도 아이콘 배경은 줄어들지 않도록 고정 */
   background-color: var(--primary);
   border-radius: 0.5rem;
   display: flex;
@@ -311,54 +311,23 @@ const ContactLabel = styled.div`
 
 const ContactValue = styled.div`
   color: var(--black);
+  word-break: break-all;
+  overflow-wrap: anywhere;
 `;
 
 const DropdownContainer = styled.div`
   position: relative;
 `;
 
-const DropdownButton = styled.button`
+const SelectInput = styled.select`
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
   background-color: var(--white);
   color: var(--black);
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-size: 0.875rem;
-
-  &:hover {
-    border-color: var(--skyblue);
-  }
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.25rem;
-  background-color: var(--white);
-  border: 1px solid var(--gray);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  max-height: 200px;
-  overflow-y: auto;
-`;
-
-const DropdownItem = styled.div`
-  padding: 0.75rem 1rem;
   cursor: pointer;
-  font-size: 0.875rem;
-
-  &:hover {
-    background-color: var(--gray-text-filled);
-  }
 `;
 
 const ProfileCard = ({
@@ -398,30 +367,11 @@ const ProfileCard = ({
   
   
 
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [selectedValues, setSelectedValues] = useState({
     campus: campus,
     nativeLanguages: nativeLanguages,
     learnLanguages: learnLanguages,
   });
-
-  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const isOutside = Object.values(dropdownRefs.current).every(
-        (ref) => ref && !ref.contains(event.target as Node)
-      );
-      if (isOutside) setOpenDropdown(null);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name);
-  };
 
   const handleSelect = (name: string, value: string) => {
     if (name === "campus") {
@@ -429,49 +379,53 @@ const ProfileCard = ({
     } else if (name === "nativeLanguages" || name === "learnLanguages") {
       setSelectedValues({ ...selectedValues, [name]: [value] });
     }
-    setOpenDropdown(null);
   };
 
   const characterImage =
     profileImageUrl || countryCharacterImages[country] || "https://via.placeholder.com/200";
 
 
-    const extractKeywords = (keywords: any) => {
-      if (!keywords || typeof keywords !== "object") return [];
-    
-      return [
-        ...(keywords.personalityKeywords || []),
-        ...(keywords.hobbyKeywords || []),
-        ...(keywords.topicKeywords || []),
-      ];
-    };
+type ChipCategory = "PERSONALITY" | "HOBBY" | "TOPIC" | "DEFAULT";
 
-    const flatKeywords = extractKeywords(keywords);
-    
-    const processedKeywords = flatKeywords.map((name: string) => {
-      const personalityList = [
-        "활발한", "솔직한", "차분한", "유쾌한", "친절한",
-        "도전적", "신중한", "긍정적", "냉정한", "열정적인"
-      ];
-    
-      const hobbyList = [
-        "영화 시청", "음악 감상", "요리", "독서", "카페가기",
-        "운동", "산책", "사진 촬영", "게임", "여행",
-      ];
-    
-      const topicList = [
-        "음악", "아이돌", "패션/뷰티", "스포츠", "영화/드라마",
-        "공부", "자기계발", "책", "환경", "동물"
-      ];
-    
-      let category = "DEFAULT";
-      if (personalityList.includes(name)) category = "PERSONALITY";
-      else if (hobbyList.includes(name)) category = "HOBBY";
-      else if (topicList.includes(name)) category = "TOPIC";
-    
-      return { name, category };
-    });
+const normalizeKeywords = (
+  keywords: ProfileCardProps["keywords"]
+): { name: string; category: ChipCategory }[] => {
+  if (!keywords) return [];
 
+  // 1) object 그룹형: { personalityKeywords, hobbyKeywords, topicKeywords }
+  if (!Array.isArray(keywords)) {
+    return [
+      ...(keywords.personalityKeywords ?? []).map((name) => ({
+        name,
+        category: "PERSONALITY" as const,
+      })),
+      ...(keywords.hobbyKeywords ?? []).map((name) => ({
+        name,
+        category: "HOBBY" as const,
+      })),
+      ...(keywords.topicKeywords ?? []).map((name) => ({
+        name,
+        category: "TOPIC" as const,
+      })),
+    ];
+  }
+
+  // 2) string[] or KeywordItem[]
+  return keywords
+    .map((k) => {
+      if (typeof k === "string") {
+        return { name: k, category: "DEFAULT" as const };
+      }
+      // KeywordItem
+      return {
+        name: k.name,
+        category: (k.category ?? "DEFAULT") as ChipCategory,
+      };
+    })
+    .filter((k) => k.name);
+};
+
+const processedKeywords = normalizeKeywords(keywords);
 
 
 const [isEditingMbti, setIsEditingMbti] = useState(false);
@@ -678,7 +632,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
                 <Tag
                   key={index}
                   $category={keyword.category}
-                  className="Body2"
+                  className="Body3"
                 >
                   # {keyword.name}
                 </Tag>
@@ -688,44 +642,49 @@ const [editedMbti, setEditedMbti] = useState(mbti);
 
 
           <ContactGrid>
-            {contactItems.map((item, index) => (
-              <ContactItem key={index} $isEditable={isOwner && isEditMode && item.editable}>
+            {contactItems.map((item) => (
+              <ContactItem
+                key={item.dropdownName ?? item.label}
+                $isEditable={isOwner && isEditMode && item.editable}
+              >
                 <ContactContentWrapper>
-                  <ContactIconWrapper>
-                    <img src={item.icon} alt={item.label} />
-                  </ContactIconWrapper>
+                  <ContactIconWrapper>
+                    <img src={item.icon} alt={item.label} />
+                  </ContactIconWrapper>
 
-                    <ContactTextWrapper> 
-                        <ContactLabel className="H4">{item.label}</ContactLabel>
-                    
-                        {isOwner && isEditMode && item.editable && item.options ? (
-                        <DropdownContainer ref={(el: HTMLDivElement | null) => {dropdownRefs.current[item.dropdownName!] = el;}}>
-                            <DropdownButton onClick={() => toggleDropdown(item.dropdownName!)}>
-                              <span className="Body2">{item.value}</span>
-                              <span>▼</span>
-                            </DropdownButton>
-                            {openDropdown === item.dropdownName && (
-                              <DropdownMenu>
-                                {item.options.map((option) => (
-                                  <DropdownItem
-                                    key={option.value}
-                                    onClick={() => handleSelect(item.dropdownName!, option.value)}
-                                    className="Body2"
-                                  >
-                                    {option.label}
-                                  </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                            )}
-                        </DropdownContainer>
-                    ) : (
-                        <ContactValue className="Body1">{item.value}</ContactValue>
-                    )}
-                    </ContactTextWrapper>
+                  <ContactTextWrapper>
+                    <ContactLabel className="H4">{item.label}</ContactLabel>
+
+                    {isOwner && isEditMode && item.editable && item.options ? (
+                      <DropdownContainer>
+                        <SelectInput
+                          className="Body2"
+                          value={
+                            item.dropdownName === "campus"
+                              ? selectedValues.campus
+                              : item.dropdownName === "nativeLanguages"
+                              ? selectedValues.nativeLanguages[0] ?? ""
+                              : selectedValues.learnLanguages[0] ?? ""
+                          }
+                          onChange={(e) =>
+                            handleSelect(item.dropdownName!, e.target.value)
+                          }
+                        >
+                          {item.options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </SelectInput>
+                      </DropdownContainer>
+                    ) : (
+                      <ContactValue className="Body1">{item.value}</ContactValue>
+                    )}
+                  </ContactTextWrapper>
                 </ContactContentWrapper>
-              </ContactItem>
-            ))}
-          </ContactGrid>
+              </ContactItem>
+            ))}
+          </ContactGrid>
 
           {isOwner && (
             <>

@@ -261,10 +261,13 @@ const CancelButton = styled.button`
   }
 `;
 
-const ContactGrid = styled.div`
+const ContactGrid = styled.div<{$isOwner: boolean}>`
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem; 
+  grid-template-columns: ${({ $isOwner }) =>
+    $isOwner
+      ? "repeat(4, minmax(0, 1fr))"
+      : "repeat(3, minmax(0, 1fr))"};
+  gap: ${({ $isOwner }) => ($isOwner ? "0.75rem" : "1rem")};
 `;
 
 const ContactContentWrapper = styled.div`
@@ -480,13 +483,19 @@ const [editedMbti, setEditedMbti] = useState(mbti);
       dropdownName: "learnLanguages",
       options: languageOptions,
     },
-    {
-      icon: EmailIcon,
-      label: "이메일",
-      value: email || "이메일은 비밀이에요",
-      editable: false,
-    },
   ];
+
+  if (isOwner) {
+  contactItems.push({
+    icon: EmailIcon,
+    label: "이메일",
+    value: email || "이메일이 안보여요",
+    editable: false,
+    dropdownName: "",
+    options: []
+  });
+}
+
 
   return (
     <Card $isEditMode={isEditMode}>
@@ -641,7 +650,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
           </IntroSection>
 
 
-          <ContactGrid>
+          <ContactGrid $isOwner={isOwner}>
             {contactItems.map((item) => (
               <ContactItem
                 key={item.dropdownName ?? item.label}

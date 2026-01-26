@@ -4,8 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
 import ActivityTabs from "../components/ActivityTabs";
 import axiosInstance from "../../axiosInstance";
-import type { Post, Comment } from "../types/mypage&profile.types";
+import type { Post, Comment, AppliedStudy } from "../types/mypage&profile.types";
 import { updateComment, deleteComment } from "../api/commentAPI";
+import { getProfileSrc } from "../utils/profileImage";
+
+
 
 const Container = styled.div`
   width: 100%;
@@ -67,8 +70,10 @@ const Mypage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [activeTab, setActiveTab] =
-  useState<"posts" | "comments">(initialTab);  const [myPosts, setMyPosts] = useState<Post[]>([]);
+  useState<"posts" | "comments" | "applied">(initialTab);  
+  const [myPosts, setMyPosts] = useState<Post[]>([]);
   const [myComments, setMyComments] = useState<Comment[]>([]);
+  const [myAppliedStudies, setMyAppliedStudies] = useState<AppliedStudy[]>([]);
 
   const LANGUAGE_MAP: Record<string, string> = {
     ko: "한국어",
@@ -101,6 +106,16 @@ const Mypage = () => {
         console.error("내 키워드 조회 실패:", error);
       }
     }, []);
+
+    const fetchMyAppliedStudies = async () => {
+  try {
+    const res = await axiosInstance.get("/api/me/studies/applied");
+    setMyAppliedStudies(res.data?.data ?? []);
+  } catch (e) {
+    console.error("신청한 스터디 조회 실패:", e);
+  }
+};
+
     
   useEffect(() => {
 
@@ -206,12 +221,19 @@ const Mypage = () => {
         fetchMyKeywords(),
         fetchMyPosts(),
         fetchMyComments(),
+        fetchMyAppliedStudies(),
       ]);
     } finally {
       setIsLoading(false);
     }
   })();
 }, [fetchMyKeywords]);
+
+
+const handleAppliedStudyClick = (studyId: number) => {
+  navigate(`/study/${studyId}`);
+};
+
 
  const handleProfileSave = async (updatedData: any) => {
   try {
@@ -416,6 +438,13 @@ const handleProfileImageReset = async () => {
   }
 };
 
+//내가 작성한 글과 신청한 스터디 게시글 id를 비교하여 내 글에 내가 신청한 케이스를 제외시킨다.
+const myPostIdSet = new Set(myPosts.map((post) => post.id));
+
+const filteredAppliedStudies = myAppliedStudies.filter(
+  (study) => !myPostIdSet.has(study.studyId)
+);
+
 
   return (
     <Container>
@@ -424,20 +453,21 @@ const handleProfileImageReset = async () => {
 
         {!isLoading && userData && (
         (() => {
-          const cleanedProfileUrl = userData.profileImageUrl
-            ? userData.profileImageUrl.replace(/([^:]\/)\/+/g, "$1")
-            : null;
+         const profileSrc = getProfileSrc(
+            userData.profileImageUrl,
+            userData.country
+          );
         
           return (
             <ProfileCard
-              key={`${cleanedProfileUrl}-${userData._updateKey || ""}`}
+              key={`${profileSrc}-${userData._updateKey || ""}`}
               userId={userData.id}
               username={userData.username}
               name={userData.name}
               nickname={userData.nickname}
               mbti={userData.mbti}
               country={userData.country}
-              profileImageUrl={cleanedProfileUrl}
+              profileImageUrl={profileSrc}
               infoTitle={userData.infoTitle}
               infoContent={userData.infoContent}
               keywords={{
@@ -471,7 +501,9 @@ const handleProfileImageReset = async () => {
           onTabChange={setActiveTab}
           posts={myPosts}
           comments={myComments}
-          onPostClick={handlePostClick}             
+          appliedStudies={filteredAppliedStudies}
+          onPostClick={handlePostClick}  
+          onAppliedStudyClick={handleAppliedStudyClick}           
           onCommentEdit={handleCommentEdit}          
           onCommentDelete={handleCommentDelete}
         />

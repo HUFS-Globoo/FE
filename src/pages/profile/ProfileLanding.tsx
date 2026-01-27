@@ -35,7 +35,7 @@ const mockProfilesForLanding = [
   },
   {
     userId: 32,
-    nickname: "田中さくら",
+    nickname: "고구마말랭이",
     campus: "GLOBAL" as const,
     country: "KR" as const,
     mbti: "ENFP",
@@ -49,7 +49,7 @@ const mockProfilesForLanding = [
   },
   {
     userId: 31,
-    nickname: "마라탕후루",
+    nickname: "田中さくら",
     campus: "GLOBAL" as const,
     country: "CN" as const,
     mbti: "SEOUL",
@@ -59,13 +59,13 @@ const mockProfilesForLanding = [
       learn: ["ko", "en"]
     },
     keywords: ["열정적인", "운동", "공부"],
-    intro: "مرحبا! أحب الثقافة الكورية\nLet's exchange languages and cultures!"
+    intro: "你好! 很高兴认识大家\n한국어 공부하고 있어요. 친구해요!"
   },
   {
     userId: 30,
     nickname: "모하메드",
     campus: "GLOBAL" as const,
-    country: "ar" as const,
+    country: "EG" as const,
     mbti: "ENFP",
     profileImage: null,
     languages: {
@@ -73,7 +73,8 @@ const mockProfilesForLanding = [
       learn: ["ko"]
     },
     keywords: ["활발한", "운동", "환경"],
-    intro: "你好! 很高兴认识大家\n한국어 공부하고 있어요. 친구해요!"
+    intro: "مرحبا! أحب الثقافة الكورية\nLet's exchange languages and cultures!"
+
   }
   ,{
     userId: 29,

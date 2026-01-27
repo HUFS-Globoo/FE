@@ -120,3 +120,13 @@ export interface UserProfileCard {
   profileImage: string | null;
   country: string;
 }
+
+// studymember 타입
+export interface StudyMember {
+  userId: number;
+  nickname: string;
+  profileImageUrl: string | null;
+  country: string | null;
+  mbti: string | null;
+  campus: "SEOUL" | "GLOBAL" | null;
+}

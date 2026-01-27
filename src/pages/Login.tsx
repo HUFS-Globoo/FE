@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Logo from "../assets/logo.svg";
 import CharacterBlur from "../assets/character-blur.svg";
 import { useState } from "react";
@@ -120,6 +121,7 @@ const SignUpContent = styled.div`
 
 const Login = () => {
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState("");
@@ -128,7 +130,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     if (!username || !email || !password) {
-      alert("모든 항목을 입력해주세요");
+      alert(t("login.alert.fieldsRequired"));
       return;
     }
 
@@ -145,7 +147,7 @@ const Login = () => {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("userId", response.data.userId);
 
-      alert("로그인 성공!");
+      alert(t("login.alert.success"));
       console.log("로그인 응답:", response);
       
       /**
@@ -164,9 +166,9 @@ const Login = () => {
       const errorMessage = error.response?.data?.message || "";
 
       if (error.response?.status === 401) {
-        alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+        alert(t("login.alert.invalidCredentials"));
       } else {
-        alert(errorMessage || "로그인 중 오류가 발생했습니다.");
+        alert(errorMessage || t("login.alert.error"));
       }
     }
   };
@@ -178,40 +180,40 @@ const Login = () => {
       <IntroContainer>
         <MainLogo src={Logo} alt="로고"/>
         <MainCharacter src={CharacterBlur} alt="메인 캐릭터" />
-        <IntroContent className="H2">학교 이메일 인증으로 안전하게, 취향·성격·관심사 기반으로 나와<br /> 잘 맞는 외국인 친구를 찾아드려요.<br /><br /> 1:1 채팅으로 자연스럽게 언어를 배우고 문화를 나누며,<br /> 교내에서 시작되는 글로벌 네트워킹을 경험하세요.</IntroContent>
+        <IntroContent className="H2" dangerouslySetInnerHTML={{ __html: t("login.intro.content") }} />
       </IntroContainer>
       <LoginContainer>
-        <LoginTitle>로그인</LoginTitle>
+        <LoginTitle>{t("login.title")}</LoginTitle>
         <InputContainer>
           <InputBox>
-            <InputTitle >아이디</InputTitle>
+            <InputTitle>{t("login.form.username.label")}</InputTitle>
             <InputItem
               type="text"
-              placeholder="likelion"
+              placeholder={t("login.form.username.placeholder")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
 
-            <InputTitle >학교 이메일</InputTitle>
+            <InputTitle>{t("login.form.email.label")}</InputTitle>
             <InputItem
               type="text"
-              placeholder="likelion@hufs.ac.kr"
+              placeholder={t("login.form.email.placeholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <InputTitle >비밀번호</InputTitle>
+            <InputTitle>{t("login.form.password.label")}</InputTitle>
             <InputItem
               type="password"
-              placeholder="********"
+              placeholder={t("login.form.password.placeholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </InputBox>
           <SumbitContainer>
-            <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
+            <SubmitButton onClick={handleLogin}>{t("login.form.submitButton")}</SubmitButton>
             <SignUpContent onClick={() => navigate("/signup/step1")}>
-              회원이 아니신가요?{" "}
-              <span style={{color:"var(--primary)", cursor:"pointer"}} >회원가입</span>
+              {t("login.form.signUpText")}{" "}
+              <span style={{color:"var(--primary)", cursor:"pointer"}} >{t("login.form.signUpLink")}</span>
             </SignUpContent>
           </SumbitContainer>
           

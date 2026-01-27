@@ -3,6 +3,7 @@ import Study from "../assets/study-icon.svg";
 import RandomMatch from "../assets/random-match-icon.svg";
 import Message from "../assets/message-icon.svg"
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import BannerImg from "../assets/banner-background.svg";
 import Header from "../components/Header";
 import Character from "../assets/main-character.svg";
@@ -36,7 +37,6 @@ const BannerContainer = styled.div`
   display: flex;
   gap: 2.44rem;
   justify-content: center;
-  flex-wrap: wrap;
 `
 const MainCharacter = styled.img`
   width: 14.125rem;
@@ -46,7 +46,7 @@ const MainCharacter = styled.img`
 const BannerContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding-top: 3.9rem;
+  //padding-top: 3.9rem;
   gap: 2.94rem;
 `
 
@@ -60,6 +60,7 @@ const BannerTitle = styled.div`
 const BannerContent = styled.div`
   font-family: 'SchoolSafetyRoundedSmile';
   font-size: 1.5rem;
+  text-align: center;
   font-weight: 400;
   line-height: 1.875rem; /* 125% */
   letter-spacing: 0.036rem;
@@ -142,11 +143,11 @@ const Button = styled.div`
 
 const Main = () => {
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleStartMatching = async () => {
-    // 로그인하지 않은 경우 ProtectedRoute가 안내 화면을 보여주도록
-    // 그냥 /random-match로 이동
+
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("accessToken");
   
@@ -170,13 +171,13 @@ const Main = () => {
       );
   
       console.log("매칭 대기열 등록 성공:", response.data);
-  
+
       navigate("/random-match", {
         state: { matchStatus: "WAITING", userId: Number(userId) },
       });
     } catch (error) {
       console.error("매칭 요청 실패:", error);
-      alert("매칭 요청 중 오류가 발생했습니다.");
+      alert(t("main.alert.matchingError"));
     }
   };
 
@@ -187,33 +188,33 @@ const Main = () => {
         <BannerContainer>
           <MainCharacter src={Character} alt="캐릭터"/>
           <BannerContentWrapper>
-            <BannerTitle>새로운 문화와 친구, 지금 우리 학교 안에서 시작해요</BannerTitle>
-            <BannerContent>학교 이메일 인증으로 안전하게, 취향·성격·관심사 기반으로 나와 잘 맞는 외국인 친구를 찾아드려요.<br /> 1:1 채팅으로 자연스럽게 언어를 배우고 문화를 나누며, 교내에서 시작되는 글로벌 네트워킹을 경험하세요.</BannerContent>
+            <BannerTitle>{t("main.banner.title")}</BannerTitle>
+            <BannerContent dangerouslySetInnerHTML={{ __html: t("main.banner.content") }} />
           </BannerContentWrapper>
         </BannerContainer>
       </Banner>
       <ContentContainer>
-        <ContentTitle>주요 서비스 소개</ContentTitle>
+        <ContentTitle>{t("main.content.title")}</ContentTitle>
         <ServiceContainer>
           <ServiceCard>
             <Icon src={RandomMatch} />
-            <CardTitle>친구 랜덤 매칭</CardTitle>
-            <CardContent>취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭해 대화까지!</CardContent>
-            <Button onClick={handleStartMatching}>시작하기</Button>
+            <CardTitle>{t("main.services.randomMatch.title")}</CardTitle>
+            <CardContent dangerouslySetInnerHTML={{ __html: t("main.services.randomMatch.description") }} />
+            <Button onClick={handleStartMatching}>{t("main.services.startButton")}</Button>
           </ServiceCard>
 
           <ServiceCard>
             <Icon src={Study} />
-            <CardTitle>스터디 모집</CardTitle>
-            <CardContent>언어 교환부터 전공 스터디까지,<br /> 관심 분야별 팀을 만들어보세요!</CardContent>
-            <Button  onClick={() => navigate("/study")}>시작하기</Button>
+            <CardTitle>{t("main.services.study.title")}</CardTitle>
+            <CardContent dangerouslySetInnerHTML={{ __html: t("main.services.study.description") }} />
+            <Button  onClick={() => navigate("/study")}>{t("main.services.startButton")}</Button>
           </ServiceCard>
 
           <ServiceCard>
             <Icon src={Message} />
-            <CardTitle>쪽지</CardTitle>
-            <CardContent>친구들의 프로필을 구경하고<br /> 친해지고 싶은 친구에게 쪽지를 보내세요!</CardContent>
-            <Button  onClick={() => navigate("/message")}>시작하기</Button>
+            <CardTitle>{t("main.services.message.title")}</CardTitle>
+            <CardContent dangerouslySetInnerHTML={{ __html: t("main.services.message.description") }} />
+            <Button  onClick={() => navigate("/message")}>{t("main.services.startButton")}</Button>
           </ServiceCard>
         </ServiceContainer>
       </ContentContainer>

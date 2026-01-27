@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import CharacterBlur from "../assets/character-blur.svg";
 
@@ -72,6 +73,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -122,7 +124,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return (
       <Container>
         <MainCharacter src={CharacterBlur} alt="메인 캐릭터" />
-        <Message>로딩 중...</Message>
+        <Message>{t("protectedRoute.loading")}</Message>
       </Container>
     );
   }
@@ -132,12 +134,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return (
       <Container>
         <MainCharacter src={CharacterBlur} alt="메인 캐릭터" />
-        <Message>
-          로그인이 필요한 서비스입니다.<br />
-          로그인 후 이용해주세요.
-        </Message>
+        <Message dangerouslySetInnerHTML={{ __html: t("protectedRoute.message") }} />
         <Button onClick={handleLogin}>
-          로그인하러 가기
+          {t("protectedRoute.loginButton")}
         </Button>
       </Container>
     );

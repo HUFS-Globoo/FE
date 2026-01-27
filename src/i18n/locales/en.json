@@ -1,0 +1,559 @@
+{
+  "header": {
+    "home": "Home",
+    "randomMatch": "Random Match",
+    "study": "Study Group",
+    "profile": "Profile",
+    "message": "Message",
+    "mypage": "MYPAGE",
+    "login": "Login",
+    "logout": "Logout",
+    "language": {
+      "ko": "한국어",
+      "en": "English"
+    }
+  },
+  "main": {
+    "banner": {
+      "title": "Discover new cultures and friends, starting right here",
+      "content": "Secure school email verification helps you find international friends who match you.<br /> Connect through 1:1 chats, learn languages naturally, and start global networking on campus."
+    },
+    "content": {
+      "title": "Our Main Services"
+    },
+    "services": {
+      "randomMatch": {
+        "title": "Random Friend Matching",
+        "description": "Based on your preferences and personality,<br /> we automatically match you with foreign friends on campus for conversations!"
+      },
+      "study": {
+        "title": "Study Groups",
+        "description": "From language exchange to major studies,<br /> create teams by your interests!"
+      },
+      "message": {
+        "title": "Messages",
+        "description": "Browse your friends' profiles<br /> and send messages to friends you want to get to know!"
+      },
+      "startButton": "Get Started"
+    },
+    "alert": {
+      "matchingError": "An error occurred during matching request."
+    }
+  },
+  "signup": {
+    "sidebar": {
+      "title": "Sign Up",
+      "step": "Step"
+    },
+    "steps": {
+      "step1": "Basic Information",
+      "step2": "School Email Verification",
+      "step3": "Language & Nationality",
+      "step4": "Select Keywords About Me"
+    },
+    "step1": {
+      "title": "01 Please enter your basic information",
+      "fields": {
+        "name": {
+          "label": "Name",
+          "placeholder": "John Doe"
+        },
+        "nickname": {
+          "label": "Nickname",
+          "placeholder": "coolguy"
+        },
+        "username": {
+          "label": "Username",
+          "placeholder": "likelion"
+        },
+        "phoneNumber": {
+          "label": "Phone Number",
+          "placeholder": "01012341234"
+        },
+        "birthDate": {
+          "label": "Birth",
+          "year": "Year",
+          "month": "Month",
+          "day": "Day",
+          "yearPlaceholder": "2025",
+          "monthPlaceholder": "10",
+          "dayPlaceholder": "31"
+        },
+        "gender": {
+          "label": "Gender",
+          "select": "Select",
+          "male": "Male",
+          "female": "Female"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "********"
+        }
+      },
+      "nextButton": "Next Step"
+    },
+    "step2": {
+      "title": "02 Please verify with your school email",
+      "campus": {
+        "global": "Global",
+        "seoul": "Seoul"
+      },
+      "email": {
+        "label": "School Email",
+        "placeholder": "likelion@hufs.ac.kr"
+      },
+      "verification": {
+        "label": "Verification Code",
+        "placeholder": "123456",
+        "send": "Send Code",
+        "verify": "Verify Code",
+        "resend": "Didn't receive the code? Resend"
+      },
+      "alert": {
+        "emailRequired": "Please enter your email.",
+        "fieldsRequired": "Please fill in all required fields. (Email, Username, Password, Name, Nickname)",
+        "codeSent": "Verification code has been sent. Please check your email!",
+        "codeResent": "Verification code has been resent. Please check your email again!",
+        "resendFailed": "Resend failed. Please try again.",
+        "codeRequired": "Please enter the verification code!",
+        "verificationComplete": "Email verification completed!",
+        "tokenError": "Verification completed but failed to receive token.",
+        "verificationFailed": "Verification failed. Please check the code again.",
+        "verificationError": "An error occurred during verification.",
+        "sendError": "An error occurred while sending the verification code.",
+        "resendError": "An error occurred while resending the verification code.",
+        "verificationNotComplete": "Please complete email verification."
+      }
+    },
+    "step3": {
+      "title": "03 Please enter your preferred language and nationality",
+      "fields": {
+        "nativeLanguage": {
+          "label": "Native Language"
+        },
+        "preferredLanguage": {
+          "label": "Preferred Language"
+        },
+        "nationality": {
+          "label": "Nationality"
+        }
+      },
+      "languages": {
+        "ko": "Korean",
+        "en": "English",
+        "zh": "Chinese",
+        "ar": "Arabic",
+        "it": "Italian"
+      },
+      "nationalities": {
+        "KR": "South Korea",
+        "US": "United States",
+        "CN": "China",
+        "EG": "Egypt",
+        "IT": "Italy"
+      },
+      "alert": {
+        "tokenMissing": "Authentication token is missing. Please go back to the previous step.",
+        "saveFailed": "Failed to save. Please try again.",
+        "saveError": "An error occurred while saving."
+      }
+    },
+    "step4": {
+      "title": "04 Please select keywords that describe you",
+      "mbti": {
+        "label": "MBTI",
+        "select": "Select"
+      },
+      "keywords": {
+        "personality": {
+          "title": "Select keywords that match your personality",
+          "selectCount": "(Select 3-5)",
+          "items": {
+            "활발한": "Active",
+            "솔직한": "Honest",
+            "차분한": "Calm",
+            "유쾌한": "Cheerful",
+            "친절한": "Kind",
+            "도전적": "Challenging",
+            "신중한": "Careful",
+            "긍정적": "Positive",
+            "냉정한": "Cool",
+            "열정적인": "Passionate"
+          }
+        },
+        "hobby": {
+          "title": "Select your interests and hobbies",
+          "selectCount": "(Select 3-5)",
+          "items": {
+            "영화 시청": "Watching Movies",
+            "음악 감상": "Listening to Music",
+            "요리": "Cooking",
+            "독서": "Reading",
+            "카페가기": "Going to Cafes",
+            "운동": "Exercise",
+            "산책": "Walking",
+            "사진 촬영": "Photography",
+            "게임": "Gaming",
+            "여행": "Travel"
+          }
+        },
+        "topic": {
+          "title": "Select topics you're interested in",
+          "selectCount": "(Select 3-5)",
+          "items": {
+            "음악": "Music",
+            "아이돌": "Idols",
+            "패션/뷰티": "Fashion/Beauty",
+            "스포츠": "Sports",
+            "영화/드라마": "Movies/Dramas",
+            "공부": "Study",
+            "자기계발": "Self-Development",
+            "책": "Books",
+            "환경": "Environment",
+            "동물": "Animals"
+          }
+        }
+      },
+      "alert": {
+        "tokenMissing": "Authentication token is missing. Please go back to the previous step.",
+        "keywordCount": "Please select 3-5 keywords.",
+        "signupSuccess": "Sign up completed!",
+        "signupError": "An error occurred during sign up. Please check your input again."
+      }
+    },
+    "common": {
+      "nextButton": "Next"
+    }
+  },
+  "protectedRoute": {
+    "loading": "Loading...",
+    "message": "This service requires login.<br />Please log in to continue.",
+    "loginButton": "Go to Login"
+  },
+  "login": {
+    "title": "Login",
+    "intro": {
+      "content": "Secure school email verification helps you find international friends who match you.<br /> Connect through 1:1 chats, learn languages naturally, and start global networking on campus."
+    },
+    "form": {
+      "username": {
+        "label": "Username",
+        "placeholder": "likelion"
+      },
+      "email": {
+        "label": "School Email",
+        "placeholder": "likelion@hufs.ac.kr"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "********"
+      },
+      "submitButton": "Login",
+      "signUpText": "Not a member?",
+      "signUpLink": "Sign Up"
+    },
+    "alert": {
+      "fieldsRequired": "Please fill in all fields",
+      "success": "Login successful!",
+      "invalidCredentials": "Username or password is incorrect.",
+      "error": "An error occurred during login."
+    }
+  },
+  "randomMatch": {
+    "title": "Random Friend Matching",
+    "description": "Based on your preferences and personality,<br /> we automatically match you with foreign friends on campus.",
+    "loading": {
+      "title": "Matching in progress...",
+      "cancel": "Match Later"
+    },
+    "matched": {
+      "title": "Match successful!",
+      "nativeLanguage": "Native Language:",
+      "preferredLanguage": "Preferred Language:",
+      "nationality": "Nationality:",
+      "noInfo": "No information",
+      "startChat": "Start Chat",
+      "findAnother": "Find Another",
+      "waitingAccept": "Waiting for the other person to accept..."
+    },
+    "chat": {
+      "entered": " has entered.",
+      "messagePlaceholder": "Type your message",
+      "leftChat": "You left the chat room."
+    },
+    "languages": {
+      "ko": "Korean",
+      "en": "English",
+      "zh": "Chinese",
+      "fr": "French",
+      "de": "German",
+      "ja": "Japanese",
+      "es": "Spanish"
+    },
+    "countries": {
+      "KR": "South Korea",
+      "US": "United States",
+      "JP": "Japan",
+      "CN": "China",
+      "FR": "France",
+      "DE": "Germany",
+      "UK": "United Kingdom",
+      "CA": "Canada",
+      "AU": "Australia"
+    },
+    "alert": {
+      "invalidMatchInfo": "Match information is invalid.",
+      "waitForAccept": "Please wait for the other person to accept.",
+      "chatStartError": "An error occurred while starting the chat.",
+      "noMatchInfo": "No match information. Please try again.",
+      "findAnotherError": "An error occurred while finding another match.",
+      "partnerLeft": "The other person has left."
+    }
+  },
+  "message": {
+    "title": "Messages",
+    "friendsList": {
+      "title": "Friends I've chatted with",
+      "empty": "No message rooms."
+    },
+    "chat": {
+      "selectChat": "Please select a conversation",
+      "leaveChat": "Leave Chat",
+      "noMessages": "No messages exchanged yet.",
+      "selectPartner": "Select a conversation partner to view message history.",
+      "messagePlaceholder": "Type your message",
+      "sendButton": "Send",
+      "read": "✔ Read",
+      "sent": "Sent"
+    }
+  },
+  "profile": {
+    "landing": {
+      "title": "Meet New<br />Friends! 👋",
+      "subtitle": "Experience HUFS life with<br />friends from around the world!<br />Find friends who match you and study together!",
+      "exploreButton": "Explore Profiles ✨"
+    },
+    "list": {
+      "title": "Profile Search",
+      "subtitle": "Find friends who fit you",
+      "sectionTitle": "View Friends' Profiles",
+      "filters": {
+        "campus": "Campus",
+        "nativeLanguage": "Native Language",
+        "personalityKeyword": "Personality Keyword",
+        "hobbyKeyword": "Hobby Keyword",
+        "topicKeyword": "Topic Keyword",
+        "all": "All",
+        "global": "Global Campus",
+        "seoul": "Seoul Campus",
+        "search": "Search"
+      },
+      "languages": {
+        "korean": "Korean",
+        "english": "English",
+        "chinese": "Chinese",
+        "arabic": "Arabic",
+        "italian": "Italian"
+      },
+      "keywords": {
+        "personality": {
+          "1": "Active",
+          "2": "Honest",
+          "3": "Calm",
+          "4": "Cheerful",
+          "5": "Kind",
+          "6": "Challenging",
+          "7": "Careful",
+          "8": "Positive",
+          "9": "Cool",
+          "10": "Passionate"
+        },
+        "hobby": {
+          "11": "Watching Movies",
+          "12": "Listening to Music",
+          "13": "Cooking",
+          "14": "Reading",
+          "15": "Going to Cafes",
+          "16": "Exercise",
+          "17": "Walking",
+          "18": "Photography",
+          "19": "Gaming",
+          "20": "Travel"
+        },
+        "topic": {
+          "21": "Music",
+          "22": "Idols",
+          "23": "Fashion/Beauty",
+          "24": "Sports",
+          "25": "Movies/Dramas",
+          "26": "Study",
+          "27": "Self-Development",
+          "28": "Books",
+          "29": "Environment",
+          "30": "Animals"
+        }
+      }
+    },
+    "detail": {
+      "title": "Profile View",
+      "loading": "Loading...",
+      "error": "Unable to load profile information.",
+      "message": {
+        "title": "Write a Message",
+        "placeholder": "Type your message",
+        "sendButton": "Send Message"
+      },
+      "alert": {
+        "partnerInfoError": "Unable to load partner information.",
+        "sendSuccess": "Message sent successfully to",
+        "loginRequired": "Login required.",
+        "partnerNotFound": "Partner not found.",
+        "sendError": "An error occurred while sending the message."
+      }
+    },
+    "campus": {
+      "global": "Global Campus",
+      "seoul": "Seoul Campus"
+    },
+    "languages": {
+      "ko": "Korean",
+      "en": "English",
+      "es": "Spanish",
+      "fr": "French",
+      "ja": "Japanese",
+      "zh": "Chinese",
+      "de": "German",
+      "it": "Italian",
+      "ar": "Arabic"
+    }
+  },
+  "study": {
+    "title": "Study Groups",
+    "list": {
+      "title": "Study Groups",
+      "subtitle": "Find friends who fit you",
+      "loading": "Loading data...",
+      "empty": "No study groups available.",
+      "filters": {
+        "campus": "Campus",
+        "language": "Language",
+        "status": "Status",
+        "all": "All",
+        "global": "Global Campus",
+        "seoul": "Seoul Campus",
+        "recruiting": "Recruiting",
+        "closed": "Closed",
+        "search": "Search"
+      },
+      "profile": {
+        "loginRequired": "Please log in to view your information.",
+        "myPosts": "My Posts",
+        "myComments": "My Comments",
+        "createPost": "Create Post"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page"
+      }
+    },
+    "detail": {
+      "title": "Study Groups",
+      "loading": "Loading post...",
+      "error": "Error:",
+      "profile": {
+        "loading": "Loading user information...",
+        "loginRequired": "Login required.",
+        "myPosts": "My Posts",
+        "myComments": "My Comments",
+        "backToList": "Study List"
+      },
+      "status": {
+        "recruiting": "Recruiting",
+        "closed": "Closed"
+      },
+      "participants": "people",
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "join": "Join",
+        "joined": "Joined"
+      },
+      "alert": {
+        "deleteConfirm": "Are you sure you want to delete this post?",
+        "deleteSuccess": "Post deleted successfully.",
+        "deleteError": "Failed to delete post:",
+        "commentSuccess": "Comment added!",
+        "commentError": "Failed to add comment:",
+        "editCommentError": "Failed to edit comment:",
+        "deleteCommentConfirm": "Are you sure you want to delete this comment?",
+        "deleteCommentSuccess": "Comment deleted!",
+        "deleteCommentError": "Failed to delete comment:",
+        "alreadyJoined": "You have already joined this study.\nPlease check your joined studies in My Page.",
+        "joiningInProgress": "Join request is already being processed.",
+        "capacityFull": "This study is already full.",
+        "joinConfirm": "Do you want to request to join this study?",
+        "joinSuccess": "Join request sent successfully.",
+        "joinError": "Failed to join study:"
+      }
+    },
+    "post": {
+      "create": "Create Post",
+      "edit": "Edit Post",
+      "form": {
+        "campus": {
+          "label": "Campus",
+          "placeholder": "Select Campus",
+          "seoul": "Seoul Campus",
+          "global": "Global Campus"
+        },
+        "language": {
+          "label": "Language",
+          "placeholder": "Select Language"
+        },
+        "capacity": {
+          "label": "Max Capacity",
+          "placeholder": "Select Max Capacity",
+          "people": "people"
+        },
+        "title": {
+          "label": "Post Title",
+          "placeholder": "e.g., English Conversation Study Group"
+        },
+        "content": {
+          "label": "Study Details",
+          "description": "Please freely describe the purpose and format of the study.",
+          "placeholder": "e.g., Study Goals and Format\n\nGoals: \nSchedule: \nTarget Participants: \nOther Notes:"
+        },
+        "submit": {
+          "create": "Post",
+          "edit": "Save Changes",
+          "creating": "Creating post...",
+          "editing": "Updating post..."
+        }
+      },
+      "validation": {
+        "titleRequired": "Please enter a post title",
+        "contentRequired": "Please enter study details",
+        "campusRequired": "Please select a campus",
+        "languageRequired": "Please select a language",
+        "capacityInvalid": "Capacity must be between 2 and 6 people"
+      },
+      "alert": {
+        "loginRequired": "Login required to create a post.",
+        "loadError": "Failed to load post information.",
+        "editSuccess": "Post updated!",
+        "createSuccess": "Post created successfully!",
+        "editError": "Failed to update post:",
+        "createError": "Failed to create post:"
+      },
+      "profile": {
+        "loading": "Loading user information...",
+        "loginRequired": "Login required.",
+        "myPosts": "My Posts",
+        "myComments": "My Comments",
+        "backToList": "Study List"
+      }
+    }
+  }
+}

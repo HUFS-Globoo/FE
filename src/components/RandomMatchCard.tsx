@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import MockImg from "../assets/main-character.svg";
 import axiosInstance from "../../axiosInstance";
 import { IoIosLogOut } from "react-icons/io";
@@ -314,6 +315,7 @@ interface ChatMessage {
 }
 
 export default function RandomMatchCard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const userId = location.state?.userId || Number(localStorage.getItem("userId"));
@@ -442,7 +444,7 @@ const handleAcceptMatch = async () => {
         console.log("matchId 재획득 성공:", apiData.matchId);
         setMatchId(apiData.matchId);
       } else {
-        alert("매칭 정보가 올바르지 않습니다.");
+        alert(t("randomMatch.alert.invalidMatchInfo"));
         return;
       }
     } catch (e) {
@@ -453,7 +455,7 @@ const handleAcceptMatch = async () => {
 
   // 이미 내가 수락 눌렀으면 중복 방지
   if (hasAccepted) {
-    alert("상대방이 수락할 때까지 기다려 주세요.");
+    alert(t("randomMatch.alert.waitForAccept"));
     return;
   }
 
@@ -469,7 +471,7 @@ const handleAcceptMatch = async () => {
     setWaitingAccept(true);
   } catch (error) {
     console.error("매칭 수락 실패:", error);
-    alert("채팅 시작 중 오류가 발생했습니다.");
+    alert(t("randomMatch.alert.chatStartError"));
   }
 };
 
@@ -484,7 +486,7 @@ const handleFindAnother = async () => {
       const apiData = res.data.data;
 
       if (!apiData?.matchId) {
-        alert("매칭 정보가 없습니다. 다시 시도해주세요.");
+        alert(t("randomMatch.alert.noMatchInfo"));
         return;
       }
 
@@ -505,7 +507,7 @@ const handleFindAnother = async () => {
 
   } catch (error) {
     console.error("다음 상대 찾기 오류:", error);
-    alert("다른 상대를 찾는 중 오류가 발생했습니다.");
+    alert(t("randomMatch.alert.findAnotherError"));
   }
 };
 
@@ -577,7 +579,7 @@ const handleFindAnother = async () => {
         break;
   
       case "LEAVE_NOTICE":
-        alert("상대방이 나갔습니다.");
+        alert(t("randomMatch.alert.partnerLeft"));
   
         setChatRoomId(null);
         setMessages([]);
@@ -647,7 +649,7 @@ const handleFindAnother = async () => {
   
     ws.current.send(JSON.stringify(leavePayload));
   
-    alert("대화방을 나갔습니다.");
+    alert(t("randomMatch.chat.leftChat"));
   
     setTimeout(() => {
       if (ws.current) {
@@ -667,26 +669,13 @@ const handleFindAnother = async () => {
   
 
 
-  const languageMap: Record<string, string> = {
-    zh: "중국어",
-    en: "영어",
-    fr: "프랑스어",
-    de: "독일어",
-    ja: "일본어",
-    ko: "한국어",
-    es: "스페인어",
+  // 언어와 국적 맵을 번역 함수로 동적으로 가져오기
+  const getLanguageName = (code: string): string => {
+    return t(`randomMatch.languages.${code}`) || code;
   };
 
-  const countryMap: Record<string, string> = {
-    KR: "대한민국",
-    US: "미국",
-    JP: "일본",
-    CN: "중국",
-    FR: "프랑스",
-    DE: "독일",
-    UK: "영국",
-    CA: "캐나다",
-    AU: "호주",
+  const getCountryName = (code: string): string => {
+    return t(`randomMatch.countries.${code}`) || code;
   };
 
   const countryCharacterImages: Record<string, string> = {
@@ -707,14 +696,14 @@ const handleFindAnother = async () => {
       {waitingAccept && (
       <ModalWrapper>
         <ModalBox>
-          상대방이 수락할 때까지 기다리는 중...
+          {t("randomMatch.matched.waitingAccept")}
         </ModalBox>
       </ModalWrapper>
       )}
       <Container>
       { stage === "matched" && (
           <>
-            <MatchedTitle>매칭에 성공했습니다!</MatchedTitle>
+            <MatchedTitle>{t("randomMatch.matched.title")}</MatchedTitle>
             <MatchedProfile>
             <ProfileImg
               src={
@@ -728,23 +717,25 @@ const handleFindAnother = async () => {
 
               <LanguageBox>
                 <LanguageContent>
-                  사용 언어:{" "}
-                  {languageMap[
+                  {t("randomMatch.matched.nativeLanguage")}{" "}
+                  {getLanguageName(
                     partner?.nativeLanguages?.[0]?.code ||
-                    partner?.nativeLanguages?.[0]?.name?.toLowerCase()
-                  ] || "정보 없음"}
+                    partner?.nativeLanguages?.[0]?.name?.toLowerCase() ||
+                    ""
+                  ) || t("randomMatch.matched.noInfo")}
                 </LanguageContent>
                 
                 <LanguageContent>
-                  선호 언어:{" "}
-                  {languageMap[
+                  {t("randomMatch.matched.preferredLanguage")}{" "}
+                  {getLanguageName(
                     partner?.learnLanguages?.[0]?.code ||
-                    partner?.learnLanguages?.[0]?.name?.toLowerCase()
-                  ] || "정보 없음"}
+                    partner?.learnLanguages?.[0]?.name?.toLowerCase() ||
+                    ""
+                  ) || t("randomMatch.matched.noInfo")}
                 </LanguageContent>
                 
                 <LanguageContent>
-                  국적: {countryMap[partner?.country] || partner?.country || "정보 없음"}
+                  {t("randomMatch.matched.nationality")} {getCountryName(partner?.country || "") || t("randomMatch.matched.noInfo")}
                 </LanguageContent>
               </LanguageBox>
 
@@ -757,8 +748,8 @@ const handleFindAnother = async () => {
 
 
               <ButtonContainer>
-                <Button onClick={handleAcceptMatch}>채팅 시작하기</Button>
-                <Button onClick={handleFindAnother}>다른 상대 찾기</Button>
+                <Button onClick={handleAcceptMatch}>{t("randomMatch.matched.startChat")}</Button>
+                <Button onClick={handleFindAnother}>{t("randomMatch.matched.findAnother")}</Button>
               </ButtonContainer>
             </MatchedProfile>
           </>
@@ -767,10 +758,10 @@ const handleFindAnother = async () => {
 
           {stage === "loading" && (
             <>
-              <Title>랜덤 매칭 중입니다...</Title>
+              <Title>{t("randomMatch.loading.title")}</Title>
               <SpinnerWrapper />
               <CancelButton onClick={handleCancelMatching}>
-                매칭 다음에 하기
+                {t("randomMatch.loading.cancel")}
               </CancelButton>
             </>
           )}
@@ -787,7 +778,7 @@ const handleFindAnother = async () => {
               }
               alt="프로필 이미지"
             />
-              <NicnameContent>{partner?.nickname} 님이 입장하셨습니다.</NicnameContent>
+              <NicnameContent>{partner?.nickname}{t("randomMatch.chat.entered")}</NicnameContent>
               <OutIcon onClick={handleEndChat} />
             </MessageHeader>
 
@@ -812,7 +803,7 @@ const handleFindAnother = async () => {
             <SendInput
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="메시지를 입력해주세요"
+              placeholder={t("randomMatch.chat.messagePlaceholder")}
               onKeyUp={(e) => {
                 if (e.nativeEvent.isComposing) return; 
                 if (e.key === "Enter") {

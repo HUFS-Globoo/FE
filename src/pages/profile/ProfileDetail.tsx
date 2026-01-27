@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import ProfileCard from "../../components/ProfileCard";
 import { type ProfileDetailResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
@@ -82,20 +83,14 @@ const MessageButton = styled.button`
 
 
 const ProfileDetail = () => {
+  const { t } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const [userData, setUserData] = useState<ProfileDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const LANGUAGE_MAP: Record<string, string> = {
-    ko: "한국어",
-    en: "영어",
-    es: "스페인어",
-    fr: "프랑스어",
-    ja: "일본어",
-    zh: "중국어",
-    de: "독일어",
-    it: "이탈리아어",
+  const getLanguageName = (code: string): string => {
+    return t(`profile.languages.${code}`) || code;
   };
 
   useEffect(() => {
@@ -145,8 +140,8 @@ const ProfileDetail = () => {
           introContent: data.infoContent,
           keywords: data.keywords,
           languages: {
-            native: data.nativeLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),
-            learn: data.learnLanguages.map((l: any) => LANGUAGE_MAP[l.code] || l.name),
+            native: data.nativeLanguages.map((l: any) => getLanguageName(l.code) || l.name),
+            learn: data.learnLanguages.map((l: any) => getLanguageName(l.code) || l.name),
           },
         };
   
@@ -166,7 +161,7 @@ const ProfileDetail = () => {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
     if (!userData?.userId) {
-      alert("상대방 정보를 불러올 수 없습니다.");
+      alert(t("profile.detail.alert.partnerInfoError"));
       return;
     }
   
@@ -179,17 +174,17 @@ const ProfileDetail = () => {
       });
   
       console.log("쪽지 전송 성공:", res.data);
-      alert(`${userData.nickname}님에게 쪽지가 성공적으로 전송되었습니다!`);
+      alert(`${userData.nickname}${t("profile.detail.alert.sendSuccess")}`);
   
       setMessage("");
     } catch (error: any) {
       console.error("쪽지 전송 실패:", error);
       if (error.response?.status === 403) {
-        alert("로그인이 필요합니다.");
+        alert(t("profile.detail.alert.loginRequired"));
       } else if (error.response?.status === 404) {
-        alert("상대방을 찾을 수 없습니다.");
+        alert(t("profile.detail.alert.partnerNotFound"));
       } else {
-        alert("쪽지 전송 중 오류가 발생했습니다.");
+        alert(t("profile.detail.alert.sendError"));
       }
     }
   };
@@ -200,7 +195,7 @@ const ProfileDetail = () => {
     return (
       <Container>
         <ContentWrapper>
-          <div className="Body1">로딩 중...</div>
+          <div className="Body1">{t("profile.detail.loading")}</div>
         </ContentWrapper>
       </Container>
     );
@@ -210,7 +205,7 @@ const ProfileDetail = () => {
     return (
       <Container>
         <ContentWrapper>
-          <div className="Body1">프로필 정보를 불러올 수 없습니다.</div>
+          <div className="Body1">{t("profile.detail.error")}</div>
         </ContentWrapper>
       </Container>
     );
@@ -219,7 +214,7 @@ const ProfileDetail = () => {
   return (
     <Container>
       <ContentWrapper>
-        <PageTitle className="H1">프로필 조회</PageTitle>
+        <PageTitle className="H1">{t("profile.detail.title")}</PageTitle>
         
         <ProfileCard
           userId={userData.userId}
@@ -239,19 +234,19 @@ const ProfileDetail = () => {
 
         {/* 메시지 보내기 */}
         <MessageSection>
-          <MessageTitle className="H4">쪽지 작성하기</MessageTitle>
+          <MessageTitle className="H4">{t("profile.detail.message.title")}</MessageTitle>
           <MessageTextarea
             className="Body1"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="메시지를 작성해주세요"
+            placeholder={t("profile.detail.message.placeholder")}
           />
           <MessageButton 
             className="Button1"
             onClick={handleSendMessage}
             disabled={!message.trim()}
           >
-            쪽지 보내기
+            {t("profile.detail.message.sendButton")}
           </MessageButton>
         </MessageSection>
       </ContentWrapper>

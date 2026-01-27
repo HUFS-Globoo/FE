@@ -1,4 +1,3 @@
-// src/components/study/StudyDetail.tsx
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -24,7 +23,8 @@ import type {
     StudyStatus
 } from "../../types/study.types";
 
-//목데이터 삭제함
+import StudyApplicantsList from "../../components/StudyApplicantsList";
+import type { StudyMember } from "../../types/study.types";
 
 import ParticipantImg from "../../assets/img-participant.svg";
 import AmericaProfileImg from "../../assets/img-profile1-America.svg";
@@ -279,6 +279,10 @@ const StudyDetail = () => {
 // 가입 여부, 가입 요청 중 여부 구분
     const [hasJoined, setHasJoined] = useState(false);
     const [isJoining, setIsJoining] = useState(false);
+// 신청한 사람들 목록 state
+    const [members, setMembers] = useState<StudyMember[]>([]);
+    const [isMembersLoading, setIsMembersLoading] = useState(false);
+
 
     const useDefaultProfile =
   typeof window !== "undefined" &&
@@ -311,6 +315,21 @@ const StudyDetail = () => {
 
 
 
+const fetchMembers = useCallback(async () => {
+  if (isNaN(studyId)) return;
+
+  setIsMembersLoading(true);
+  try {
+    const res = await axiosInstance.get(`/api/studies/${studyId}/members`);
+    setMembers(res.data?.data ?? []);
+  } catch (e) {
+    console.error("신청자(멤버) 조회 실패:", e);
+    setMembers([]);
+  } finally {
+    setIsMembersLoading(false);
+  }
+}, [studyId]);
+
 
 const fetchComments = useCallback(async () => {
   setIsCommentsLoading(true);
@@ -332,8 +351,6 @@ const fetchComments = useCallback(async () => {
   }
 }, [studyId]);
 
-
-
 const fetchStudyDetail = useCallback(async () => {
   if (isNaN(studyId)) return;
 
@@ -352,7 +369,8 @@ const fetchStudyDetail = useCallback(async () => {
 useEffect(() => {
   fetchStudyDetail();
   fetchComments();
-}, [fetchStudyDetail, fetchComments]);
+  fetchMembers();
+}, [fetchStudyDetail, fetchComments, fetchMembers]);
 
 
 
@@ -429,8 +447,7 @@ useEffect(() => {
 };
 
 //중복 확인 및 처리
-// 이미 가입하기 했을 경우 API 호출 자체를 안 보내도록 
-//제발 좀 되길..죄송합니다..
+// 이미 가입하기 했을 경우 API 호출 자체를 안 보내도록 처리
 
     const handleJoinStudy = async () => {
     if (!studyDetail) return;
@@ -481,6 +498,9 @@ useEffect(() => {
             }
           : prev
       );
+
+      // 🔹 신청한 사람들 목록 갱신
+      await fetchMembers();
 
       // 🔹 필요하면 백엔드 최신 데이터로 다시 동기화
       // await fetchStudyDetail();
@@ -623,6 +643,11 @@ useEffect(() => {
       </ActionButton>
     </ButtonGroup>
   </UserProfileCard>
+  <StudyApplicantsList 
+  members={members} 
+  isLoading={isMembersLoading}
+  currentUserId={currentUserId}
+  authorId={studyData.authorId} />
 </LeftPanel>
 
 

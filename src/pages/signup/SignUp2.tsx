@@ -219,6 +219,7 @@ const SignUp2 = () => {
       const response = await axiosInstance.post("/api/auth/verify-code", {
         email: email,
         code: verificationCode,
+        campus: campus,
       });
 
       if (response.data.verified) {

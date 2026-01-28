@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import type { StudyItem } from "../types/study.types";
 import ParticipantImg from "../assets/img-participant.svg";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
@@ -130,7 +131,7 @@ const MoreButton = styled.span`
 `;
 
 const StudyCard = ({ study, onClick, currentUserId }: StudyCardProps) => {
-
+  const { t } = useTranslation();
   console.log("[StudyCard] authorProfileImageUrl:", study.authorProfileImageUrl);
   console.log("[StudyCard] authorCountry:", study.authorCountry);
 
@@ -211,12 +212,16 @@ const primaryLanguage = study.languages?.[0];
       <ContentSection>
         <HeaderSection>
           <StatusBadge $status={study.status as '모집중' | '마감'} className="Button2">
-            {study.status}
+            {study.status === "마감"
+              ? t("study.detail.status.closed")
+              : t("study.detail.status.recruiting")}
           </StatusBadge>
 
           <ParticipantInfo className="Body2">
-            <img src={ParticipantImg} alt="참여자" />
-            {study.currentParticipants || 0}명 / {study.capacity}명
+            <img src={ParticipantImg} alt={t("study.detail.participants")} />
+            {study.currentParticipants || 0}
+            {t("study.detail.participants")} / {study.capacity}
+            {t("study.detail.participants")}
           </ParticipantInfo>
 
           <TagContainer>
@@ -229,7 +234,7 @@ const primaryLanguage = study.languages?.[0];
         <Title className="H4">{study.title}</Title>
         
         <ActionSection>
-          <MoreButton className="Body2">더 보기 &gt;</MoreButton>
+          <MoreButton className="Body2">{t("common.more")}</MoreButton>
         </ActionSection>
       </ContentSection>
     </CardContainer>

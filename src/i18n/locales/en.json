@@ -288,7 +288,9 @@
       "fr": "French",
       "de": "German",
       "ja": "Japanese",
-      "es": "Spanish"
+      "es": "Spanish",
+      "ar": "Arabic",
+      "it": "Italian"
     },
     "countries": {
       "KR": "South Korea",
@@ -426,6 +428,54 @@
       "it": "Italian",
       "ar": "Arabic"
     }
+  },
+  "mypage": {
+    "title": "My Page",
+    "tabs": {
+      "posts": "My Posts",
+      "comments": "My Comments",
+      "applied": "Applied Studies"
+    },
+    "posts": {
+      "empty": "No posts yet."
+    },
+    "comments": {
+      "empty": "No comments yet.",
+      "postTitleFallback": "Failed to load post information."
+    },
+    "applied": {
+      "empty": "No applied studies.",
+      "applicants": "Applicants",
+      "applicantIconAlt": "Applicants icon",
+      "moreApplicants": "There are more applicants."
+    },
+    "withdrawButton": "Withdraw",
+    "confirm": {
+      "resetProfileImage": "Delete the uploaded profile image and revert to the default image?",
+      "deleteComment": "Do you want to delete this comment?",
+      "withdraw": "Are you sure you want to delete your account?\nYou cannot recover it after withdrawal."
+    },
+    "alert": {
+      "profileUpdateSuccess": "Profile updated successfully!",
+      "profileUpdateError": "An error occurred while updating the profile.",
+      "imageUploadError": "An error occurred while uploading the image.",
+      "imageResetSuccess": "Profile image has been reset to the default image.",
+      "imageResetError": "An error occurred while resetting the image.",
+      "commentEmpty": "Please enter comment content.",
+      "commentEditSuccess": "Comment has been updated.",
+      "commentEditError": "An error occurred while updating the comment.",
+      "commentDeleteSuccess": "Comment has been deleted.",
+      "commentDeleteError": "An error occurred while deleting the comment.",
+      "withdrawSuccess": "Account withdrawal completed.",
+      "withdrawError": "An error occurred during account withdrawal."
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "more": "View more >"
   },
   "study": {
     "title": "Study Groups",

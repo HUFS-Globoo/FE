@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import type { KeywordItem } from "../types/mypage&profile.types";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
@@ -355,6 +356,7 @@ const ProfileCard = ({
   onImageUpload, 
   onImageReset, //이미지 리셋 핸들러 추가
 }: ProfileCardProps) => {
+  const { t } = useTranslation();
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
     infoContent: infoContent || "",
@@ -700,17 +702,17 @@ const [editedMbti, setEditedMbti] = useState(mbti);
               {isEditMode ? (
                 <ButtonGroup>
                   <CancelButton className="Button1" onClick={onCancel}>
-                    취소
+                    {t("common.cancel")}
                   </CancelButton>
                   <SaveButton className="Button1" onClick={handleSave}>
-                    저장
+                    {t("common.save")}
                   </SaveButton>
                 </ButtonGroup>
               ) : (
                 <ButtonGroup>
                   <EditButton className="Button1" onClick={onEdit}>
                     <EditIconImg src={EditIcon} alt="수정" />
-                    수정하기
+                  {t("common.edit")}
                   </EditButton>
                 </ButtonGroup>
               )}

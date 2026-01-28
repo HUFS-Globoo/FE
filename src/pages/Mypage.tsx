@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
@@ -52,6 +53,7 @@ const PageTitle = styled.h1`
 `;
 
 const Mypage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [userData, setUserData] = useState<any>(null);
   const location = useLocation();
@@ -76,14 +78,14 @@ const Mypage = () => {
   const [myAppliedStudies, setMyAppliedStudies] = useState<AppliedStudy[]>([]);
 
   const LANGUAGE_MAP: Record<string, string> = {
-    ko: "한국어",
-    en: "영어",
-    es: "스페인어",
-    fr: "프랑스어",
-    ja: "일본어",
-    zh: "중국어",
-    de: "독일어",
-    it: "이탈리아어",
+    ko: t("randomMatch.languages.ko"),
+    en: t("randomMatch.languages.en"),
+    es: t("randomMatch.languages.es"),
+    fr: t("randomMatch.languages.fr"),
+    ja: t("randomMatch.languages.ja"),
+    zh: t("randomMatch.languages.zh"),
+    de: t("randomMatch.languages.de"),
+    it: t("randomMatch.languages.it"),
   };
 
   const LANGUAGE_REVERSE_MAP: Record<string, string> = Object.fromEntries(
@@ -160,7 +162,7 @@ const Mypage = () => {
 
         setMyPosts(mapped);
       } catch (error) {
-        console.error("내가 작성한 스터디 글 조회 실패:", error);
+      console.error("내가 작성한 스터디 글 조회 실패:", error);
       }
     };
 
@@ -201,7 +203,7 @@ const Mypage = () => {
               return {
                 id: comment.id,
                 postId: comment.postId,
-                postTitle: "(게시글 정보를 가져오지 못했습니다)",
+                postTitle: t("mypage.comments.postTitleFallback"),
                 content: comment.content,
               } as Comment;
             }
@@ -210,7 +212,7 @@ const Mypage = () => {
 
         setMyComments(mapped);
       } catch (error) {
-        console.error("내가 작성한 댓글 조회 실패:", error);
+      console.error("내가 작성한 댓글 조회 실패:", error);
       }
     };
 
@@ -268,7 +270,7 @@ const handleAppliedStudyClick = (studyId: number) => {
 
     await axiosInstance.put("/api/users/me/languages", languagePutData);
 
-    alert("프로필이 성공적으로 수정되었습니다!");
+    alert(t("mypage.alert.profileUpdateSuccess"));
 
     // 3) 내 정보 다시 불러오기
     const refreshed = await axiosInstance.get("/api/users/me");
@@ -303,7 +305,7 @@ const handleAppliedStudyClick = (studyId: number) => {
     setIsEditMode(false);
   } catch (error) {
     console.error("프로필 수정 실패:", error);
-    alert("프로필 수정 중 오류가 발생했습니다.");
+    alert(t("mypage.alert.profileUpdateError"));
   }
 };
 
@@ -337,7 +339,7 @@ const handleAppliedStudyClick = (studyId: number) => {
       alert("프로필 이미지가 성공적으로 업로드되었습니다!");
     } catch (error) {
       console.error("프로필 이미지 업로드 실패:", error);
-      alert("이미지 업로드 중 오류가 발생했습니다.");
+      alert(t("mypage.alert.imageUploadError"));
     }
   };
 
@@ -346,7 +348,7 @@ const handleProfileImageReset = async () => {
   if (!userData) return;
 
   const ok = window.confirm(
-    "업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?"
+    t("mypage.confirm.resetProfileImage")
   );
   if (!ok) return;
 
@@ -365,10 +367,10 @@ const handleProfileImageReset = async () => {
       _updateKey: Date.now(),
     });
 
-    alert("프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.");
+    alert(t("mypage.alert.imageResetSuccess"));
   } catch (error) {
     console.error("프로필 이미지 삭제(리셋) 실패:", error);
-    alert("이미지 초기화 중 오류가 발생했습니다.");
+    alert(t("mypage.alert.imageResetError"));
   }
 };
 
@@ -383,7 +385,7 @@ const handleProfileImageReset = async () => {
     content: string
   ) => {
     if (!content.trim()) {
-      alert("댓글 내용을 입력해주세요.");
+      alert(t("mypage.alert.commentEmpty"));
       return;
     }
 
@@ -395,30 +397,30 @@ const handleProfileImageReset = async () => {
           c.id === commentId ? { ...c, content } : c
         )
       );
-      alert("댓글이 수정되었습니다.");
+      alert(t("mypage.alert.commentEditSuccess"));
     } catch (error) {
       console.error("댓글 수정 실패:", error);
-      alert("댓글 수정 중 오류가 발생했습니다.");
+      alert(t("mypage.alert.commentEditError"));
     }
   };
 
   const handleCommentDelete = async (commentId: number, postId: number) => {
-    if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+    if (!window.confirm(t("mypage.confirm.deleteComment"))) return;
 
     try {
       await deleteComment(postId, commentId);
       setMyComments((prev) => prev.filter((c) => c.id !== commentId));
-      alert("댓글이 삭제되었습니다.");
+      alert(t("mypage.alert.commentDeleteSuccess"));
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
-      alert("댓글 삭제 중 오류가 발생했습니다.");
+      alert(t("mypage.alert.commentDeleteError"));
     }
   };
 
   //탈퇴
   const handleWithdraw = async () => {
   const ok = window.confirm(
-    "정말 회원탈퇴 하시겠습니까?\n탈퇴 후에는 계정을 복구할 수 없어요."
+    t("mypage.confirm.withdraw")
   );
   if (!ok) return;
 
@@ -429,12 +431,12 @@ const handleProfileImageReset = async () => {
     localStorage.removeItem("refreshToken"); 
     localStorage.removeItem("userId");
 
-    alert("회원탈퇴가 완료되었습니다.");
+    alert(t("mypage.alert.withdrawSuccess"));
 
     navigate("/signup/step1");
   } catch (error) {
     console.error("회원탈퇴 실패:", error);
-    alert("회원탈퇴 중 오류가 발생했습니다.");
+    alert(t("mypage.alert.withdrawError"));
   }
 };
 
@@ -449,7 +451,7 @@ const filteredAppliedStudies = myAppliedStudies.filter(
   return (
     <Container>
       <ContentWrapper>
-        <PageTitle className="H1">My Page</PageTitle>
+        <PageTitle className="H1">{t("mypage.title")}</PageTitle>
 
         {!isLoading && userData && (
         (() => {
@@ -510,7 +512,7 @@ const filteredAppliedStudies = myAppliedStudies.filter(
 
         <WithdrawButtonRow>
             <WithdrawButton onClick={handleWithdraw} className="Button1">
-              회원탈퇴
+              {t("mypage.withdrawButton")}
             </WithdrawButton>
         </WithdrawButtonRow>
       </ContentWrapper>

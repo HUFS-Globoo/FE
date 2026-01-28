@@ -652,7 +652,7 @@ useEffect(() => {
 
 
                 <RightPanel>
-                    <PageTitle className="H1">스터디 모집</PageTitle>
+                    <PageTitle className="H1">{t("study.detail.title")}</PageTitle>
                     
                     <StudyDetailCard>
                         <StudyHeader>
@@ -669,12 +669,16 @@ useEffect(() => {
                             <StudyInfo>
                                 <StudyMetaInfo>
                                     <StatusBadge $status={studyData.status} className="Button2">
-                                        {studyData.status}
+                                        {studyData.status === "마감"
+                                          ? t("study.detail.status.closed")
+                                          : t("study.detail.status.recruiting")}
                                     </StatusBadge>
 
                                     <ParticipantInfo className="Body2">
-                                        <img src={ParticipantImg} alt="참여자" />
-                                        {(studyData.currentParticipants)}명 / {studyData.capacity}명
+                                        <img src={ParticipantImg} alt={t("study.detail.participants")} />
+                                        {studyData.currentParticipants}
+                                        {t("study.detail.participants")} / {studyData.capacity}
+                                        {t("study.detail.participants")}
                                     </ParticipantInfo>
 
                                     <TagContainer>
@@ -706,14 +710,14 @@ useEffect(() => {
                             className="Button1"
                             onClick={() => navigate(`/study/post/${studyId}`)}
                             >
-                            수정하기
+                            {t("common.edit")}
                             </EditButton>
                             <DeleteButton
                             $variant="primary"
                             className="Button1"
                             onClick={handleDeleteStudy}
                             >
-                            삭제하기
+                            {t("common.delete")}
                             </DeleteButton>
                         </ButtonGroup>
                         ) : (
@@ -723,7 +727,7 @@ useEffect(() => {
                           style={{ marginTop: "1rem" }}
                           disabled={hasJoined || isJoining}
                         >
-                          {hasJoined ? "가입 완료" : "가입하기"}
+                          {hasJoined ? t("study.detail.actions.joined") : t("study.detail.actions.join")}
                         </JoinButton>
                         )}
                     </StudyDetailCard>

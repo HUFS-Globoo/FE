@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ProfileBanner from "../../components/ProfileBanner";
 import HeaderImg from "../../assets/img-miniBoo.svg";
 import axiosInstance from "../../../axiosInstance";
@@ -84,18 +85,20 @@ const FilterSection = styled.div`
   flex-direction: column;
 `;
 
-const FilterPlaceholder = styled.div`
+const FilterPlaceholder = styled.div<{ $isEnglish?: boolean }>`
   display: flex;
   gap: 1.5rem;
-  align-items: center;
+  align-items: ${({ $isEnglish }) => ($isEnglish ? "flex-start" : "center")};
   color: var(--black);
   font-size: 0.9rem;
   justify-content: space-between;
+  flex-wrap: ${({ $isEnglish }) => ($isEnglish ? "wrap" : "nowrap")};
 
   span {
     padding: 8px 12px;
     background-color: var(--gray-100);
     border-radius: 8px;
+    white-space: ${({ $isEnglish }) => ($isEnglish ? "normal" : "nowrap")};
   }
 `;
 
@@ -166,13 +169,17 @@ const ContentContainer = styled.div`
   background: var(--white, #FFFEFB);
 `
 
-const FilterWraaper = styled.div`
+const FilterWraaper = styled.div<{ $isEnglish?: boolean }>`
   display: flex;
   gap: 1.5rem;
+  flex-wrap: ${({ $isEnglish }) => ($isEnglish ? "wrap" : "nowrap")};
+  flex: 1;
 `
 
-const FilterContainer = styled.div`
-  width: 8.38rem;
+const FilterContainer = styled.div<{ $isEnglish?: boolean }>`
+  min-width: ${({ $isEnglish }) => ($isEnglish ? "10rem" : "8.38rem")};
+  width: ${({ $isEnglish }) => ($isEnglish ? "auto" : "8.38rem")};
+  flex: ${({ $isEnglish }) => ($isEnglish ? "1 1 auto" : "0 0 auto")};
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -206,7 +213,9 @@ const FilterSelect = styled.select`
 `
 
 const ProfileList: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isEnglish = i18n.language === 'en';
   const [profiles, setProfiles] = useState<ProfileCardItem[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -280,126 +289,126 @@ const ProfileList: React.FC = () => {
     <PageContainer>
       <HeaderSection>
         <HeaderTextArea>
-          <HeaderTitle className="H1">프로필 조회</HeaderTitle>
+          <HeaderTitle className="H1">{t("profile.list.title")}</HeaderTitle>
         </HeaderTextArea>
       </HeaderSection>
 
       <FilterSection>
         <ContentTitle>
-          <HeaderImage src={HeaderImg} alt="프로필 조회" />
-          <SubText className="H4">나와 Fit이 맞는 친구 찾기</SubText>
+          <HeaderImage src={HeaderImg} alt={t("profile.list.title")} />
+          <SubText className="H4">{t("profile.list.subtitle")}</SubText>
         </ContentTitle>
 
-        <FilterPlaceholder className="H5">
-          <FilterWraaper>
+        <FilterPlaceholder className="H5" $isEnglish={isEnglish}>
+          <FilterWraaper $isEnglish={isEnglish}>
 
-            <FilterContainer>
-              <span>캠퍼스</span>
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.campus")}</span>
               <FilterSelect
                 value={filters.campus}
                 onChange={(e) => handleFilterChange("campus", e.target.value)}
               >
                 <option value="">
-                  전체
+                  {t("profile.list.filters.all")}
                 </option>
-                <option value="global">글로벌캠퍼스</option>
-                <option value="seoul">서울캠퍼스</option>
+                <option value="global">{t("profile.list.filters.global")}</option>
+                <option value="seoul">{t("profile.list.filters.seoul")}</option>
               </FilterSelect>
             </FilterContainer>
 
-            <FilterContainer>
-              <span>사용 언어</span>
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.nativeLanguage")}</span>
               <FilterSelect
                 value={filters.nativeLang}
                 onChange={(e) => handleFilterChange("nativeLang", e.target.value)}
               >
                 <option value="">
-                  전체
+                  {t("profile.list.filters.all")}
                 </option>
-                <option value="Korean">한국어</option>
-                <option value="English">영어</option>
-                <option value="Chinese">중국어</option>
-                <option value="Arabic">아랍어</option>
-                <option value="Italian">이탈리아어</option>
+                <option value="Korean">{t("profile.list.languages.korean")}</option>
+                <option value="English">{t("profile.list.languages.english")}</option>
+                <option value="Chinese">{t("profile.list.languages.chinese")}</option>
+                <option value="Arabic">{t("profile.list.languages.arabic")}</option>
+                <option value="Italian">{t("profile.list.languages.italian")}</option>
               </FilterSelect>
             </FilterContainer>
 
-            <FilterContainer>
-              <span>성격 키워드</span>
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.personalityKeyword")}</span>
               <FilterSelect
                 value={filters.personalityKeyword}
                 onChange={(e) => handleFilterChange("personalityKeyword", e.target.value)}
               >
                 <option value="">
-                  전체
+                  {t("profile.list.filters.all")}
                 </option>
-                <option value="1">활발한</option>
-                <option value="2">솔직한</option>
-                <option value="3">차분한</option>
-                <option value="4">유쾌한</option>
-                <option value="5">친절한</option>
-                <option value="6">도전적</option>
-                <option value="7">신중한</option>
-                <option value="8">긍정적</option>
-                <option value="9">냉정한</option>
-                <option value="10">열정적인</option>
+                <option value="1">{t("profile.list.keywords.personality.1")}</option>
+                <option value="2">{t("profile.list.keywords.personality.2")}</option>
+                <option value="3">{t("profile.list.keywords.personality.3")}</option>
+                <option value="4">{t("profile.list.keywords.personality.4")}</option>
+                <option value="5">{t("profile.list.keywords.personality.5")}</option>
+                <option value="6">{t("profile.list.keywords.personality.6")}</option>
+                <option value="7">{t("profile.list.keywords.personality.7")}</option>
+                <option value="8">{t("profile.list.keywords.personality.8")}</option>
+                <option value="9">{t("profile.list.keywords.personality.9")}</option>
+                <option value="10">{t("profile.list.keywords.personality.10")}</option>
               </FilterSelect>
             </FilterContainer>
 
-            <FilterContainer>
-              <span>취미 키워드</span>
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.hobbyKeyword")}</span>
               <FilterSelect
                 value={filters.hobbyKeyword}
                 onChange={(e) => handleFilterChange("hobbyKeyword", e.target.value)}
               >
                 <option value="">
-                  전체
+                  {t("profile.list.filters.all")}
                 </option>
-                <option value="11">영화 시청</option>
-                <option value="12">음악 감상</option>
-                <option value="13">요리</option>
-                <option value="14">독서</option>
-                <option value="15">카페가기</option>
-                <option value="16">운동</option>
-                <option value="17">산책</option>
-                <option value="18">사진 촬영</option>
-                <option value="19">게임</option>
-                <option value="20">여행</option>
+                <option value="11">{t("profile.list.keywords.hobby.11")}</option>
+                <option value="12">{t("profile.list.keywords.hobby.12")}</option>
+                <option value="13">{t("profile.list.keywords.hobby.13")}</option>
+                <option value="14">{t("profile.list.keywords.hobby.14")}</option>
+                <option value="15">{t("profile.list.keywords.hobby.15")}</option>
+                <option value="16">{t("profile.list.keywords.hobby.16")}</option>
+                <option value="17">{t("profile.list.keywords.hobby.17")}</option>
+                <option value="18">{t("profile.list.keywords.hobby.18")}</option>
+                <option value="19">{t("profile.list.keywords.hobby.19")}</option>
+                <option value="20">{t("profile.list.keywords.hobby.20")}</option>
               </FilterSelect>
             </FilterContainer>
 
-            <FilterContainer>
-              <span>주제 키워드</span>
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.topicKeyword")}</span>
               <FilterSelect
                 value={filters.topicKeyword}
                 onChange={(e) => handleFilterChange("topicKeyword", e.target.value)}
               >
                 <option value="">
-                  전체
+                  {t("profile.list.filters.all")}
                 </option>
-                <option value="21">음악</option>
-                <option value="22">아이돌</option>
-                <option value="23">패션/뷰티</option>
-                <option value="24">스포츠</option>
-                <option value="25">영화/드라마</option>
-                <option value="26">공부</option>
-                <option value="27">자기계발</option>
-                <option value="28">책</option>
-                <option value="29">환경</option>
-                <option value="30">동물</option>
+                <option value="21">{t("profile.list.keywords.topic.21")}</option>
+                <option value="22">{t("profile.list.keywords.topic.22")}</option>
+                <option value="23">{t("profile.list.keywords.topic.23")}</option>
+                <option value="24">{t("profile.list.keywords.topic.24")}</option>
+                <option value="25">{t("profile.list.keywords.topic.25")}</option>
+                <option value="26">{t("profile.list.keywords.topic.26")}</option>
+                <option value="27">{t("profile.list.keywords.topic.27")}</option>
+                <option value="28">{t("profile.list.keywords.topic.28")}</option>
+                <option value="29">{t("profile.list.keywords.topic.29")}</option>
+                <option value="30">{t("profile.list.keywords.topic.30")}</option>
               </FilterSelect>
             </FilterContainer>
 
           </FilterWraaper>
 
-          <SearchButton onClick={() => fetchProfiles(0)}>조회</SearchButton>
+          <SearchButton onClick={() => fetchProfiles(0)}>{t("profile.list.filters.search")}</SearchButton>
 
         </FilterPlaceholder>
       </FilterSection>
 
 
       <ContentContainer>
-        <SectionTitle className="H4">친구들의 프로필 보기</SectionTitle>
+        <SectionTitle className="H4">{t("profile.list.sectionTitle")}</SectionTitle>
         <ProfileGrid>
   {profiles.map((profile) => {
     let effectiveProfileImageUrl = profile.profileImageUrl;

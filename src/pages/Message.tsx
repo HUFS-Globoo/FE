@@ -8,6 +8,7 @@ import ChinaProfileImg from "../assets/img-profile1-China.svg";
 import { IoIosLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import axiosInstance from "../../axiosInstance";
 import { useEffect } from "react";
 
@@ -220,6 +221,7 @@ const SendButton = styled.div`
 `
 export default function Message() {
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [chatRooms, setChatRooms] = useState<any[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<any>(null);
@@ -369,12 +371,12 @@ export default function Message() {
 
   return(
     <Container>
-      <Title className="H1">쪽지</Title>
+      <Title className="H1">{t("message.title")}</Title>
       <ContentContainer>
         <MessageListContainer>
           <MessageListTitle>
             <MessageCharacter src = {Icon} alt="icon"/>
-            <p className="H4" style={{color:"var(--gray-700)"}}>대화 나눈 친구들</p>
+            <p className="H4" style={{color:"var(--gray-700)"}}>{t("message.friendsList.title")}</p>
           </MessageListTitle>
           <MessageList>
             {chatRooms.length > 0 ? (
@@ -418,7 +420,7 @@ export default function Message() {
                 );
               })
             ) : (
-              <p>쪽지방이 없습니다.</p>
+              <p>{t("message.friendsList.empty")}</p>
             )}
           </MessageList>
         </MessageListContainer>
@@ -436,12 +438,12 @@ export default function Message() {
     </ChatNicname>
     <OutContainer onClick={() => navigate("/")}>
       <OutIcon />
-      <OutText className="Button2">채팅방 나가기</OutText>
+      <OutText className="Button2">{t("message.chat.leaveChat")}</OutText>
     </OutContainer>
   </ChatHeader>
 ) : (
   <ChatHeader>
-    <ChatNicname className="H2">대화를 선택해주세요</ChatNicname>
+    <ChatNicname className="H2">{t("message.chat.selectChat")}</ChatNicname>
   </ChatHeader>
           )}
             <MessageContainer id="messageContainer">
@@ -482,17 +484,17 @@ export default function Message() {
                               marginTop: "0.25rem",
                             }}
                           >
-                            {msg.isRead ? "✔ 읽음" : "전송됨"}
+                            {msg.isRead ? t("message.chat.read") : t("message.chat.sent")}
                           </div>
                         )}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p>아직 주고받은 쪽지가 없습니다.</p>
+                  <p>{t("message.chat.noMessages")}</p>
                 )
               ) : (
-                <p>대화 상대를 선택하면 쪽지 내역이 표시됩니다.</p>
+                <p>{t("message.chat.selectPartner")}</p>
               )}
             </MessageContainer>
 
@@ -500,7 +502,7 @@ export default function Message() {
             <SendBox>
               <SendInput
                 type="text"
-                placeholder="메시지를 입력해주세요"
+                placeholder={t("message.chat.messagePlaceholder")}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={(e) => {
@@ -511,7 +513,7 @@ export default function Message() {
                 }}
               />
               <SendButton className="H4" onClick={handleSendMessage}>
-                보내기
+                {t("message.chat.sendButton")}
               </SendButton>
             </SendBox>
 

@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import Logo from "../assets/logo.svg";
-import GlobalStyle from '../styles/GlobalStyle';
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
   width: 100vw;
@@ -29,6 +29,7 @@ const Menu = styled.div`
   flex-direction: row;
   gap: 2.5rem;
   justify-content: flex-end;
+  align-items: center;
 `
 const MenuItem = styled.div`
   display: flex;
@@ -41,9 +42,34 @@ const MenuItem = styled.div`
   cursor: pointer;
 `
 
+const LanguageSelector = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`
+
+const LanguageButton = styled.button<{ $isActive: boolean }>`
+  padding: 0.375rem 0.75rem;
+  border: 1px solid ${({ $isActive }) => ($isActive ? 'var(--primary)' : '#ABABAB')};
+  border-radius: 0.375rem;
+  background-color: ${({ $isActive }) => ($isActive ? 'var(--primary)' : 'transparent')};
+  color: ${({ $isActive }) => ($isActive ? 'var(--white)' : '#333')};
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--primary);
+    background-color: ${({ $isActive }) => ($isActive ? 'var(--primary)' : 'rgba(0, 45, 86, 0.1)')};
+  }
+`
+
 
 export default function Header() {
 
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   // 로그인 여부 체크
@@ -123,21 +149,39 @@ export default function Header() {
     }
   };
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return(
     <Container>
       <HeaderLogo src={Logo} alt="logo" onClick={() => navigate("/")}/>
       <Menu>
-        <MenuItem onClick={() => navigate("/")}>홈</MenuItem>
-        <MenuItem onClick={handleStartMatching}>랜덤 매칭</MenuItem>
-        <MenuItem onClick={() => navigate("/study")}>스터디 모집</MenuItem>
-        <MenuItem onClick={() => navigate("/profile/landing")}>프로필 조회</MenuItem>
-        <MenuItem onClick={() => navigate("/message")}>쪽지</MenuItem>
-        <MenuItem onClick={() => navigate("/mypage")}>MYPAGE</MenuItem>
+        <MenuItem onClick={() => navigate("/")}>{t("header.home")}</MenuItem>
+        <MenuItem onClick={handleStartMatching}>{t("header.randomMatch")}</MenuItem>
+        <MenuItem onClick={() => navigate("/study")}>{t("header.study")}</MenuItem>
+        <MenuItem onClick={() => navigate("/profile/landing")}>{t("header.profile")}</MenuItem>
+        <MenuItem onClick={() => navigate("/message")}>{t("header.message")}</MenuItem>
+        <MenuItem onClick={() => navigate("/mypage")}>{t("header.mypage")}</MenuItem>
         {isLoggedIn ? (
-          <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
+          <MenuItem onClick={handleLogout}>{t("header.logout")}</MenuItem>
         ) : (
-          <MenuItem onClick={() => navigate("/login")}>로그인</MenuItem>
+          <MenuItem onClick={() => navigate("/login")}>{t("header.login")}</MenuItem>
         )}
+        <LanguageSelector>
+          <LanguageButton 
+            $isActive={i18n.language === 'ko'} 
+            onClick={() => changeLanguage('ko')}
+          >
+            {t("header.language.ko")}
+          </LanguageButton>
+          <LanguageButton 
+            $isActive={i18n.language === 'en'} 
+            onClick={() => changeLanguage('en')}
+          >
+            {t("header.language.en")}
+          </LanguageButton>
+        </LanguageSelector>
       </Menu>
     </Container>
   )

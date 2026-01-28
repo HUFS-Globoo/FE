@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import StudyCard from "../../components/StudyCard";
 import type { StudyItem, StudyFilter, StudyListResponse } from "../../types/study.types";
@@ -251,7 +252,9 @@ const HeaderImage = styled.img`
 `;
 
 const StudyList = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isEnglish = i18n.language === 'en';
   const [studies, setStudies] = useState<StudyItem[]>([]); // API 응답의 실제 목록 데이터
   const [filters, setFilters] = useState<StudyFilter>(initialFilters); // 필터 및 페이지 상태
   const [userMe, setUserMe] = useState<UserMeResponse | null>(null);
@@ -356,8 +359,8 @@ useEffect(() => {
       <Container>
         <ContentWrapper>
           <RightPanel>
-            <PageTitle className="H1">스터디 모집</PageTitle>
-            <div style={{ padding: '4rem', textAlign: 'center' }}>데이터를 불러오는 중입니다...</div>
+            <PageTitle className="H1">{t("study.list.title")}</PageTitle>
+            <div style={{ padding: '4rem', textAlign: 'center' }}>{t("study.list.loading")}</div>
           </RightPanel>
         </ContentWrapper>
       </Container>
@@ -369,7 +372,7 @@ useEffect(() => {
       <Container>
         <ContentWrapper>
           <RightPanel>
-            <PageTitle className="H1">스터디 모집</PageTitle>
+            <PageTitle className="H1">{t("study.list.title")}</PageTitle>
             <div style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>{error}</div>
           </RightPanel>
         </ContentWrapper>
@@ -418,21 +421,21 @@ useEffect(() => {
               className="Button1"
               onClick={handleMyPostsClick}
             >
-              작성한 게시글
+              {t("study.list.profile.myPosts")}
             </ActionButton>
             <ActionButton
               $variant="secondary"
               className="Button1"
               onClick={handleMyCommentsClick}
             >
-              작성한 댓글
+              {t("study.list.profile.myComments")}
             </ActionButton>
             <ActionButton
               $variant="primary"
               className="Button1"
               onClick={handleCreatePostClick}
             >
-              게시글 작성
+              {t("study.list.profile.createPost")}
             </ActionButton>
           </ButtonGroup>
         </>
@@ -441,7 +444,7 @@ useEffect(() => {
   </UserProfileCard>
 ) : (
   <UserProfileCard>
-    <div className="Body1">로그인 후 내 정보를 볼 수 있습니다.</div>
+    <div className="Body1">{t("study.list.profile.loginRequired")}</div>
   </UserProfileCard>
 )}
         </LeftPanel>

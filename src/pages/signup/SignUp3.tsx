@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SubmitButton from '../../components/SubmitButton';
 import { useSignup } from "../../contexts/SignupContext";
 import SignUpSidebar from '../../components/SignUpSidebar';
@@ -74,38 +75,55 @@ const SelectInput = styled.select`
 
 const SignUp3 = () => {
 
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { signupData, setSignupData } = useSignup(); 
-  const languages = ["한국어", "영어", "중국어", "아랍어", "이탈리아어"];
-  const nationalities = ["대한민국", "미국", "중국", "이집트", "이탈리아"];
+  
+  // 언어와 국적 목록을 현재 언어에 맞게 가져오기
+  const getLanguages = () => {
+    return ["ko", "en", "zh", "ar", "it"].map(code => ({
+      code,
+      label: t(`signup.step3.languages.${code}`)
+    }));
+  };
+
+  const getNationalities = () => {
+    return ["KR", "US", "CN", "EG", "IT"].map(code => ({
+      code,
+      label: t(`signup.step3.nationalities.${code}`)
+    }));
+  };
+
+  const languages = getLanguages();
+  const nationalities = getNationalities();
 
   const langMap: Record<string, string> = {
-    "한국어": "ko",
-    "영어": "en",
-    "중국어": "zh",
-    "아랍어": "ar",
-    "이탈리아어": "it",
+    [t("signup.step3.languages.ko")]: "ko",
+    [t("signup.step3.languages.en")]: "en",
+    [t("signup.step3.languages.zh")]: "zh",
+    [t("signup.step3.languages.ar")]: "ar",
+    [t("signup.step3.languages.it")]: "it",
   };
 
   const nationMap: Record<string, string> = {
-    "대한민국": "KR",
-    "미국": "US",
-    "이집트": "EG",
-    "중국": "CN",
-    "이탈리아": "IT",
+    [t("signup.step3.nationalities.KR")]: "KR",
+    [t("signup.step3.nationalities.US")]: "US",
+    [t("signup.step3.nationalities.EG")]: "EG",
+    [t("signup.step3.nationalities.CN")]: "CN",
+    [t("signup.step3.nationalities.IT")]: "IT",
   };
 
   const reverseLangMap = Object.fromEntries(Object.entries(langMap).map(([k, v]) => [v, k]));
   const reverseNationMap = Object.fromEntries(Object.entries(nationMap).map(([k, v]) => [v, k]));
   
   const [useLang, setUseLang] = useState(
-    reverseLangMap[signupData.nativeLanguageCode || "ko"] || "한국어"
+    reverseLangMap[signupData.nativeLanguageCode || "ko"] || t("signup.step3.languages.ko")
   );
   const [prefLang, setPrefLang] = useState(
-    reverseLangMap[signupData.preferredLanguageCode || "ko"] || "한국어"
+    reverseLangMap[signupData.preferredLanguageCode || "ko"] || t("signup.step3.languages.ko")
   );
   const [nationality, setNationality] = useState(
-    reverseNationMap[signupData.nationalityCode || "KR"] || "대한민국"
+    reverseNationMap[signupData.nationalityCode || "KR"] || t("signup.step3.nationalities.KR")
   );
 
   
@@ -113,7 +131,7 @@ const SignUp3 = () => {
     const onboardingToken = localStorage.getItem("onboardingToken");
     
     if (!onboardingToken) {
-      alert("인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.");
+      alert(t("signup.step3.alert.tokenMissing"));
       return;
     }
 
@@ -155,19 +173,19 @@ const SignUp3 = () => {
         console.log("Step3 저장 완료:", response.data);
         navigate("/signup/step4");
       } else {
-        alert("저장에 실패했습니다. 다시 시도해주세요.");
+        alert(t("signup.step3.alert.saveFailed"));
       }
     } catch (error: any) {
       console.error("Step3 저장 실패:", error.response?.data || error.message || error);
-      alert(error.response?.data?.message || "저장 중 오류가 발생했습니다.");
+      alert(error.response?.data?.message || t("signup.step3.alert.saveError"));
     }
   };
 
   const steps = [
-    { number: 1, detail: "기본 정보 입력" },
-    { number: 2, detail: "학교 이메일 인증" },
-    { number: 3, detail: "언어 & 국적" },
-    { number: 4, detail: "나를 소개하는 키워드 선택" },
+    { number: 1, detail: t("signup.steps.step1") },
+    { number: 2, detail: t("signup.steps.step2") },
+    { number: 3, detail: t("signup.steps.step3") },
+    { number: 4, detail: t("signup.steps.step4") },
   ];
 
   return (
@@ -175,44 +193,44 @@ const SignUp3 = () => {
       <SignUpSidebar steps={steps} currentStep={3} />
 
       <ContentContainer>
-          <ContentTitle>02 선호 언어와 자신의 국적을 입력해주세요 </ContentTitle>
+          <ContentTitle>{t("signup.step3.title")}</ContentTitle>
           <InputContainer>
             <UserLanguageInputContainer className="Body1">
-              <UserLanguageTitle className="Body1">사용 언어</UserLanguageTitle>
+              <UserLanguageTitle className="Body1">{t("signup.step3.fields.nativeLanguage.label")}</UserLanguageTitle>
               <SelectInput
                 value={useLang}
                 onChange={(e) => setUseLang(e.target.value)}
               >
                 {languages.map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang}
+                  <option key={lang.code} value={lang.label}>
+                    {lang.label}
                   </option>
                 ))}
               </SelectInput>
             </UserLanguageInputContainer>
             <UserLanguageInputContainer className="Body1">
-              <UserLanguageTitle className="Body1">선호 언어</UserLanguageTitle>
+              <UserLanguageTitle className="Body1">{t("signup.step3.fields.preferredLanguage.label")}</UserLanguageTitle>
               <SelectInput
                 value={prefLang}
                 onChange={(e) => setPrefLang(e.target.value)}
               >
                 {languages.map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang}
+                  <option key={lang.code} value={lang.label}>
+                    {lang.label}
                   </option>
                 ))}
               </SelectInput>
             </UserLanguageInputContainer>
 
           <UserLanguageInputContainer  className="Body1">
-            <UserLanguageTitle  className="Body1">국적</UserLanguageTitle>
+            <UserLanguageTitle  className="Body1">{t("signup.step3.fields.nationality.label")}</UserLanguageTitle>
             <SelectInput
               value={nationality}
               onChange={(e) => setNationality(e.target.value)}
             >
               {nationalities.map((nation) => (
-                <option key={nation} value={nation}>
-                  {nation}
+                <option key={nation.code} value={nation.label}>
+                  {nation.label}
                 </option>
               ))}
             </SelectInput>

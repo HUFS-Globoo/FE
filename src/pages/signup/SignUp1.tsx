@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SubmitButton from '../../components/SubmitButton';
 import { useState } from "react";
 import { useSignup } from "../../contexts/SignupContext";
@@ -179,6 +180,7 @@ const DropdownItem = styled.li`
 
 
 function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => void }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<"MALE" | "FEMALE" | "">("");
 
@@ -192,9 +194,9 @@ function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => 
 
  
   const getDisplayText = (value: "MALE" | "FEMALE" | "") => {
-    if (value === "MALE") return "남성";
-    if (value === "FEMALE") return "여성";
-    return "성별 선택";
+    if (value === "MALE") return t("signup.step1.fields.gender.male");
+    if (value === "FEMALE") return t("signup.step1.fields.gender.female");
+    return t("signup.step1.fields.gender.select");
   };
 
   return (
@@ -205,8 +207,8 @@ function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => 
       </DropdownHeader>
       {isOpen && (
         <DropdownList>
-          <DropdownItem onClick={() => handleSelect("MALE")}>남성</DropdownItem>
-          <DropdownItem onClick={() => handleSelect("FEMALE")}>여성</DropdownItem>
+          <DropdownItem onClick={() => handleSelect("MALE")}>{t("signup.step1.fields.gender.male")}</DropdownItem>
+          <DropdownItem onClick={() => handleSelect("FEMALE")}>{t("signup.step1.fields.gender.female")}</DropdownItem>
         </DropdownList>
       )}
     </DropdownContainer>
@@ -214,14 +216,15 @@ function GenderDropdown({ onSelect }: { onSelect: (value: "MALE" | "FEMALE") => 
 }
 
 export default function SignUp1() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { signupData, setSignupData } = useSignup();
 
   const steps = [
-    { number: 1, detail: "기본 정보 입력" },
-    { number: 2, detail: "학교 이메일 인증" },
-    { number: 3, detail: "언어 & 국적" },
-    { number: 4, detail: "나를 소개하는 키워드 선택" },
+    { number: 1, detail: t("signup.steps.step1") },
+    { number: 2, detail: t("signup.steps.step2") },
+    { number: 3, detail: t("signup.steps.step3") },
+    { number: 4, detail: t("signup.steps.step4") },
   ];
 
   const handleNext = () => {
@@ -247,14 +250,14 @@ export default function SignUp1() {
       <SignUpSidebar steps={steps} currentStep={1} />
 
       <ContentContainer>
-        <ContentTitle>01 기본 정보를 입력해주세요</ContentTitle>
+        <ContentTitle>{t("signup.step1.title")}</ContentTitle>
 
         <InputContainer>
           <InputBox>
-            <InputTitle>이름</InputTitle>
+            <InputTitle>{t("signup.step1.fields.name.label")}</InputTitle>
             <InputItem
               type="text"
-              placeholder="홍길동"
+              placeholder={t("signup.step1.fields.name.placeholder")}
               value={signupData.name || ""}
               onChange={(e) =>
                 setSignupData({ ...signupData, name: e.target.value })
@@ -263,10 +266,10 @@ export default function SignUp1() {
           </InputBox>
 
           <InputBox>
-            <InputTitle>닉네임</InputTitle>
+            <InputTitle>{t("signup.step1.fields.nickname.label")}</InputTitle>
             <InputItem
               type="text"
-              placeholder="멋쟁이"
+              placeholder={t("signup.step1.fields.nickname.placeholder")}
               value={signupData.nickname || ""}
               onChange={(e) =>
                 setSignupData({ ...signupData, nickname: e.target.value })
@@ -275,10 +278,10 @@ export default function SignUp1() {
           </InputBox>
 
           <InputBox>
-            <InputTitle>아이디</InputTitle>
+            <InputTitle>{t("signup.step1.fields.username.label")}</InputTitle>
             <InputItem
               type="text"
-              placeholder="likelion"
+              placeholder={t("signup.step1.fields.username.placeholder")}
               value={signupData.username || ""}
               onChange={(e) =>
                 setSignupData({ ...signupData, username: e.target.value })
@@ -287,10 +290,10 @@ export default function SignUp1() {
           </InputBox>
 
           <InputBox>
-            <InputTitle>전화번호</InputTitle>
+            <InputTitle>{t("signup.step1.fields.phoneNumber.label")}</InputTitle>
             <InputItem
               type="tel"
-              placeholder="01012341234"
+              placeholder={t("signup.step1.fields.phoneNumber.placeholder")}
               value={signupData.phoneNumber || ""}
               onChange={(e) =>
                 setSignupData({ ...signupData, phoneNumber: e.target.value })
@@ -301,10 +304,10 @@ export default function SignUp1() {
           <Box>
             <InputWrapper>
               <BirthWrapper>
-                <BirthInputTitle>생년월일</BirthInputTitle>
+                <BirthInputTitle>{t("signup.step1.fields.birthDate.label")}</BirthInputTitle>
                   <YearInputItem
                     type="text"
-                    placeholder="2025"
+                    placeholder={t("signup.step1.fields.birthDate.yearPlaceholder")}
                     onChange={(e) => {
                       const [_, m = "", d = ""] = signupData.birthDate?.split("-") || [];
                       setSignupData({
@@ -313,11 +316,11 @@ export default function SignUp1() {
                       });
                     }}
                   />
-                  <span>년</span>
+                  <span>{t("signup.step1.fields.birthDate.year")}</span>
 
                   <MonthInputItem
                     type="text"
-                    placeholder="10"
+                    placeholder={t("signup.step1.fields.birthDate.monthPlaceholder")}
                     onChange={(e) => {
                       const [y = "", _, d = ""] = signupData.birthDate?.split("-") || [];
                       setSignupData({
@@ -326,10 +329,10 @@ export default function SignUp1() {
                       });
                     }}
                   />
-                  <span>월</span>
+                  <span>{t("signup.step1.fields.birthDate.month")}</span>
                   <DayInputItem
                     type="text"
-                    placeholder="31"
+                    placeholder={t("signup.step1.fields.birthDate.dayPlaceholder")}
                     onChange={(e) => {
                       const [y = "", m = ""] = signupData.birthDate?.split("-") || [];
                       setSignupData({
@@ -338,12 +341,12 @@ export default function SignUp1() {
                       });
                     }}
                   />
-                  <span>일</span>
+                  <span>{t("signup.step1.fields.birthDate.day")}</span>
               </BirthWrapper>
             </InputWrapper>
 
             <GenderWrapper>
-              <GenderTitle>성별</GenderTitle>
+              <GenderTitle>{t("signup.step1.fields.gender.label")}</GenderTitle>
               <GenderDropdown
                 onSelect={(value) =>
                   setSignupData({ ...signupData, gender: value })
@@ -354,10 +357,10 @@ export default function SignUp1() {
 
 
           <InputBox>
-            <InputTitle>비밀번호</InputTitle>
+            <InputTitle>{t("signup.step1.fields.password.label")}</InputTitle>
             <InputItem
               type="password"
-              placeholder="********"
+              placeholder={t("signup.step1.fields.password.placeholder")}
               value={signupData.password || ""}
               onChange={(e) =>
                 setSignupData({ ...signupData, password: e.target.value })
@@ -366,7 +369,7 @@ export default function SignUp1() {
           </InputBox>
         </InputContainer>
 
-        <SubmitButton onClick={handleNext}>다음 단계</SubmitButton>
+        <SubmitButton onClick={handleNext}>{t("signup.step1.nextButton")}</SubmitButton>
       </ContentContainer>
     </Container>
   );

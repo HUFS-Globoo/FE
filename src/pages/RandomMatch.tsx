@@ -1,5 +1,6 @@
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import CrownIcon from "../assets/icon1.svg";
 import HatIcon from "../assets/icon2.svg";
 import FaceHair from "../assets/icon3.svg";
@@ -62,6 +63,7 @@ const Content = styled.div`
 
 const RandomMatch = () => {
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -72,8 +74,8 @@ const RandomMatch = () => {
       <Icon src={FaceHair} style={{ top: "20rem", left: "5rem", animationDelay: "1.2s" }} />
       <CharacterImg src={Character} alt="Character" />
       <ContentContainer>
-        <ContentTitle>친구 랜덤 매칭</ContentTitle>
-        <Content>취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭합니다.</Content>
+        <ContentTitle>{t("randomMatch.title")}</ContentTitle>
+        <Content dangerouslySetInnerHTML={{ __html: t("randomMatch.description") }} />
         <RandomMatchCard />
       </ContentContainer>
     </Container>

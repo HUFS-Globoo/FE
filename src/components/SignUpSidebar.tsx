@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const SignUpBox = styled.div`
   width: 29.3125rem;
@@ -74,9 +75,11 @@ interface SignUpSidebarProps {
 }
 
 const SignUpSidebar = ({ steps, currentStep }: SignUpSidebarProps) => {
+  const { t } = useTranslation();
+  
   return (
     <SignUpBox>
-      <SignUpTitle>회원가입</SignUpTitle>
+      <SignUpTitle>{t("signup.sidebar.title")}</SignUpTitle>
       <StepContainer>
         {steps.map((step) => {
           const isActive = step.number === currentStep;
@@ -84,7 +87,7 @@ const SignUpSidebar = ({ steps, currentStep }: SignUpSidebarProps) => {
             <StepBox key={step.number}>
               <StepIcon>{step.number}</StepIcon>
               <StepContent>
-                <StepTitle $isActive={isActive}>Step {step.number}</StepTitle>
+                <StepTitle $isActive={isActive}>{t("signup.sidebar.step")} {step.number}</StepTitle>
                 <StepDetail $isActive={isActive}>{step.detail}</StepDetail>
               </StepContent>
             </StepBox>

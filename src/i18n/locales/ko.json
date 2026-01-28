@@ -1,0 +1,559 @@
+{
+  "header": {
+    "home": "홈",
+    "randomMatch": "랜덤 매칭",
+    "study": "스터디 모집",
+    "profile": "프로필 조회",
+    "message": "쪽지",
+    "mypage": "MYPAGE",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "language": {
+      "ko": "한국어",
+      "en": "English"
+    }
+  },
+  "main": {
+    "banner": {
+      "title": "새로운 문화와 친구, 지금 우리 학교 안에서 시작해요",
+      "content": "학교 이메일 인증으로 안전하게, 취향·성격·관심사 기반으로 나와 잘 맞는 외국인 친구를 찾아드려요.<br /> 1:1 채팅으로 자연스럽게 언어를 배우고 문화를 나누며, 교내에서 시작되는 글로벌 네트워킹을 경험하세요."
+    },
+    "content": {
+      "title": "주요 서비스 소개"
+    },
+    "services": {
+      "randomMatch": {
+        "title": "친구 랜덤 매칭",
+        "description": "취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭해 대화까지!"
+      },
+      "study": {
+        "title": "스터디 모집",
+        "description": "언어 교환부터 전공 스터디까지,<br /> 관심 분야별 팀을 만들어보세요!"
+      },
+      "message": {
+        "title": "쪽지",
+        "description": "친구들의 프로필을 구경하고<br /> 친해지고 싶은 친구에게 쪽지를 보내세요!"
+      },
+      "startButton": "시작하기"
+    },
+    "alert": {
+      "matchingError": "매칭 요청 중 오류가 발생했습니다."
+    }
+  },
+  "signup": {
+    "sidebar": {
+      "title": "회원가입",
+      "step": "Step"
+    },
+    "steps": {
+      "step1": "기본 정보 입력",
+      "step2": "학교 이메일 인증",
+      "step3": "언어 & 국적",
+      "step4": "나를 소개하는 키워드 선택"
+    },
+    "step1": {
+      "title": "01 기본 정보를 입력해주세요",
+      "fields": {
+        "name": {
+          "label": "이름",
+          "placeholder": "홍길동"
+        },
+        "nickname": {
+          "label": "닉네임",
+          "placeholder": "멋쟁이"
+        },
+        "username": {
+          "label": "아이디",
+          "placeholder": "likelion"
+        },
+        "phoneNumber": {
+          "label": "전화번호",
+          "placeholder": "01012341234"
+        },
+        "birthDate": {
+          "label": "생년월일",
+          "year": "년",
+          "month": "월",
+          "day": "일",
+          "yearPlaceholder": "2025",
+          "monthPlaceholder": "10",
+          "dayPlaceholder": "31"
+        },
+        "gender": {
+          "label": "성별",
+          "select": "성별 선택",
+          "male": "남성",
+          "female": "여성"
+        },
+        "password": {
+          "label": "비밀번호",
+          "placeholder": "********"
+        }
+      },
+      "nextButton": "다음 단계"
+    },
+    "step2": {
+      "title": "02 학교 이메일로 인증해주세요",
+      "campus": {
+        "global": "글로벌",
+        "seoul": "서울"
+      },
+      "email": {
+        "label": "학교 이메일",
+        "placeholder": "likelion@hufs.ac.kr"
+      },
+      "verification": {
+        "label": "인증번호",
+        "placeholder": "123456",
+        "send": "인증번호 전송",
+        "verify": "인증번호 확인",
+        "resend": "인증번호를 받지 못하셨나요? 재전송"
+      },
+      "alert": {
+        "emailRequired": "이메일을 입력해주세요.",
+        "fieldsRequired": "모든 필수 필드를 입력해주세요. (이메일, 아이디, 비밀번호, 이름, 닉네임)",
+        "codeSent": "인증번호가 전송되었습니다. 메일함을 확인해주세요!",
+        "codeResent": "인증번호가 재전송되었습니다. 메일함을 다시 확인해주세요!",
+        "resendFailed": "재전송에 실패했습니다. 다시 시도해주세요.",
+        "codeRequired": "인증번호를 입력해주세요!",
+        "verificationComplete": "이메일 인증이 완료되었습니다!",
+        "tokenError": "인증은 완료되었지만 토큰을 받지 못했습니다.",
+        "verificationFailed": "인증에 실패했습니다. 코드를 다시 확인해주세요.",
+        "verificationError": "인증 중 오류가 발생했습니다.",
+        "sendError": "인증번호 전송 중 오류가 발생했습니다.",
+        "resendError": "인증번호 재전송 중 오류가 발생했습니다.",
+        "verificationNotComplete": "이메일 인증을 완료해주세요."
+      }
+    },
+    "step3": {
+      "title": "03 선호 언어와 자신의 국적을 입력해주세요",
+      "fields": {
+        "nativeLanguage": {
+          "label": "사용 언어"
+        },
+        "preferredLanguage": {
+          "label": "선호 언어"
+        },
+        "nationality": {
+          "label": "국적"
+        }
+      },
+      "languages": {
+        "ko": "한국어",
+        "en": "영어",
+        "zh": "중국어",
+        "ar": "아랍어",
+        "it": "이탈리아어"
+      },
+      "nationalities": {
+        "KR": "대한민국",
+        "US": "미국",
+        "CN": "중국",
+        "EG": "이집트",
+        "IT": "이탈리아"
+      },
+      "alert": {
+        "tokenMissing": "인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.",
+        "saveFailed": "저장에 실패했습니다. 다시 시도해주세요.",
+        "saveError": "저장 중 오류가 발생했습니다."
+      }
+    },
+    "step4": {
+      "title": "04 나를 소개하는 키워드를 선택해주세요",
+      "mbti": {
+        "label": "MBTI",
+        "select": "선택"
+      },
+      "keywords": {
+        "personality": {
+          "title": "자신의 성격에 맞는 키워드를 선택해주세요",
+          "selectCount": "(3-5개 선택)",
+          "items": {
+            "활발한": "활발한",
+            "솔직한": "솔직한",
+            "차분한": "차분한",
+            "유쾌한": "유쾌한",
+            "친절한": "친절한",
+            "도전적": "도전적",
+            "신중한": "신중한",
+            "긍정적": "긍정적",
+            "냉정한": "냉정한",
+            "열정적인": "열정적인"
+          }
+        },
+        "hobby": {
+          "title": "관심있는 취미를 선택해주세요",
+          "selectCount": "(3-5개 선택)",
+          "items": {
+            "영화 시청": "영화 시청",
+            "음악 감상": "음악 감상",
+            "요리": "요리",
+            "독서": "독서",
+            "카페가기": "카페가기",
+            "운동": "운동",
+            "산책": "산책",
+            "사진 촬영": "사진 촬영",
+            "게임": "게임",
+            "여행": "여행"
+          }
+        },
+        "topic": {
+          "title": "관심있는 주제를 선택해주세요",
+          "selectCount": "(3-5개 선택)",
+          "items": {
+            "음악": "음악",
+            "아이돌": "아이돌",
+            "패션/뷰티": "패션/뷰티",
+            "스포츠": "스포츠",
+            "영화/드라마": "영화/드라마",
+            "공부": "공부",
+            "자기계발": "자기계발",
+            "책": "책",
+            "환경": "환경",
+            "동물": "동물"
+          }
+        }
+      },
+      "alert": {
+        "tokenMissing": "인증 토큰이 없습니다. 이전 단계를 다시 진행해주세요.",
+        "keywordCount": "키워드는 3-5개 선택해주세요.",
+        "signupSuccess": "회원가입이 완료되었습니다!",
+        "signupError": "회원가입 중 오류가 발생했습니다. 입력값을 다시 확인해주세요."
+      }
+    },
+    "common": {
+      "nextButton": "다음"
+    }
+  },
+  "protectedRoute": {
+    "loading": "로딩 중...",
+    "message": "로그인이 필요한 서비스입니다.<br />로그인 후 이용해주세요.",
+    "loginButton": "로그인하러 가기"
+  },
+  "login": {
+    "title": "로그인",
+    "intro": {
+      "content": "학교 이메일 인증으로 안전하게, 취향·성격·관심사 기반으로 나와<br /> 잘 맞는 외국인 친구를 찾아드려요.<br /><br /> 1:1 채팅으로 자연스럽게 언어를 배우고 문화를 나누며,<br /> 교내에서 시작되는 글로벌 네트워킹을 경험하세요."
+    },
+    "form": {
+      "username": {
+        "label": "아이디",
+        "placeholder": "likelion"
+      },
+      "email": {
+        "label": "학교 이메일",
+        "placeholder": "likelion@hufs.ac.kr"
+      },
+      "password": {
+        "label": "비밀번호",
+        "placeholder": "********"
+      },
+      "submitButton": "로그인",
+      "signUpText": "회원이 아니신가요?",
+      "signUpLink": "회원가입"
+    },
+    "alert": {
+      "fieldsRequired": "모든 항목을 입력해주세요",
+      "success": "로그인 성공!",
+      "invalidCredentials": "아이디 또는 비밀번호가 올바르지 않습니다.",
+      "error": "로그인 중 오류가 발생했습니다."
+    }
+  },
+  "randomMatch": {
+    "title": "친구 랜덤 매칭",
+    "description": "취향과 성격을 기반으로 <br />교내 외국인 친구를 자동 매칭합니다.",
+    "loading": {
+      "title": "랜덤 매칭 중입니다...",
+      "cancel": "매칭 다음에 하기"
+    },
+    "matched": {
+      "title": "매칭에 성공했습니다!",
+      "nativeLanguage": "사용 언어:",
+      "preferredLanguage": "선호 언어:",
+      "nationality": "국적:",
+      "noInfo": "정보 없음",
+      "startChat": "채팅 시작하기",
+      "findAnother": "다른 상대 찾기",
+      "waitingAccept": "상대방이 수락할 때까지 기다리는 중..."
+    },
+    "chat": {
+      "entered": "님이 입장하셨습니다.",
+      "messagePlaceholder": "메시지를 입력해주세요",
+      "leftChat": "대화방을 나갔습니다."
+    },
+    "languages": {
+      "ko": "한국어",
+      "en": "영어",
+      "zh": "중국어",
+      "fr": "프랑스어",
+      "de": "독일어",
+      "ja": "일본어",
+      "es": "스페인어"
+    },
+    "countries": {
+      "KR": "대한민국",
+      "US": "미국",
+      "JP": "일본",
+      "CN": "중국",
+      "FR": "프랑스",
+      "DE": "독일",
+      "UK": "영국",
+      "CA": "캐나다",
+      "AU": "호주"
+    },
+    "alert": {
+      "invalidMatchInfo": "매칭 정보가 올바르지 않습니다.",
+      "waitForAccept": "상대방이 수락할 때까지 기다려 주세요.",
+      "chatStartError": "채팅 시작 중 오류가 발생했습니다.",
+      "noMatchInfo": "매칭 정보가 없습니다. 다시 시도해주세요.",
+      "findAnotherError": "다른 상대를 찾는 중 오류가 발생했습니다.",
+      "partnerLeft": "상대방이 나갔습니다."
+    }
+  },
+  "message": {
+    "title": "쪽지",
+    "friendsList": {
+      "title": "대화 나눈 친구들",
+      "empty": "쪽지방이 없습니다."
+    },
+    "chat": {
+      "selectChat": "대화를 선택해주세요",
+      "leaveChat": "채팅방 나가기",
+      "noMessages": "아직 주고받은 쪽지가 없습니다.",
+      "selectPartner": "대화 상대를 선택하면 쪽지 내역이 표시됩니다.",
+      "messagePlaceholder": "메시지를 입력해주세요",
+      "sendButton": "보내기",
+      "read": "✔ 읽음",
+      "sent": "전송됨"
+    }
+  },
+  "profile": {
+    "landing": {
+      "title": "새로운 친구들을<br />만나보세요! 👋",
+      "subtitle": "전 세계 다양한 친구들과<br />함께하는 외대 생활!<br />당신과 딱 맞는 친구를 만나고 공부도 같이해봐요!",
+      "exploreButton": "프로필 찾아보기 ✨"
+    },
+    "list": {
+      "title": "프로필 조회",
+      "subtitle": "나와 Fit이 맞는 친구 찾기",
+      "sectionTitle": "친구들의 프로필 보기",
+      "filters": {
+        "campus": "캠퍼스",
+        "nativeLanguage": "사용 언어",
+        "personalityKeyword": "성격 키워드",
+        "hobbyKeyword": "취미 키워드",
+        "topicKeyword": "주제 키워드",
+        "all": "전체",
+        "global": "글로벌캠퍼스",
+        "seoul": "서울캠퍼스",
+        "search": "조회"
+      },
+      "languages": {
+        "korean": "한국어",
+        "english": "영어",
+        "chinese": "중국어",
+        "arabic": "아랍어",
+        "italian": "이탈리아어"
+      },
+      "keywords": {
+        "personality": {
+          "1": "활발한",
+          "2": "솔직한",
+          "3": "차분한",
+          "4": "유쾌한",
+          "5": "친절한",
+          "6": "도전적",
+          "7": "신중한",
+          "8": "긍정적",
+          "9": "냉정한",
+          "10": "열정적인"
+        },
+        "hobby": {
+          "11": "영화 시청",
+          "12": "음악 감상",
+          "13": "요리",
+          "14": "독서",
+          "15": "카페가기",
+          "16": "운동",
+          "17": "산책",
+          "18": "사진 촬영",
+          "19": "게임",
+          "20": "여행"
+        },
+        "topic": {
+          "21": "음악",
+          "22": "아이돌",
+          "23": "패션/뷰티",
+          "24": "스포츠",
+          "25": "영화/드라마",
+          "26": "공부",
+          "27": "자기계발",
+          "28": "책",
+          "29": "환경",
+          "30": "동물"
+        }
+      }
+    },
+    "detail": {
+      "title": "프로필 조회",
+      "loading": "로딩 중...",
+      "error": "프로필 정보를 불러올 수 없습니다.",
+      "message": {
+        "title": "쪽지 작성하기",
+        "placeholder": "메시지를 작성해주세요",
+        "sendButton": "쪽지 보내기"
+      },
+      "alert": {
+        "partnerInfoError": "상대방 정보를 불러올 수 없습니다.",
+        "sendSuccess": "님에게 쪽지가 성공적으로 전송되었습니다!",
+        "loginRequired": "로그인이 필요합니다.",
+        "partnerNotFound": "상대방을 찾을 수 없습니다.",
+        "sendError": "쪽지 전송 중 오류가 발생했습니다."
+      }
+    },
+    "campus": {
+      "global": "글로벌캠퍼스",
+      "seoul": "서울캠퍼스"
+    },
+    "languages": {
+      "ko": "한국어",
+      "en": "영어",
+      "es": "스페인어",
+      "fr": "프랑스어",
+      "ja": "일본어",
+      "zh": "중국어",
+      "de": "독일어",
+      "it": "이탈리아어",
+      "ar": "아랍어"
+    }
+  },
+  "study": {
+    "title": "스터디 모집",
+    "list": {
+      "title": "스터디 모집",
+      "subtitle": "나와 Fit이 맞는 친구 찾기",
+      "loading": "데이터를 불러오는 중입니다...",
+      "empty": "모집하는 스터디가 없어요.",
+      "filters": {
+        "campus": "캠퍼스",
+        "language": "사용 언어",
+        "status": "모집중/마감",
+        "all": "전체",
+        "global": "글로벌캠퍼스",
+        "seoul": "서울캠퍼스",
+        "recruiting": "모집중",
+        "closed": "모집마감",
+        "search": "조회"
+      },
+      "profile": {
+        "loginRequired": "로그인 후 내 정보를 볼 수 있습니다.",
+        "myPosts": "작성한 게시글",
+        "myComments": "작성한 댓글",
+        "createPost": "게시글 작성"
+      },
+      "pagination": {
+        "previous": "이전",
+        "next": "다음",
+        "page": "페이지"
+      }
+    },
+    "detail": {
+      "title": "스터디 모집",
+      "loading": "게시글을 불러오는 중...",
+      "error": "오류:",
+      "profile": {
+        "loading": "사용자 정보 로딩 중...",
+        "loginRequired": "로그인이 필요합니다.",
+        "myPosts": "작성한 게시글",
+        "myComments": "작성한 댓글",
+        "backToList": "스터디 목록"
+      },
+      "status": {
+        "recruiting": "모집중",
+        "closed": "마감"
+      },
+      "participants": "명",
+      "actions": {
+        "edit": "수정하기",
+        "delete": "삭제하기",
+        "join": "가입하기",
+        "joined": "가입 완료"
+      },
+      "alert": {
+        "deleteConfirm": "게시글을 정말 삭제하시겠습니까?",
+        "deleteSuccess": "게시글이 성공적으로 삭제되었습니다.",
+        "deleteError": "게시글 삭제에 실패했습니다:",
+        "commentSuccess": "댓글이 달렸습니다!",
+        "commentError": "댓글 작성에 실패했습니다:",
+        "editCommentError": "댓글 수정에 실패했습니다:",
+        "deleteCommentConfirm": "댓글을 삭제하시겠습니까?",
+        "deleteCommentSuccess": "댓글이 삭제되었습니다!",
+        "deleteCommentError": "댓글 삭제에 실패했습니다:",
+        "alreadyJoined": "이미 이 스터디에 가입하셨습니다.\n마이페이지에서 참여한 스터디를 확인해 주세요.",
+        "joiningInProgress": "이미 가입 요청을 처리 중입니다.",
+        "capacityFull": "이미 정원이 가득 찬 스터디입니다.",
+        "joinConfirm": "스터디에 가입 요청을 하시겠습니까?",
+        "joinSuccess": "스터디 가입 요청을 성공적으로 보냈습니다.",
+        "joinError": "스터디 가입 요청에 실패했습니다:"
+      }
+    },
+    "post": {
+      "create": "게시글 작성",
+      "edit": "게시글 수정",
+      "form": {
+        "campus": {
+          "label": "캠퍼스",
+          "placeholder": "캠퍼스 선택",
+          "seoul": "서울캠퍼스",
+          "global": "글로벌캠퍼스"
+        },
+        "language": {
+          "label": "사용언어",
+          "placeholder": "언어 선택"
+        },
+        "capacity": {
+          "label": "최대인원",
+          "placeholder": "최대 인원 선택",
+          "people": "명"
+        },
+        "title": {
+          "label": "게시글 제목",
+          "placeholder": "예) 영어 회화 스터디 모집합니다"
+        },
+        "content": {
+          "label": "모집 상세내용",
+          "description": "스터디의 목적, 진행방식 등을 자유롭게 작성해주세요.",
+          "placeholder": "예) 스터디 목표와 진행방식\n\n목표: \n진행일시: \n모집대상: \n기타사항:"
+        },
+        "submit": {
+          "create": "게시글 올리기",
+          "edit": "수정완료",
+          "creating": "게시글 작성 중...",
+          "editing": "게시글 수정 중..."
+        }
+      },
+      "validation": {
+        "titleRequired": "게시글 제목을 입력해주세요",
+        "contentRequired": "모집 상세내용을 입력해주세요",
+        "campusRequired": "캠퍼스를 선택해주세요",
+        "languageRequired": "사용언어를 선택해주세요",
+        "capacityInvalid": "최대인원은 2~6명 사이여야 합니다"
+      },
+      "alert": {
+        "loginRequired": "게시글 작성을 위해 로그인이 필요합니다.",
+        "loadError": "게시글 정보를 불러오지 못했습니다.",
+        "editSuccess": "게시글이 수정되었습니다!",
+        "createSuccess": "게시글이 성공적으로 작성되었습니다!",
+        "editError": "게시글 수정에 실패했습니다:",
+        "createError": "게시글 작성에 실패했습니다:"
+      },
+      "profile": {
+        "loading": "사용자 정보 로딩 중...",
+        "loginRequired": "로그인이 필요합니다.",
+        "myPosts": "작성한 게시글",
+        "myComments": "작성한 댓글",
+        "backToList": "스터디 목록"
+      }
+    }
+  }
+}

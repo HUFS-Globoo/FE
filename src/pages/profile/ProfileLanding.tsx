@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ProfileBanner from "../../components/ProfileBanner";
 
 const mockProfilesForLanding = [
@@ -334,6 +335,7 @@ const BackgroundCircle = styled.div<{
 `;
 
 const ProfileLanding: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleProfileClick = (userId: number) => {
@@ -384,18 +386,11 @@ const ProfileLanding: React.FC = () => {
       {/* 중앙 CTA 영역 */}
       <CTASection>
         <div>
-          <Title className="H1">
-            새로운 친구들을<br />
-            만나보세요! 👋
-          </Title>
-          <Subtitle className="Body1">
-            전 세계 다양한 친구들과<br />
-            함께하는 외대 생활!<br />
-            당신과 딱 맞는 친구를 만나고 공부도 같이해봐요!
-          </Subtitle>
+          <Title className="H1" dangerouslySetInnerHTML={{ __html: t("profile.landing.title") }} />
+          <Subtitle className="Body1" dangerouslySetInnerHTML={{ __html: t("profile.landing.subtitle") }} />
         </div>
         <Button onClick={handleExploreClick} className="Button1">
-          프로필 찾아보기 ✨
+          {t("profile.landing.exploreButton")}
         </Button>
       </CTASection>
     </Container>

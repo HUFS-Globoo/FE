@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next";
 import SubmitButton from '../../components/SubmitButton'
 import SignUpSidebar from '../../components/SignUpSidebar'
 import { useSignup } from "../../contexts/SignupContext";
@@ -112,6 +113,7 @@ const ResendLink = styled.div`
 
 const SignUp2 = () => {
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { signupData, setSignupData } = useSignup();
   const [campus, setCampus] = useState<"GLOBAL" | "SEOUL">(signupData.campus || "GLOBAL");
@@ -121,21 +123,21 @@ const SignUp2 = () => {
   const [isVerified, setIsVerified] = useState(false);
 
   const steps = [
-    { number: 1, detail: "기본 정보 입력" },
-    { number: 2, detail: "학교 이메일 인증" },
-    { number: 3, detail: "언어 & 국적" },
-    { number: 4, detail: "나를 소개하는 키워드 선택" },
+    { number: 1, detail: t("signup.steps.step1") },
+    { number: 2, detail: t("signup.steps.step2") },
+    { number: 3, detail: t("signup.steps.step3") },
+    { number: 4, detail: t("signup.steps.step4") },
   ];
 
   const handleSendCode = async () => {
     if (!email.trim()) {
-      alert("이메일을 입력해주세요.");
+      alert(t("signup.step2.alert.emailRequired"));
       return;
     }
 
     // 필수 필드 확인 (이메일은 SignUp2에서 입력받음)
     if (!email.trim() || !signupData.username || !signupData.password || !signupData.name || !signupData.nickname) {
-      alert("모든 필수 필드를 입력해주세요. (이메일, 아이디, 비밀번호, 이름, 닉네임)");
+      alert(t("signup.step2.alert.fieldsRequired"));
       return;
     }
 
@@ -163,19 +165,19 @@ const SignUp2 = () => {
 
       console.log("회원가입 응답 데이터:", response.data);
       
-      alert("인증번호가 전송되었습니다. 메일함을 확인해주세요!");
+      alert(t("signup.step2.alert.codeSent"));
       setIsCodeSent(true);
       // 이메일과 캠퍼스를 signupData에 저장
       setSignupData({ ...signupData, email: email, campus: campus });
     } catch (error: any) {
       console.error("회원가입 요청 실패:", error.response?.data || error.message || error);
-      alert(error.response?.data?.message || "인증번호 전송 중 오류가 발생했습니다.");
+      alert(error.response?.data?.message || t("signup.step2.alert.sendError"));
     }
   };
 
   const handleResendCode = async () => {
     if (!email.trim()) {
-      alert("이메일을 입력해주세요.");
+      alert(t("signup.step2.alert.emailRequired"));
       return;
     }
 
@@ -192,24 +194,24 @@ const SignUp2 = () => {
       );
 
       if (response.data.ok) {
-        alert("인증번호가 재전송되었습니다. 메일함을 다시 확인해주세요!");
+        alert(t("signup.step2.alert.codeResent"));
       } else {
-        alert("재전송에 실패했습니다. 다시 시도해주세요.");
+        alert(t("signup.step2.alert.resendFailed"));
       }
     } catch (error: any) {
       console.error("인증번호 재전송 실패:", error.response?.data || error.message || error);
-      alert(error.response?.data?.message || "인증번호 재전송 중 오류가 발생했습니다.");
+      alert(error.response?.data?.message || t("signup.step2.alert.resendError"));
     }
   };
 
   const handleVerifyCode = async () => {
     if (!verificationCode.trim()) {
-      alert("인증번호를 입력해주세요!");
+      alert(t("signup.step2.alert.codeRequired"));
       return;
     }
 
     if (!email.trim()) {
-      alert("이메일을 입력해주세요.");
+      alert(t("signup.step2.alert.emailRequired"));
       return;
     }
 
@@ -223,23 +225,23 @@ const SignUp2 = () => {
         // onboardingToken 받아서 localStorage에 저장
         if (response.data.onboardingToken) {
           localStorage.setItem("onboardingToken", response.data.onboardingToken);
-          alert("이메일 인증이 완료되었습니다!");
+          alert(t("signup.step2.alert.verificationComplete"));
           setIsVerified(true);
         } else {
-          alert("인증은 완료되었지만 토큰을 받지 못했습니다.");
+          alert(t("signup.step2.alert.tokenError"));
         }
       } else {
-        alert("인증에 실패했습니다. 코드를 다시 확인해주세요.");
+        alert(t("signup.step2.alert.verificationFailed"));
       }
     } catch (error: any) {
       console.error("인증 실패:", error.response?.data || error.message || error);
-      alert(error.response?.data?.message || "인증 중 오류가 발생했습니다.");
+      alert(error.response?.data?.message || t("signup.step2.alert.verificationError"));
     }
   };
 
   const handleNext = () => {
     if (!isVerified) {
-      alert("이메일 인증을 완료해주세요.");
+      alert(t("signup.step2.alert.verificationNotComplete"));
       return;
     }
 
@@ -260,7 +262,7 @@ const SignUp2 = () => {
       <SignUpSidebar steps={steps} currentStep={2} />
 
       <ContentContainer>
-          <ContentTitle>02 학교 이메일로 인증해주세요 </ContentTitle>
+          <ContentTitle>{t("signup.step2.title")}</ContentTitle>
           <InputContainer>
             <SelectContainer>
               <Label onClick={() => {
@@ -268,47 +270,47 @@ const SignUp2 = () => {
                 setSignupData({ ...signupData, campus: "GLOBAL" });
               }}>
                 <Circle selected={campus === "GLOBAL"} />
-                글로벌
+                {t("signup.step2.campus.global")}
               </Label>
               <Label onClick={() => {
                 setCampus("SEOUL");
                 setSignupData({ ...signupData, campus: "SEOUL" });
               }}>
                 <Circle selected={campus === "SEOUL"} />
-                서울
+                {t("signup.step2.campus.seoul")}
               </Label>
             </SelectContainer>
             <EmailInputContainer>
               <EmailInputBox>
-                <EmailInputTitle className="Body1">학교 이메일</EmailInputTitle>
+                <EmailInputTitle className="Body1">{t("signup.step2.email.label")}</EmailInputTitle>
                 <EmailInputItem 
                   type="text" 
-                  placeholder="likelion@hufs.ac.kr"
+                  placeholder={t("signup.step2.email.placeholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </EmailInputBox>
               <VerificationButton className="Button2" onClick={handleSendCode}>
-                인증번호 전송
+                {t("signup.step2.verification.send")}
               </VerificationButton>
             </EmailInputContainer>
             <EmailInputContainer>
               <EmailInputBox>
-                <EmailInputTitle className="Body1">인증번호</EmailInputTitle>
+                <EmailInputTitle className="Body1">{t("signup.step2.verification.label")}</EmailInputTitle>
                 <EmailInputItem 
                   type="text" 
-                  placeholder="123456"
+                  placeholder={t("signup.step2.verification.placeholder")}
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                 />
               </EmailInputBox>
               <VerificationButton className="Button2" onClick={handleVerifyCode}>
-                인증번호 확인
+                {t("signup.step2.verification.verify")}
               </VerificationButton>
             </EmailInputContainer>
             {isCodeSent && (
               <ResendLink onClick={handleResendCode}>
-                인증번호를 받지 못하셨나요? 재전송
+                {t("signup.step2.verification.resend")}
               </ResendLink>
             )}
           </InputContainer>

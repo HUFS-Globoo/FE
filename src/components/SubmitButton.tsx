@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 
 const Container = styled.button`
@@ -20,10 +21,11 @@ interface SubmitButtonProps {
   children?: React.ReactNode; 
 }
 
-export default function SubmitButton({ onClick }: SubmitButtonProps) {
+export default function SubmitButton({ onClick, children }: SubmitButtonProps) {
+  const { t } = useTranslation();
 
   return(
-  <Container onClick={onClick}>다음</Container>
+  <Container onClick={onClick}>{children || t("signup.common.nextButton")}</Container>
   )
 }
 

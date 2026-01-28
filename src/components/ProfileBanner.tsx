@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import AmericaBannerImg from "../assets/img-banner_US.svg";
 import KoreaBannerImg from "../assets/img-banner_KR.svg";
 import ItalyBannerImg from "../assets/img-banner_IT.svg";
@@ -258,36 +259,29 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
 
 
 
+  const { t } = useTranslation();
+
   // 캠퍼스 표시 텍스트
-  // 😭api 확인 후 삭제 결정
-  const campusText = campus === 'GLOBAL' ? '글로벌캠퍼스' : campus === 'SEOUL' ? '서울캠퍼스' : null;
+  const campusText = campus === 'GLOBAL' 
+    ? t("profile.campus.global") 
+    : campus === 'SEOUL' 
+    ? t("profile.campus.seoul") 
+    : null;
 
   // 언어 텍스트 매핑
-  // 😭api 확인 후 삭제 결정
-
-  const languageMap: { [key: string]: string } = {
-    'ko': '한국어',
-    'en': '영어',
-    'ja': '일본어',
-    'zh': '중국어',
-    'es': '스페인어',
-    'fr': '프랑스어',
-    'de': '독일어',
-    'it': '이탈리아어',
-    'ar': '아랍어',
+  const getLanguageName = (code: string): string => {
+    return t(`profile.languages.${code}`) || code;
   };
 
   // native와 learn 언어를 모두 표시
-  // 😭api 확인 후 삭제 결정
-  const nativeLanguages = languages.native.map(code => languageMap[code] || code);
-  const learnLanguages = languages.learn.map(code => languageMap[code] || code);
+  const nativeLanguages = languages.native.map(code => getLanguageName(code) || code);
+  const learnLanguages = languages.learn.map(code => getLanguageName(code) || code);
   const allLanguages = [...nativeLanguages, ...learnLanguages];
 
   // intro를 제목과 본문으로 분리
-  // 😭api 확인 후 삭제 결정
   const introLines = intro ? intro.split('\n').filter(line => line.trim()) : [];
   const introTitle = introLines[0] || '';
-  const introContent = introLines.slice(1).join(' ') || introLines[0] || `안녕하세요! ${nickname}입니다.`;
+  const introContent = introLines.slice(1).join(' ') || introLines[0] || '';
 
   return (
     <CardWrapper $country={validCountry} onClick={onClick}>

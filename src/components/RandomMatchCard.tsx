@@ -356,6 +356,7 @@ export default function RandomMatchCard() {
   const isDesignPreview = searchParams.get("design") === "chat"; // 디자인용 프리뷰 모드 (?design=chat)
   const userId = location.state?.userId || Number(localStorage.getItem("userId"));
   const matchClientRef = useRef<Client | null>(null);
+  const statusIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [partner, setPartner] = useState<any>(null);
   const [stage, setStage] = useState<"loading" | "matched" | "chat" | "waiting_accept">(
     isDesignPreview ? "chat" : "loading"
@@ -369,6 +370,8 @@ export default function RandomMatchCard() {
   const [waitingAccept, setWaitingAccept] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
   const [wsReady, setWsReady] = useState(false);
+  const hasLeftChatRef = useRef(false); // 나가기 버튼을 눌렀는지 추적 (ref로 동기적 체크)
+  const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
 
 // 매칭 소켓(STOMP) 연결 및 상태 구독
 useEffect(() => {
@@ -431,11 +434,14 @@ useEffect(() => {
         onConnect: () => {
           console.log("✅ 매칭 STOMP 연결 성공");
           client.subscribe("/user/queue/matching", (message: IMessage) => {
-            console.log("📨 매칭 메시지 수신:", message.body);
-            const payload = JSON.parse(message.body);
-            const { status } = payload;
+            console.log("📨 [STOMP] 매칭 메시지 수신:", message.body);
+            try {
+              const payload = JSON.parse(message.body);
+              const { status } = payload;
+              console.log("📨 [STOMP] 파싱된 payload:", payload);
 
-            if (status === "FOUND") {
+              if (status === "FOUND") {
+                console.log("✅ [STOMP] FOUND 상태 수신 → 화면 전환 시도");
               // profileA, profileB 중 나를 제외한 상대 프로필을 partner로 설정
               const { profileA, profileB, matchId: foundMatchId } = payload;
 
@@ -458,23 +464,31 @@ useEffect(() => {
                 setPartner(opponent);
               }
 
-              setStage("matched");
-            } else if (status === "CHATTING") {
-              const { chatRoomId: roomId } = payload;
+                setStage("matched");
+                console.log("   - ✅ [STOMP] stage를 'matched'로 설정 완료");
+              } else if (status === "CHATTING") {
+                console.log("✅ [STOMP] CHATTING 상태 수신 → 채팅 화면으로 전환");
+                const { chatRoomId: roomId } = payload;
 
-              if (roomId) {
-                setChatRoomId(roomId);
-                localStorage.setItem("chatRoomId", String(roomId));
+                if (roomId) {
+                  setChatRoomId(roomId);
+                  localStorage.setItem("chatRoomId", String(roomId));
+                }
+
+                setStage("chat");
+                setWaitingAccept(false);
+
+                // 매칭 소켓은 더 이상 사용하지 않으므로 종료
+                if (matchClientRef.current) {
+                  matchClientRef.current.deactivate();
+                  matchClientRef.current = null;
+                }
+                console.log("   - ✅ [STOMP] stage를 'chat'으로 설정 완료");
+              } else {
+                console.log("⚠️ [STOMP] 알 수 없는 status:", status);
               }
-
-              setStage("chat");
-              setWaitingAccept(false);
-
-              // 매칭 소켓은 더 이상 사용하지 않으므로 종료
-              if (matchClientRef.current) {
-                matchClientRef.current.deactivate();
-                matchClientRef.current = null;
-              }
+            } catch (parseErr) {
+              console.error("❌ [STOMP] 메시지 파싱 실패:", parseErr, "원본:", message.body);
             }
           });
         },
@@ -598,8 +612,102 @@ useEffect(() => {
   };
 }, [userId]);
 
+// 3초마다 유저 매칭 상태를 콘솔에 출력하고, FOUND 상태면 화면 전환
+// 채팅 단계에서는 상태 확인 불필요 (이미 채팅 중이므로)
+useEffect(() => {
+  if (isDesignPreview || !userId || stage === "chat") return;
 
+  const logUserStatus = async () => {
+    try {
+      const res = await axiosInstance.get("/api/matching/active");
+      const apiData = res.data?.data ?? res.data;
 
+      if (apiData) {
+        console.log("🔄 [3초 주기] 유저 매칭 상태:", {
+          status: apiData.status,
+          matchId: apiData.matchId,
+          userAId: apiData.userAId,
+          userBId: apiData.userBId,
+          chatRoomId: apiData.chatRoomId,
+        });
+
+        // REST API로 FOUND 상태를 받았는데 화면이 아직 matched가 아니면 화면 전환
+        if (apiData.status === "FOUND" && stage !== "matched") {
+          console.log("🔄 REST API에서 FOUND 상태 감지 → 화면 전환 시도");
+          
+          // matchId 저장
+          if (apiData.matchId) {
+            setMatchId(String(apiData.matchId));
+          }
+
+          // 상대 프로필 가져오기
+          const opponentId =
+            apiData.userAId === userId ? apiData.userBId : apiData.userAId;
+
+          if (opponentId && !partner) {
+            console.log("   - 상대 프로필 조회 중... (opponentId:", opponentId, ")");
+            try {
+              const profileRes = await axiosInstance.get(`/api/profiles/${opponentId}`);
+              console.log("   - 상대 프로필 조회 성공:", profileRes.data);
+              setPartner(profileRes.data);
+            } catch (profileErr) {
+              console.error("   - 상대 프로필 조회 실패:", profileErr);
+            }
+          }
+
+          // 화면 전환
+          setStage("matched");
+          console.log("   - ✅ stage를 'matched'로 설정 완료 (REST API 기반)");
+        }
+
+        // ACCEPTED_BOTH 상태면 채팅으로 전환
+        if (apiData.status === "ACCEPTED_BOTH" && stage !== "chat") {
+          console.log("🔄 REST API에서 ACCEPTED_BOTH 상태 감지 → 채팅 화면으로 전환");
+          
+          if (apiData.chatRoomId) {
+            setChatRoomId(apiData.chatRoomId);
+            localStorage.setItem("chatRoomId", String(apiData.chatRoomId));
+          }
+
+          setStage("chat");
+          setWaitingAccept(false);
+
+          // 매칭 소켓 종료
+          if (matchClientRef.current) {
+            matchClientRef.current.deactivate();
+            matchClientRef.current = null;
+          }
+        }
+      } else {
+        console.log("🔄 [3초 주기] 유저 매칭 상태: 매칭 정보 없음 (큐 대기 중일 수 있음)");
+      }
+    } catch (err) {
+      console.error("🔄 [3초 주기] 유저 매칭 상태 조회 실패:", err);
+    }
+  };
+
+  // 즉시 한 번 실행
+  logUserStatus();
+
+  // 3초마다 실행
+  statusIntervalRef.current = setInterval(logUserStatus, 3000);
+
+  return () => {
+    if (statusIntervalRef.current) {
+      clearInterval(statusIntervalRef.current);
+      statusIntervalRef.current = null;
+    }
+  };
+}, [userId, isDesignPreview, stage, partner]);
+
+// 채팅 단계로 전환되면 상태 확인 interval 중지
+useEffect(() => {
+  if (stage === "chat" && statusIntervalRef.current) {
+    console.log("채팅 단계 진입 → 3초 주기 상태 확인 중지");
+    clearInterval(statusIntervalRef.current);
+    statusIntervalRef.current = null;
+  }
+}, [stage]);
 
 const handleAcceptMatch = async () => {
   console.log("handleAcceptMatch 실행됨, matchId:", matchId);
@@ -718,6 +826,8 @@ const handleFindAnother = async () => {
     if (stage !== "chat") return;
   
     setWsReady(false);
+    hasLeftChatRef.current = false; // 채팅방 입장 시 나가기 플래그 초기화
+    hasJoinedRef.current = false; // 채팅방 입장 시 JOIN 플래그 초기화
   
     if (ws.current) {
       console.log("이미 WebSocket 연결 존재 → 재활성화");
@@ -743,15 +853,45 @@ const handleFindAnother = async () => {
   ws.current = socket;
 
   socket.onopen = () => {
-    console.log("WebSocket 연결 성공");
-    setWsReady(true);
+    console.log("✅ [채팅 WebSocket] 연결 성공");
+    console.log("   - URL: wss://globoo.duckdns.org/ws/chat");
+    console.log("   - chatRoomId:", chatRoomId);
+    
+    // 채팅방 입장을 위해 JOIN 메시지 먼저 전송
+    if (chatRoomId) {
+      const joinPayload = {
+        type: "JOIN",
+        chatRoomId: chatRoomId,
+      };
+      console.log("📤 [채팅 WebSocket] JOIN 메시지 전송:", joinPayload);
+      socket.send(JSON.stringify(joinPayload));
+      hasJoinedRef.current = true;
+      
+      // JOIN 메시지를 보낸 후 서버가 처리할 시간을 주기 위해 약간의 딜레이
+      // 서버에서 JOIN_ACK를 보내면 그때 wsReady를 true로 설정하는 것이 더 좋지만,
+      // 일단 딜레이로 처리
+      setTimeout(() => {
+        setWsReady(true);
+        console.log("✅ [채팅 WebSocket] wsReady = true (JOIN 처리 완료 대기 후)");
+      }, 300); // 300ms 딜레이
+    } else {
+      console.warn("⚠️ [채팅 WebSocket] chatRoomId가 없어서 JOIN 메시지를 보낼 수 없습니다.");
+      setWsReady(true); // chatRoomId가 없어도 일단 ready로 설정
+    }
   };
 
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    console.log("서버 메시지:", data);
+    console.log("📨 [채팅 WebSocket] 서버 메시지 수신:", data);
   
     switch (data.type) {
+      case "JOIN_ACK":
+      case "JOIN_SUCCESS":
+        // 서버가 JOIN을 처리했다는 응답을 받으면 wsReady를 true로 설정
+        console.log("✅ [채팅 WebSocket] JOIN 응답 수신 → wsReady = true");
+        setWsReady(true);
+        break;
+        
       case "MESSAGE_ACK": {
         const normalized: ChatMessage = {
           messageId: data.messageId,
@@ -768,7 +908,10 @@ const handleFindAnother = async () => {
       }
   
       case "LEAVE_NOTICE":
-        alert(t("randomMatch.alert.partnerLeft"));
+        // 나가기 버튼을 누른 사람은 이미 alert를 봤으므로, 상대방에게만 alert 표시
+        if (!hasLeftChatRef.current) {
+          alert(t("randomMatch.chat.leftChat"));
+        }
   
         setChatRoomId(null);
         setMessages([]);
@@ -788,11 +931,16 @@ const handleFindAnother = async () => {
   };
   
 
-  socket.onclose = () => {
-    console.log("WebSocket 종료됨");
+  socket.onclose = (event) => {
+    console.log("⚠️ [채팅 WebSocket] 연결 종료됨");
+    console.log("   - code:", event.code);
+    console.log("   - reason:", event.reason || "없음");
+    console.log("   - wasClean:", event.wasClean);
     ws.current = null; 
   };
-  socket.onerror = (e) => console.error("WebSocket 에러:", e);
+  socket.onerror = (e) => {
+    console.error("❌ [채팅 WebSocket] 에러:", e);
+  };
 
   return () => {
     socket.close();
@@ -833,6 +981,9 @@ const handleFindAnother = async () => {
   
     console.log("채팅방에서 나가기 요청 전송:", chatRoomId);
 
+    // 나가기 버튼을 눌렀다는 플래그 설정 (LEAVE_NOTICE를 받아도 alert 안 띄우기 위해)
+    hasLeftChatRef.current = true;
+
     const leavePayload = {
       type: "LEAVE",
       chatRoomId,
@@ -840,6 +991,7 @@ const handleFindAnother = async () => {
   
     ws.current.send(JSON.stringify(leavePayload));
   
+    // 나가기 버튼을 누른 사람에게 "대화방을 나갔습니다" alert 표시
     alert(t("randomMatch.chat.leftChat"));
   
     setTimeout(() => {

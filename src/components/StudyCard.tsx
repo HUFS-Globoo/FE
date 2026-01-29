@@ -2,11 +2,8 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import type { StudyItem } from "../types/study.types";
 import ParticipantImg from "../assets/img-participant.svg";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
 
 interface StudyCardProps {
   study: StudyItem;
@@ -14,14 +11,6 @@ interface StudyCardProps {
   currentUserId?: number;
 }
 
-// 국가별 캐릭터 이미지 매핑
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
@@ -140,13 +129,13 @@ const StudyCard = ({ study, onClick, currentUserId }: StudyCardProps) => {
     typeof window !== "undefined" &&
     localStorage.getItem("useDefaultProfileImage") === "true";
 
-  const authorCountryCode = study.authorCountry ?? null;
+  const authorCountryCode = (study.authorCountry || "KR").toUpperCase();
+
   const fallbackCharacter =
-    (authorCountryCode &&
-      countryCharacterImages[
-        authorCountryCode as keyof typeof countryCharacterImages
-      ]) ||
-    KoreaProfileImg;
+    COUNTRY_ASSETS[authorCountryCode]?.character ||
+    COUNTRY_ASSETS["KR"]?.character ||
+    "";
+
 
   let characterImage: string | null = study.authorProfileImageUrl;
 
@@ -203,8 +192,9 @@ const primaryLanguage = study.languages?.[0];
         src={finalSrc} 
         alt={study.authorNickname || "작성자"} 
         onError={(e) => {
-          e.currentTarget.src = fallbackCharacter;
-  }}
+  e.currentTarget.src = fallbackCharacter || COUNTRY_ASSETS["KR"]?.character || "";
+}}
+
 />
 
       </ProfileSection>

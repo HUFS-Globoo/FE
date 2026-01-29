@@ -8,8 +8,7 @@ import {
     joinStudy
 } from "../../api/studyAPI"; 
 
-import { 
-    getCommentsByStudyId, 
+import {  
     addCommentToStudy, 
     updateComment, 
     deleteComment 
@@ -27,22 +26,10 @@ import StudyApplicantsList from "../../components/StudyApplicantsList";
 import type { StudyMember } from "../../types/study.types";
 
 import ParticipantImg from "../../assets/img-participant.svg";
-import AmericaProfileImg from "../../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../../assets/img-profile1-China.svg";
+import { COUNTRY_ASSETS } from "../../utils/countryAssets";
 import axiosInstance from "../../../axiosInstance";
 
-
-// 국가별 캐릭터 이미지 매핑
-const countryCharacterImages: { [key: string]: string } = {
-    US: AmericaProfileImg,
-    KR: KoreaProfileImg,
-    IT: ItalyProfileImg,
-    EG: EgyptProfileImg,
-    CN: ChinaProfileImg,
-};
+import { useTranslation } from "react-i18next";
 
 // vite 환경변수 타입 경고를 피하기 위해 any 캐스팅
 const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL as string;
@@ -263,6 +250,7 @@ const JoinButton = styled.button`
 `;
 
 const StudyDetail = () => {
+  const { t } = useTranslation();
     const { id: postId } = useParams<{ id: string }>();
     const studyId = Number(postId);
     const navigate = useNavigate();
@@ -538,14 +526,12 @@ useEffect(() => {
 
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
-    const authorCountryCode = studyData.authorCountry;
+    const authorCountryCode = studyData.authorCountry?.toUpperCase();
 
     const fallbackCharacter =
-  (authorCountryCode &&
-    countryCharacterImages[
-      authorCountryCode as keyof typeof countryCharacterImages
-    ]) ||
-  KoreaProfileImg;
+      (authorCountryCode && COUNTRY_ASSETS[authorCountryCode]?.character) ||
+      COUNTRY_ASSETS.KR.character;
+
 
   let authorProfileImageUrl: string | null = null;
 
@@ -594,11 +580,11 @@ useEffect(() => {
       <p>사용자 정보 로딩 중...</p>
     ) : userMe ? (
       (() => {
+        const myCountryCode = userMe.country?.toUpperCase();
         const defaultCharacter =
-          (userMe.country &&
-            countryCharacterImages[
-              userMe.country as keyof typeof countryCharacterImages
-            ]) || KoreaProfileImg;
+          (myCountryCode && COUNTRY_ASSETS[myCountryCode]?.character) ||
+          COUNTRY_ASSETS.KR.character;
+
 
         return (
           <>

@@ -2,11 +2,9 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import type { StudyComment, CommentRequest } from "../types/study.types";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
+
 import MiniBooImg from "../assets/img-miniBoo.svg";
 import { useEffect } from "react";
 interface CommentSectionProps {
@@ -20,14 +18,6 @@ interface CommentSectionProps {
   currentUserProfileImageUrl?: string | null;
 }
 
-// 국가별 캐릭터 이미지 매핑 (추후 실제 프로필 이미지로 교체)
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
 
 // 업로드 경로일 경우 API BASE URL을 붙여 정규화
 const normalizeProfileUrl = (url?: string | null) => {
@@ -54,10 +44,12 @@ const getCommentProfileImage = (
 
   // country 값이 없거나 undefined일 수 있으므로 안전하게 처리
   const country = comment.author?.country;
-  const countryUpper = country ? country.toUpperCase() : null;
-  const fallbackCharacter = countryUpper && countryCharacterImages[countryUpper]
-    ? countryCharacterImages[countryUpper]
-    : KoreaProfileImg;
+  const countryUpper = country ? country.toUpperCase() : "KR";
+
+  // 매핑 누락/오타로 앱 터지는 거 방지 (보험)
+  const fallbackCharacter =
+    (COUNTRY_ASSETS[countryUpper] || COUNTRY_ASSETS["KR"]).character;
+
 
   // 🔹 내가 쓴 댓글인 경우
   if (comment.author.id === currentUserId) {

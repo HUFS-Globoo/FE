@@ -5,11 +5,9 @@ import { useTranslation } from "react-i18next";
 import ProfileCard from "../../components/ProfileCard";
 import { type ProfileDetailResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
-import AmericaProfileImg from "../../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../../utils/countryAssets";
+
 
 const Container = styled.div`
   width: 100%;
@@ -112,21 +110,20 @@ const ProfileDetail = () => {
         const cleanBaseUrl = BASE_URL.endsWith("/")
           ? BASE_URL.slice(0, -1)
           : BASE_URL;
-
-        const countryCharacterImages: Record<string, string> = {
-          US: AmericaProfileImg,
-          KR: KoreaProfileImg,
-          IT: ItalyProfileImg,
-          EG: EgyptProfileImg,
-          CN: ChinaProfileImg,
-        };
   
+        const countryCode = (data.country || "KR").toUpperCase();
+        const fallbackCharacter =
+          COUNTRY_ASSETS[countryCode]?.character ||
+          COUNTRY_ASSETS["KR"]?.character ||
+          "";
+
         const profileImageUrl =
-        data.profileImageUrl && data.profileImageUrl.trim() !== ""
-          ? data.profileImageUrl.startsWith("/uploads")
-            ? `${cleanBaseUrl}${data.profileImageUrl}`
-            : data.profileImageUrl
-          : countryCharacterImages[data.country?.toUpperCase()] || KoreaProfileImg;
+          data.profileImageUrl && data.profileImageUrl.trim() !== ""
+            ? data.profileImageUrl.startsWith("/uploads")
+              ? `${cleanBaseUrl}${data.profileImageUrl}`
+              : data.profileImageUrl
+            : fallbackCharacter;
+
       
 
         const formattedData: ProfileDetailResponse = {

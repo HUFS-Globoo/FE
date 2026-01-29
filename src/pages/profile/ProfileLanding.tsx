@@ -52,7 +52,7 @@ const mockProfilesForLanding = [
     nickname: "田中さくら",
     campus: "GLOBAL" as const,
     country: "CN" as const,
-    mbti: "SEOUL",
+    mbti: "ENFP",
     profileImage: null,
     languages: {
       native: ["zh"],

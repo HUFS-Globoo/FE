@@ -7,19 +7,7 @@ import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
 import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME } from "../../utils/languages";
 
-import AmericaProfileImg from "../../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../../assets/img-profile1-China.svg";
-
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
+import { COUNTRY_ASSETS } from "../../utils/countryAssets";
 
 const fetchUserMe = async (): Promise<UserMeResponse | null> => {
     try {
@@ -401,11 +389,11 @@ const StudyPost = () => {
         localStorage.getItem("useDefaultProfileImage") === "true";
 
       // 🔹 2. 나라 코드 기반 기본 캐릭터 (없으면 한국 기본이미지)
+      const myCountryCode = userMe.country?.toUpperCase();
       const defaultCharacter =
-        (userMe.country &&
-          countryCharacterImages[
-            userMe.country as keyof typeof countryCharacterImages
-          ]) || KoreaProfileImg;
+        (myCountryCode && COUNTRY_ASSETS[myCountryCode]?.character) ||
+        COUNTRY_ASSETS.KR.character;
+
 
       // 🔹 3. 서버에서 받은 프로필 URL
       let profileUrl = userMe.profileImageUrl || null;

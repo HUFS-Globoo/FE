@@ -1,10 +1,8 @@
 import styled from "styled-components";
 import Icon from "../assets/messageIcon.svg";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
+
 import { IoIosLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -343,17 +341,6 @@ export default function Message() {
     }
   };
 
-
-  
-
-  const COUNTRY_IMAGE_MAP: Record<string, string> = {
-    KR: KoreaProfileImg,
-    US: AmericaProfileImg,
-    IT: ItalyProfileImg,
-    EG: EgyptProfileImg,
-    CN: ChinaProfileImg,
-  };
-
   type ProfileCardItem = {
     userId: number;
     nickname: string;
@@ -368,6 +355,12 @@ export default function Message() {
     intro: string;
     profileImage: string | null;
   };
+
+  const selectedCountryCode = selectedProfile?.country?.toUpperCase?.();
+  const selectedFallback =
+    (selectedCountryCode && COUNTRY_ASSETS[selectedCountryCode]?.character) ||
+    COUNTRY_ASSETS.KR.character;
+
 
   return(
     <Container>
@@ -384,6 +377,12 @@ export default function Message() {
                 // 현재 로그인 유저가 user1인지 user2인지 판단해야 함
                 const currentUserId = Number(localStorage.getItem("userId")); // 필요 시 수정
                 const partner = room.user1.id === currentUserId ? room.user2 : room.user1;
+
+                const partnerCountryCode = partner.country?.toUpperCase?.();
+                const partnerFallback =
+                  (partnerCountryCode && COUNTRY_ASSETS[partnerCountryCode]?.character) ||
+                  COUNTRY_ASSETS.KR.character;
+
 
                 return (
                   <MessageListBox
@@ -409,10 +408,10 @@ export default function Message() {
           }}
           style={{ cursor: "pointer" }}
         >
-          <CharacterImage
-            src={partner.profileImageUrl || KoreaProfileImg}
-            alt={`${partner.username} 이미지`}
-          />
+            <CharacterImage
+          src={partner.profileImageUrl || partnerFallback}
+          alt={`${partner.username} 이미지`}
+        />
           <MessageNickname className="H4">
             {partner.nickname}
           </MessageNickname>
@@ -431,8 +430,9 @@ export default function Message() {
           {selectedProfile ? (
             <ChatHeader>
     <ChatProfileImg
-      src={COUNTRY_IMAGE_MAP[selectedProfile.country] || KoreaProfileImg}
-    />
+  src={selectedProfile.profileImageUrl || selectedFallback}
+  alt="채팅 상대 프로필"
+/>
     <ChatNicname className="H2">
       {selectedProfile.nickname}
     </ChatNicname>

@@ -6,12 +6,8 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MockImg from "../assets/main-character.svg";
 import axiosInstance from "../../axiosInstance";
 import { IoIosLogOut } from "react-icons/io";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
 
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
 
 const Wrapper = styled.div`
   position: relative;
@@ -1021,15 +1017,14 @@ const handleFindAnother = async () => {
     return t(`randomMatch.countries.${code}`) || code;
   };
 
-  const countryCharacterImages: Record<string, string> = {
-    US: AmericaProfileImg,
-    KR: KoreaProfileImg,
-    IT: ItalyProfileImg,
-    EG: EgyptProfileImg,
-    CN: ChinaProfileImg,
-  };
+ const partnerCountryCode = (partner?.country || "KR").toUpperCase();
 
- 
+  const partnerProfileSrc =
+    partner?.profileImageUrl ||
+    COUNTRY_ASSETS[partnerCountryCode]?.character ||
+    COUNTRY_ASSETS["KR"]?.character ||
+    MockImg;
+
 
   return (
     <Wrapper>
@@ -1050,9 +1045,7 @@ const handleFindAnother = async () => {
             <MatchedProfile>
             <ProfileImg
               src={
-                partner?.profileImageUrl ||
-                countryCharacterImages[partner?.country] ||
-                MockImg
+                partnerProfileSrc
               }
               alt="프로필 이미지"
             />
@@ -1115,9 +1108,7 @@ const handleFindAnother = async () => {
             <MessageHeader>
             <MessageProfile
               src={
-                partner?.profileImageUrl ||
-                countryCharacterImages[partner?.country] ||
-                MockImg
+                partnerProfileSrc
               }
               alt="프로필 이미지"
             />

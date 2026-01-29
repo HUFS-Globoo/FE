@@ -9,27 +9,14 @@ import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
 import HeaderImg from "../../assets/img-miniBoo.svg";
 import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME } from "../../utils/languages";
-
-import AmericaProfileImg from "../../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../../assets/img-profile1-China.svg";
-
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
+import { COUNTRY_ASSETS } from "../../utils/countryAssets";
 
 const initialFilters: StudyFilter = {
   page: 0,
   campus: undefined,
   language: undefined,
   status: undefined,
-  // keyword: '', // 필요시 추가(확인ㄴ 필요)
+  // keyword: '', // 필요시 추가(확인 필요)
 };
 
 const Container = styled.div`
@@ -269,7 +256,7 @@ const StudyList = () => {
     setError(null);
   
     try {
-      const response: any = await getStudies(filters);
+      const response: any = await getStudies(customFilter ?? filters);
       const rawList = response.data || [];
   
       // 백엔드에서 이미 authorCountry를 포함하여 응답하므로 추가 API 호출 불필요
@@ -393,11 +380,10 @@ useEffect(() => {
         localStorage.getItem("useDefaultProfileImage") === "true";
 
       // 나라 코드 기반 기본 캐릭터 (없으면 한국)
+      const myCountryCode = userMe.country?.toUpperCase();
       const defaultCharacter =
-        (userMe.country &&
-          countryCharacterImages[
-            userMe.country as keyof typeof countryCharacterImages
-          ]) || KoreaProfileImg;
+        (myCountryCode && COUNTRY_ASSETS[myCountryCode]?.character) ||
+        COUNTRY_ASSETS.KR.character;
 
       // 서버에서 온 URL (fetchUserMe에서 이미 슬래시/캐시 처리해둠)
       let profileUrl = userMe.profileImageUrl;

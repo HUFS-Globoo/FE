@@ -11,7 +11,6 @@ import { getProfileSrc } from "../utils/profileImage";
 import { SUPPORTED_LANGUAGE_CODES } from "../utils/languages";
 
 
-
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
@@ -456,6 +455,9 @@ const filteredAppliedStudies = myAppliedStudies.filter(
             userData.profileImageUrl,
             userData.country
           );
+          console.log("[Mypage] userData.country =", userData.country);
+          console.log("[Mypage] profileSrc =", profileSrc);
+
         
           return (
             <ProfileCard

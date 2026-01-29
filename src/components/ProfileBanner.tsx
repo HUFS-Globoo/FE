@@ -1,15 +1,7 @@
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import AmericaBannerImg from "../assets/img-banner_US.svg";
-import KoreaBannerImg from "../assets/img-banner_KR.svg";
-import ItalyBannerImg from "../assets/img-banner_IT.svg";
-import EgyptBannerImg from "../assets/img-banner_EG.svg";
-import ChinaBannerImg from "../assets/img-banner_CN.svg";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
 
 // import { ProfileBannerProps } from "../types/profile.types";
 
@@ -43,27 +35,10 @@ export interface ProfileBannerProps {
   onClick?: () => void;
 }
 
-// 국가별 캐릭터 이미지 매핑
-const countryCharacterImages: { [key: CountryCode]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
-
-// 국가별 배너 이미지 매핑
-const bannerWrapper: { [key: CountryCode]: string } = {
-  US: AmericaBannerImg,
-  KR: KoreaBannerImg,
-  IT: ItalyBannerImg,
-  EG: EgyptBannerImg,
-  CN: ChinaBannerImg,
-};
 
 // 피그마 기준: 510px × 250px(aspect-ratio로 설정)
 // 왠지 모르겠는데 250px 로 하면 모서리가 이미지랑 안맞아서 220px으로 설정함
-const CardWrapper = styled.div<{ $country: CountryCode }>`
+const CardWrapper = styled.div<{$banner: string}>`
   width: 100%;
   aspect-ratio: 510 / 220;
   max-width: 510px;
@@ -73,7 +48,7 @@ const CardWrapper = styled.div<{ $country: CountryCode }>`
   position: relative;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  background-image: url(${props => bannerWrapper[props.$country] || KoreaBannerImg});
+  background-image: url(${(props) => props.$banner});
   background-size: cover;
   background-position: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -245,7 +220,10 @@ const ProfileBanner = ({
 }: ProfileBannerProps) => {
 
   const validCountry = (country || "KR").toUpperCase();
-  const defaultCharacter = countryCharacterImages[validCountry] || KoreaProfileImg;
+  const asset = COUNTRY_ASSETS[validCountry] || COUNTRY_ASSETS["KR"]; // 안전장치(앱 터짐 방지)
+
+  const bannerSrc = asset.banner;
+  const defaultCharacter = asset.character;
 
   const finalProfileImageUrl = profileImageUrl
   ? getCleanImageUrl(profileImageUrl, "")
@@ -284,7 +262,7 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
   const introContent = introLines.slice(1).join(' ') || introLines[0] || '';
 
   return (
-    <CardWrapper $country={validCountry} onClick={onClick}>
+    <CardWrapper $banner={bannerSrc} onClick={onClick}>
       <ContentContainer>
         <TopKeywordTags>
           {top3Keywords.map((keyword, index) => (

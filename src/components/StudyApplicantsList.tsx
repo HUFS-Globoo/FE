@@ -2,21 +2,8 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import type { StudyMember } from "../../types/study.types";
 
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
 
-
-// 국가별 캐릭터 이미지 매핑
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
 
 // StudyDetail이랑 동일하게 BASE_URL 보정 (상대경로 대비 - 절대경로)
 const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL as string;
@@ -39,13 +26,17 @@ const normalizeProfileUrl = (url?: string | null) => {
 };
 
 const getMemberProfileImage = (member: StudyMember) => {
-  const countryUpper = member.country ? member.country.toUpperCase() : null;
+  const countryCode = (member.country || "KR").toUpperCase();
+
   const fallback =
-    (countryUpper && countryCharacterImages[countryUpper]) || KoreaProfileImg;
+    COUNTRY_ASSETS[countryCode]?.character ||
+    COUNTRY_ASSETS["KR"]?.character || 
+    "";
 
   const profileUrl = normalizeProfileUrl(member.profileImageUrl);
   return profileUrl || fallback;
 };
+
 
 interface Props {
   members: StudyMember[];

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import type { StudyComment, CommentRequest } from "../types/study.types";
 import AmericaProfileImg from "../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
@@ -239,6 +240,7 @@ const CommentSection = ({
   isCommentsLoading,
   currentUserProfileImageUrl, //함수 파라미터에 넣기
 }: CommentSectionProps) => {
+  const { t } = useTranslation();
   const [newComment, setNewComment] = useState("");
 
   const handleSubmitComment = async () => {
@@ -251,7 +253,7 @@ const CommentSection = ({
   };
 
   const handleDeleteComment = (commentId: number) => {
-    if (confirm("댓글을 삭제하시겠습니까?")) {
+    if (confirm(t("mypage.confirm.deleteComment"))) {
       onDeleteComment(commentId);
     }
   };
@@ -259,7 +261,7 @@ const CommentSection = ({
   const handleEditComment = async (commentId: number) => { // async 추가
     const comment = comments.find(c => c.id === commentId);
     if (comment) {
-      const newContent = prompt("댓글을 수정하세요:", comment.content);
+      const newContent = prompt(t("study.detail.comments.editPrompt"), comment.content);
       if (newContent && newContent.trim() !== comment.content) {
         await onEditComment(commentId, newContent.trim()); // await 추가
       }
@@ -281,20 +283,22 @@ useEffect(() => {
   return (
     <CommentContainer>
       <CommentHeader>
-        <CommentIcon src={MiniBooImg} alt="댓글 아이콘" />
-        <CommentTitle className="H4">댓글을 작성해주세요!</CommentTitle>
+        <CommentIcon src={MiniBooImg} alt={t("study.detail.comments.iconAlt")} />
+        <CommentTitle className="H4">
+          {t("study.detail.comments.title")}
+        </CommentTitle>
       </CommentHeader>
       
       <CommentInputSection>
         <CommentDescription className="Body1">
-          해당 스터디에 대한 궁금한 점이나 상담을 자유롭게 작성해주세요.
+          {t("study.detail.comments.description")}
         </CommentDescription>
         
         <CommentTextarea
           className="Body1"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="댓글을 입력하세요"
+          placeholder={t("study.detail.comments.placeholder")}
         />
         
         <CommentButton 
@@ -302,16 +306,18 @@ useEffect(() => {
           onClick={handleSubmitComment}
           disabled={!newComment.trim()}
         >
-          댓글 작성하기
+          {t("study.detail.comments.submit")}
         </CommentButton>
       </CommentInputSection>
 
       {comments.length > 0 && (
         <>
-          <CommentsListTitle className="H4">댓글</CommentsListTitle>
+          <CommentsListTitle className="H4">
+            {t("study.detail.comments.listTitle")}
+          </CommentsListTitle>
           {isCommentsLoading ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--skyblue)' }}>
-              댓글을 불러오는 중...
+              {t("study.detail.comments.loading")}
             </div>
           ) : (
             <CommentsList>
@@ -334,14 +340,14 @@ useEffect(() => {
                           className="Button2"
                           onClick={() => handleDeleteComment(comment.id)}
                         >
-                          삭제하기
+                          {t("common.delete")}
                         </ActionButton>
                         <ActionButton 
                           $variant="edit" 
                           className="Button2"
                           onClick={() => handleEditComment(comment.id)}
                         >
-                          수정하기
+                          {t("common.edit")}
                         </ActionButton>
                       </CommentActions>
                     )}

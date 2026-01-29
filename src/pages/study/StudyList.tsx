@@ -450,88 +450,116 @@ useEffect(() => {
         </LeftPanel>
 
         <RightPanel>
-          <PageTitle className="H1">스터디 모집</PageTitle>
+          <PageTitle className="H1">{t("study.list.title")}</PageTitle>
           <FilterSection>
-        <ContentTitle>
-          <HeaderImage src={HeaderImg} alt="프로필 조회" />
-          <SubText className="H4">나와 Fit이 맞는 친구 찾기</SubText>
-        </ContentTitle>
+            <ContentTitle>
+              <HeaderImage src={HeaderImg} alt={t("study.list.title")} />
+              <SubText className="H4">{t("study.list.subtitle")}</SubText>
+            </ContentTitle>
 
-        <FilterPlaceholder className="H5">
-          <FilterWraaper>
+            <FilterPlaceholder className="H5">
+              <FilterWraaper>
+                <FilterContainer $isEnglish={isEnglish}>
+                  <span>{t("study.list.filters.campus")}</span>
+                  <FilterSelect
+                    value={filters.campus ?? ""}
+                    onChange={(e) => handleFilterChange("campus", e.target.value)}
+                  >
+                    <option value="">{t("study.list.filters.all")}</option>
+                    <option value="글로벌">
+                      {t("study.list.filters.global")}
+                    </option>
+                    <option value="서울">
+                      {t("study.list.filters.seoul")}
+                    </option>
+                  </FilterSelect>
+                </FilterContainer>
 
-          <FilterContainer>
-            <span>캠퍼스</span>
-            <FilterSelect
-              value={filters.campus ?? ""}
-              onChange={(e) => handleFilterChange("campus", e.target.value)}
-            >
-              <option value="">전체</option>
-              <option value="글로벌">글로벌캠퍼스</option>
-              <option value="서울">서울캠퍼스</option>
-            </FilterSelect>
-          </FilterContainer>
+                <FilterContainer $isEnglish={isEnglish}>
+                  <span>{t("study.list.filters.language")}</span>
+                  <FilterSelect
+                    value={filters.language ?? ""}
+                    onChange={(e) => handleFilterChange("language", e.target.value)}
+                  >
+                    <option value="">{t("study.list.filters.all")}</option>
+                    <option value="한국어">
+                      {t("randomMatch.languages.ko")}
+                    </option>
+                    <option value="영어">
+                      {t("randomMatch.languages.en")}
+                    </option>
+                    <option value="중국어">
+                      {t("randomMatch.languages.zh")}
+                    </option>
+                    <option value="아랍어">
+                      {t("randomMatch.languages.ar")}
+                    </option>
+                    <option value="이탈리아어">
+                      {t("randomMatch.languages.it")}
+                    </option>
+                    <option value="프랑스어">
+                      {t("randomMatch.languages.fr")}
+                    </option>
+                    <option value="독일어">
+                      {t("randomMatch.languages.de")}
+                    </option>
+                    <option value="일본어">
+                      {t("randomMatch.languages.ja")}
+                    </option>
+                    <option value="스페인어">
+                      {t("randomMatch.languages.es")}
+                    </option>
+                  </FilterSelect>
+                </FilterContainer>
 
-          <FilterContainer>
-            <span>사용 언어</span>
-            <FilterSelect
-              value={filters.language ?? ""}  
-              onChange={(e) => handleFilterChange("language", e.target.value)}
-            >
-              <option value="">전체</option>  
-              <option value="한국어">한국어</option>
-              <option value="영어">영어</option>
-              <option value="중국어">중국어</option>
-              <option value="아랍어">아랍어</option>
-              <option value="이탈리아어">이탈리아어</option>
-              ...
-            </FilterSelect>
-          </FilterContainer>
+                <FilterContainer $isEnglish={isEnglish}>
+                  <span>{t("study.list.filters.status")}</span>
+                  <FilterSelect
+                    value={filters.status ?? ""}
+                    onChange={(e) => handleFilterChange("status", e.target.value)}
+                  >
+                    <option value="">{t("study.list.filters.all")}</option>
+                    <option value="모집중">
+                      {t("study.list.filters.recruiting")}
+                    </option>
+                    <option value="마감">
+                      {t("study.list.filters.closed")}
+                    </option>
+                  </FilterSelect>
+                </FilterContainer>
+              </FilterWraaper>
 
-            <FilterContainer>
-              <span>모집중/마감</span>
-              <FilterSelect
-                value={filters.status}
-                onChange={(e) => handleFilterChange("status", e.target.value)}
-              >
-                <option value="">전체</option>
-                <option value="모집중">모집중</option>
-                <option value="마감">모집마감</option>
-              </FilterSelect>
-            </FilterContainer>
-
-          </FilterWraaper>
-
-          <SearchButton onClick={handleSearch} >조회</SearchButton>
-
-        </FilterPlaceholder>
-      </FilterSection>
-
-
+              <SearchButton onClick={handleSearch}>
+                {t("study.list.filters.search")}
+              </SearchButton>
+            </FilterPlaceholder>
+          </FilterSection>
 
           <StudyListContainer>
             {studies.length === 0 && !isLoading ? (
-              <div style={{ padding: '4rem', textAlign: 'center' }}>모집하는 스터디가 없어요.</div>
+              <div style={{ padding: "4rem", textAlign: "center" }}>
+                {t("study.list.empty")}
+              </div>
             ) : (
               studies.map((study) => (
-            <StudyCard 
-              key={study.id} 
-              study={study}
-              onClick={() => handleStudyClick(study.id)}
-              currentUserId={userMe?.id}
-            />
+                <StudyCard
+                  key={study.id}
+                  study={study}
+                  onClick={() => handleStudyClick(study.id)}
+                  currentUserId={userMe?.id}
+                />
               ))
             )}
           </StudyListContainer>
 
-          {totalPages > 1 && ( 
-            <Pagination
-              currentPage={filters.page}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
-{/*토탈 페이지가 1이면 렌더링 안하게끔 설정함*/}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={filters.page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+          {/*토탈 페이지가 1이면 렌더링 안하게끔 설정함*/}
         </RightPanel>
       </ContentWrapper>
     </Container>
@@ -541,12 +569,41 @@ useEffect(() => {
 export default StudyList;
 
 
-const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) => {
+  const { t } = useTranslation();
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
-      <SearchButton onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}>이전</SearchButton>
-      <span>페이지 {currentPage + 1} / {totalPages}</span>
-      <SearchButton onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1}>다음</SearchButton>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        marginTop: "2rem",
+      }}
+    >
+      <SearchButton
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 0}
+      >
+        {t("study.list.pagination.previous")}
+      </SearchButton>
+      <span>
+        {t("study.list.pagination.page")} {currentPage + 1} / {totalPages}
+      </span>
+      <SearchButton
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages - 1}
+      >
+        {t("study.list.pagination.next")}
+      </SearchButton>
     </div>
   );
 };

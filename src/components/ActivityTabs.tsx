@@ -1,7 +1,8 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { type Post } from "../types/mypage&profile.types";
 import ParticipantImg from "../assets/img-participant.svg";
-import {type Comment} from "../types/mypage&profile.types";
+import { type Comment } from "../types/mypage&profile.types";
 import { useState } from "react";
 import { type AppliedStudy } from "../types/mypage&profile.types";
 import { getProfileSrc } from "../utils/profileImage";
@@ -326,11 +327,16 @@ const CommentList = ({
   onCommentEdit: (commentId: number, postId: number, content: string) => void;
   onCommentDelete: (commentId: number, postId: number) => void;
 }) => {
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState<string>("");
 
   if (comments.length === 0) {
-    return <EmptyMessage className="Body1">작성한 댓글이 없습니다.</EmptyMessage>;
+    return (
+      <EmptyMessage className="Body1">
+        {t("mypage.comments.empty")}
+      </EmptyMessage>
+    );
   }
   
   return (
@@ -342,11 +348,16 @@ const CommentList = ({
           <CommentItem key={comment.id}>
             <CommentHeader>
               <CommentBadge className="Button2">
-                {comment.status ?? "모집중"}
+                {comment.status === "마감"
+                  ? t("study.detail.status.closed")
+                  : t("study.detail.status.recruiting")}
               </CommentBadge>
               <CommentParticipantInfo className="Body2">
                 <img src={ParticipantImg} />
-                {(comment.currentParticipants ?? 0)}명 / {(comment.maxParticipants ?? 0)}명
+                {(comment.currentParticipants ?? 0)}
+                {t("study.detail.participants")} /{" "}
+                {(comment.maxParticipants ?? 0)}
+                {t("study.detail.participants")}
               </CommentParticipantInfo>
               <CommentTags>
                 {(comment.tags ?? []).map((tag, index) => (
@@ -386,7 +397,7 @@ const CommentList = ({
                       setEditingContent("");
                     }}
                   >
-                    취소
+                    {t("common.cancel")}
                   </ActionButton>
                   <ActionButton
                     $variant="edit"
@@ -396,7 +407,7 @@ const CommentList = ({
                       setEditingId(null);
                     }}
                   >
-                    저장
+                    {t("common.save")}
                   </ActionButton>
                 </>
               ) : (
@@ -406,7 +417,7 @@ const CommentList = ({
                     className="Button1"
                     onClick={() => onCommentDelete(comment.id, comment.postId)}
                   >
-                    삭제하기
+                    {t("common.delete")}
                   </ActionButton>
                   <ActionButton
                     $variant="edit"
@@ -416,7 +427,7 @@ const CommentList = ({
                       setEditingContent(comment.content);
                     }}
                   >
-                    수정하기
+                    {t("common.edit")}
                   </ActionButton>
                 </>
               )}
@@ -439,6 +450,7 @@ const ActivityTabs = ({
   onCommentEdit,
   onCommentDelete,
 }: ActivityTabsProps) => {
+  const { t } = useTranslation();
   return (
     <Container>
       <TabHeader>
@@ -447,21 +459,21 @@ const ActivityTabs = ({
           onClick={() => onTabChange('posts')}
           className="H4"
         >
-          작성한 게시글
+          {t("mypage.tabs.posts")}
         </Tab>
         <Tab 
           $active={activeTab === 'comments'}
           onClick={() => onTabChange('comments')}
           className="H4"
         >
-          작성한 댓글
+          {t("mypage.tabs.comments")}
         </Tab>
         <Tab
           $active={activeTab === "applied"}
           onClick={() => onTabChange("applied")}
           className="H4"
         >
-          신청한 스터디
+          {t("mypage.tabs.applied")}
         </Tab>
 
       </TabHeader>
@@ -469,7 +481,9 @@ const ActivityTabs = ({
       {activeTab === 'posts' && (
         <PostList>
           {posts.length === 0 ? (
-            <EmptyMessage className="Body1">작성한 게시물이 없습니다.</EmptyMessage>
+            <EmptyMessage className="Body1">
+              {t("mypage.posts.empty")}
+            </EmptyMessage>
           ) : (
             posts.map((post) => (
               <PostItem key={post.id}>
@@ -494,9 +508,12 @@ const ActivityTabs = ({
                 <PostTitle className="H4">{post.title}</PostTitle>
                 
                 <PostFooter>
-                  <MoreButton className="Body2"
-                  onClick={() => onPostClick(post.id)}
-                  >더 보기 &gt;</MoreButton>
+                  <MoreButton
+                    className="Body2"
+                    onClick={() => onPostClick(post.id)}
+                  >
+                    {t("common.more")}
+                  </MoreButton>
                 </PostFooter>
               </PostItem>
             ))
@@ -516,7 +533,7 @@ const ActivityTabs = ({
   <AppliedList>
     {appliedStudies.length === 0 ? (
       <EmptyMessage className="Body1">
-        신청한 스터디가 없습니다.
+        {t("mypage.applied.empty")}
       </EmptyMessage>
     ) : (
       appliedStudies.map((study) => (
@@ -526,28 +543,30 @@ const ActivityTabs = ({
               $status={study.status === "모집중" ? "모집중" : "마감"}
               className="Button2"
             >
-              {study.status}
+              {study.status === "마감"
+                ? t("study.detail.status.closed")
+                : t("study.detail.status.recruiting")}
             </StatusBadge>
 
             <ParticipantInfo className="Body2">
               <img src={ParticipantImg} />
-              {study.applicantCount}명 / {study.capacity}명
+              {study.applicantCount}
+              {t("study.detail.participants")} / {study.capacity}
+              {t("study.detail.participants")}
             </ParticipantInfo>
           </AppliedHeader>
 
-          <AppliedTitle className="H4">
-            {study.title}
-          </AppliedTitle>
+          <AppliedTitle className="H4">{study.title}</AppliedTitle>
 
           <ApplicantRow>
             <ApplicantLabel className="Body2">
               <img
                 src={PplNoneImg}
-                alt="신청 인원 아이콘"
+                alt={t("mypage.applied.applicantIconAlt")}
                 width={32}
                 height={32}
               />
-              신청 인원
+              {t("mypage.applied.applicants")}
             </ApplicantLabel>
 
             <AvatarRow>
@@ -560,19 +579,20 @@ const ActivityTabs = ({
               ))}
 
               {(study.applicantPreview?.length ?? 0) > 5 && (
-                <EllipsisAvatar aria-label="신청자가 더 있어요">...</EllipsisAvatar>
+                <EllipsisAvatar aria-label={t("mypage.applied.moreApplicants")}>
+                  ...
+                </EllipsisAvatar>
               )}
             </AvatarRow>
-
           </ApplicantRow>
 
           <AppliedFooter>
             <AppliedTopRight
-                className="Body2"
-                onClick={() => onAppliedStudyClick(study.studyId)}
-              >
-                더 보기 &gt;
-              </AppliedTopRight>
+              className="Body2"
+              onClick={() => onAppliedStudyClick(study.studyId)}
+            >
+              {t("common.more")}
+            </AppliedTopRight>
           </AppliedFooter>
         </AppliedCard>
       ))

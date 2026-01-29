@@ -288,7 +288,9 @@
       "fr": "프랑스어",
       "de": "독일어",
       "ja": "일본어",
-      "es": "스페인어"
+      "es": "스페인어",
+      "ar": "아랍어",
+      "it": "이탈리아어"
     },
     "countries": {
       "KR": "대한민국",
@@ -426,6 +428,54 @@
       "it": "이탈리아어",
       "ar": "아랍어"
     }
+  },
+  "mypage": {
+    "title": "마이페이지",
+    "tabs": {
+      "posts": "작성한 게시글",
+      "comments": "작성한 댓글",
+      "applied": "신청한 스터디"
+    },
+    "posts": {
+      "empty": "작성한 게시물이 없습니다."
+    },
+    "comments": {
+      "empty": "작성한 댓글이 없습니다.",
+      "postTitleFallback": "게시글 정보를 가져오지 못했습니다."
+    },
+    "applied": {
+      "empty": "신청한 스터디가 없습니다.",
+      "applicants": "신청 인원",
+      "applicantIconAlt": "신청 인원 아이콘",
+      "moreApplicants": "신청자가 더 있어요"
+    },
+    "withdrawButton": "회원탈퇴",
+    "confirm": {
+      "resetProfileImage": "업로드한 프로필 이미지를 삭제하고 기본 이미지로 되돌릴까요?",
+      "deleteComment": "댓글을 삭제하시겠습니까?",
+      "withdraw": "정말 회원탈퇴 하시겠습니까?\n탈퇴 후에는 계정을 복구할 수 없어요."
+    },
+    "alert": {
+      "profileUpdateSuccess": "프로필이 성공적으로 수정되었습니다!",
+      "profileUpdateError": "프로필 수정 중 오류가 발생했습니다.",
+      "imageUploadError": "이미지 업로드 중 오류가 발생했습니다.",
+      "imageResetSuccess": "프로필 이미지를 삭제하고 기본 이미지로 되돌렸습니다.",
+      "imageResetError": "이미지 초기화 중 오류가 발생했습니다.",
+      "commentEmpty": "댓글 내용을 입력해주세요.",
+      "commentEditSuccess": "댓글이 수정되었습니다.",
+      "commentEditError": "댓글 수정 중 오류가 발생했습니다.",
+      "commentDeleteSuccess": "댓글이 삭제되었습니다.",
+      "commentDeleteError": "댓글 삭제 중 오류가 발생했습니다.",
+      "withdrawSuccess": "회원탈퇴가 완료되었습니다.",
+      "withdrawError": "회원탈퇴 중 오류가 발생했습니다."
+    }
+  },
+  "common": {
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제하기",
+    "edit": "수정하기",
+    "more": "더 보기 >"
   },
   "study": {
     "title": "스터디 모집",

@@ -8,6 +8,7 @@ import { getStudies } from "../../api/studyAPI";
 import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
 import HeaderImg from "../../assets/img-miniBoo.svg";
+import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME } from "../../utils/languages";
 
 import AmericaProfileImg from "../../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
@@ -482,33 +483,11 @@ useEffect(() => {
                     onChange={(e) => handleFilterChange("language", e.target.value)}
                   >
                     <option value="">{t("study.list.filters.all")}</option>
-                    <option value="한국어">
-                      {t("randomMatch.languages.ko")}
-                    </option>
-                    <option value="영어">
-                      {t("randomMatch.languages.en")}
-                    </option>
-                    <option value="중국어">
-                      {t("randomMatch.languages.zh")}
-                    </option>
-                    <option value="아랍어">
-                      {t("randomMatch.languages.ar")}
-                    </option>
-                    <option value="이탈리아어">
-                      {t("randomMatch.languages.it")}
-                    </option>
-                    <option value="프랑스어">
-                      {t("randomMatch.languages.fr")}
-                    </option>
-                    <option value="독일어">
-                      {t("randomMatch.languages.de")}
-                    </option>
-                    <option value="일본어">
-                      {t("randomMatch.languages.ja")}
-                    </option>
-                    <option value="스페인어">
-                      {t("randomMatch.languages.es")}
-                    </option>
+                    {SUPPORTED_LANGUAGE_CODES.map((code) => (
+                      <option key={code} value={LANGUAGE_CODE_TO_KOREAN_NAME[code]}>
+                        {t(`randomMatch.languages.${code}`)}
+                      </option>
+                    ))}
                   </FilterSelect>
                 </FilterContainer>
 

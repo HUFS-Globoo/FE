@@ -180,11 +180,12 @@ const MessageHeader = styled.div`
   height: 5.31rem;
   display: flex;
   flex-direction: row;
-  margin-top: -2.5rem;
-  padding-left: 1.69rem;
-  box-sizing: border-box;
   align-items: center;
-`
+  margin-top: -2.5rem;
+  padding: 0 1.69rem;
+  box-sizing: border-box;
+  gap: 0.5rem;
+`;
 
 
 const MessageProfile = styled.img`
@@ -198,15 +199,21 @@ const NicnameContent = styled.div`
   padding-left: 0.94rem;
   font-size: 1rem;
   font-weight: 500;
-  line-height: 150%; 
-`
+  line-height: 150%;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 
 const OutIcon = styled(IoIosLogOut)`
-  padding-left: 7.69rem;
   width: 1.5rem;
   height: 1.5rem;
   cursor: pointer;
-`
+  margin-left: auto;
+  flex-shrink: 0;
+`;
 
 const MessageContainer = styled.div`
   width: 100%;
@@ -254,13 +261,18 @@ const SendMessageContainer = styled.div`
   margin-top: auto;
   border-radius: 2rem;
   margin-bottom: 1rem;
-`
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+  gap: 0.5rem;
+`;
 
 const SendInput = styled.input`
   background-color: #E1E1E1;
   padding-left: 1.25rem;
   box-sizing: border-box;
-  width: 100%;
+  flex: 1;
   height: 100%;
   border-radius: 2rem;
   border: none;
@@ -280,7 +292,24 @@ const SendInput = styled.input`
     outline: none; 
   }
 
-`
+`;
+
+const SendButton = styled.button`
+  min-width: 3.5rem;
+  height: 1.875rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--skyblue);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  white-space: nowrap;
+`;
 
 const ModalWrapper = styled.div`
   position: fixed;
@@ -318,10 +347,14 @@ export default function RandomMatchCard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isDesignPreview = searchParams.get("design") === "chat"; // 디자인용 프리뷰 모드 (?design=chat)
   const userId = location.state?.userId || Number(localStorage.getItem("userId"));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [partner, setPartner] = useState<any>(null);
-  const [stage, setStage] = useState<"loading" | "matched" | "chat" | "waiting_accept">("loading");
+  const [stage, setStage] = useState<"loading" | "matched" | "chat" | "waiting_accept">(
+    isDesignPreview ? "chat" : "loading"
+  );
   const [matchId, setMatchId] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const [input, setInput] = useState("");
@@ -334,6 +367,19 @@ export default function RandomMatchCard() {
 
 // 매칭 상태 확인
 useEffect(() => {
+  // 디자인 프리뷰 모드에서는 실제 매칭 API 호출을 건너뜀
+  if (isDesignPreview) {
+    setStage("chat");
+    setPartner({
+      nickname: "DesignPreviewUser",
+      nativeLanguages: [{ code: "ko" }],
+      learnLanguages: [{ code: "en" }],
+      country: "KR",
+      mbti: "ENFP",
+      keywords: [{ name: "Design" }, { name: "Preview" }, { name: "Globoo" }],
+    });
+    return;
+  }
   if (!userId) return;
 
   const fetchMatchingStatus = async () => {
@@ -526,6 +572,9 @@ const handleFindAnother = async () => {
 
   
   useEffect(() => {
+    // 디자인 프리뷰 모드에서는 웹소켓 연결을 생략하고 UI만 노출
+    if (isDesignPreview) return;
+
     if (stage !== "chat") return;
   
     setWsReady(false);
@@ -642,6 +691,8 @@ const handleFindAnother = async () => {
   const handleEndChat = () => {
     if (!ws.current || !chatRoomId) return;
   
+    console.log("채팅방에서 나가기 요청 전송:", chatRoomId);
+
     const leavePayload = {
       type: "LEAVE",
       roomId: chatRoomId,
@@ -800,18 +851,19 @@ const handleFindAnother = async () => {
             </MessageContainer>
 
             <SendMessageContainer>
-            <SendInput
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={t("randomMatch.chat.messagePlaceholder")}
-              onKeyUp={(e) => {
-                if (e.nativeEvent.isComposing) return; 
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            />
+              <SendInput
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t("randomMatch.chat.messagePlaceholder")}
+                onKeyUp={(e) => {
+                  if (e.nativeEvent.isComposing) return; 
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <SendButton onClick={sendMessage}>전송</SendButton>
             </SendMessageContainer>
           </>
         )}

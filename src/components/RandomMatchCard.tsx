@@ -337,10 +337,14 @@ const ModalBox = styled.div`
 
 
 interface ChatMessage {
-  id?: number;
+  messageId: number;
   senderId: number;
+  senderNickname?: string;
+  senderProfileImageUrl?: string;
   message: string;
-  timestamp?: string;
+  sentAt?: string;
+  isMine?: boolean;
+  isRead?: boolean;
 }
 
 export default function RandomMatchCard() {
@@ -364,6 +368,7 @@ export default function RandomMatchCard() {
   const [waitingAccept, setWaitingAccept] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
   const [wsReady, setWsReady] = useState(false);
+  const [lastReadMessageId, setLastReadMessageId] = useState<number | null>(null);
 
 // 매칭 상태 확인
 useEffect(() => {
@@ -597,7 +602,7 @@ const handleFindAnother = async () => {
   }
 
   const socket = new WebSocket(
-    `wss://instant-gretta-globoo-16d715dd.koyeb.app/ws/chat?token=${token}`
+    `wss://globoo.duckdns.org/ws/chat?token=${token}`
   );
 
   ws.current = socket;
@@ -618,14 +623,56 @@ const handleFindAnother = async () => {
     }
   };
 
+  const sendReadReceipt = (lastId: number) => {
+    if (!ws.current || !chatRoomId) return;
+
+    const payload = {
+      type: "READ",
+      chatRoomId,
+      lastReadMessageId: lastId,
+    };
+
+    ws.current.send(JSON.stringify(payload));
+  };
+
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     console.log("서버 메시지:", data);
   
     switch (data.type) {
-      case "MESSAGE_ACK":
-        setMessages((prev) => [...prev, data]);
+      case "MESSAGE_ACK": {
+        const normalized: ChatMessage = {
+          messageId: data.messageId,
+          senderId: data.senderId,
+          senderNickname: data.senderNickname,
+          senderProfileImageUrl: data.senderProfileImageUrl,
+          message: data.message,
+          sentAt: data.sentAt,
+          isMine: data.senderId === userId,
+        };
+
+        setMessages((prev) => [...prev, normalized]);
+
+        if (data.senderId !== userId && data.messageId != null) {
+          sendReadReceipt(data.messageId);
+        }
         break;
+      }
+
+      case "READ_RECEIPT": {
+        const { lastReadMessageId } = data;
+        if (typeof lastReadMessageId === "number") {
+          setLastReadMessageId(lastReadMessageId);
+          setMessages((prev: ChatMessage[]) =>
+            prev.map((msg) =>
+              msg.isMine && msg.messageId <= lastReadMessageId
+                ? { ...msg, isRead: true }
+                : msg
+            )
+          );
+        }
+        break;
+      }
   
       case "LEAVE_NOTICE":
         alert(t("randomMatch.alert.partnerLeft"));
@@ -695,7 +742,7 @@ const handleFindAnother = async () => {
 
     const leavePayload = {
       type: "LEAVE",
-      roomId: chatRoomId,
+      chatRoomId,
     };
   
     ws.current.send(JSON.stringify(leavePayload));

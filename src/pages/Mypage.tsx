@@ -8,6 +8,7 @@ import axiosInstance from "../../axiosInstance";
 import type { Post, Comment, AppliedStudy } from "../types/mypage&profile.types";
 import { updateComment, deleteComment } from "../api/commentAPI";
 import { getProfileSrc } from "../utils/profileImage";
+import { SUPPORTED_LANGUAGE_CODES } from "../utils/languages";
 
 
 
@@ -77,16 +78,12 @@ const Mypage = () => {
   const [myComments, setMyComments] = useState<Comment[]>([]);
   const [myAppliedStudies, setMyAppliedStudies] = useState<AppliedStudy[]>([]);
 
-  const LANGUAGE_MAP: Record<string, string> = {
-    ko: t("randomMatch.languages.ko"),
-    en: t("randomMatch.languages.en"),
-    es: t("randomMatch.languages.es"),
-    fr: t("randomMatch.languages.fr"),
-    ja: t("randomMatch.languages.ja"),
-    zh: t("randomMatch.languages.zh"),
-    de: t("randomMatch.languages.de"),
-    it: t("randomMatch.languages.it"),
-  };
+  const LANGUAGE_MAP: Record<string, string> = Object.fromEntries(
+    SUPPORTED_LANGUAGE_CODES.map(code => [
+      code,
+      t(`randomMatch.languages.${code}`)
+    ])
+  );
 
   const LANGUAGE_REVERSE_MAP: Record<string, string> = Object.fromEntries(
     Object.entries(LANGUAGE_MAP).map(([k, v]) => [v, k])

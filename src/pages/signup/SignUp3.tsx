@@ -6,6 +6,8 @@ import SubmitButton from '../../components/SubmitButton';
 import { useSignup } from "../../contexts/SignupContext";
 import SignUpSidebar from '../../components/SignUpSidebar';
 import axiosInstance from "../../../axiosInstance";
+import { SUPPORTED_LANGUAGE_CODES } from "../../utils/languages";
+import { SUPPORTED_COUNTRY_CODES } from "../../utils/countries";
 
 const Container = styled.div`
   width: 100%;
@@ -81,14 +83,14 @@ const SignUp3 = () => {
   
   // 언어와 국적 목록을 현재 언어에 맞게 가져오기
   const getLanguages = () => {
-    return ["ko", "en", "zh", "ar", "it"].map(code => ({
+    return SUPPORTED_LANGUAGE_CODES.map(code => ({
       code,
       label: t(`signup.step3.languages.${code}`)
     }));
   };
 
   const getNationalities = () => {
-    return ["KR", "US", "CN", "EG", "IT"].map(code => ({
+    return SUPPORTED_COUNTRY_CODES.map(code => ({
       code,
       label: t(`signup.step3.nationalities.${code}`)
     }));
@@ -97,21 +99,19 @@ const SignUp3 = () => {
   const languages = getLanguages();
   const nationalities = getNationalities();
 
-  const langMap: Record<string, string> = {
-    [t("signup.step3.languages.ko")]: "ko",
-    [t("signup.step3.languages.en")]: "en",
-    [t("signup.step3.languages.zh")]: "zh",
-    [t("signup.step3.languages.ar")]: "ar",
-    [t("signup.step3.languages.it")]: "it",
-  };
+  const langMap: Record<string, string> = Object.fromEntries(
+    SUPPORTED_LANGUAGE_CODES.map(code => [
+      t(`signup.step3.languages.${code}`),
+      code
+    ])
+  );
 
-  const nationMap: Record<string, string> = {
-    [t("signup.step3.nationalities.KR")]: "KR",
-    [t("signup.step3.nationalities.US")]: "US",
-    [t("signup.step3.nationalities.EG")]: "EG",
-    [t("signup.step3.nationalities.CN")]: "CN",
-    [t("signup.step3.nationalities.IT")]: "IT",
-  };
+  const nationMap: Record<string, string> = Object.fromEntries(
+    SUPPORTED_COUNTRY_CODES.map(code => [
+      t(`signup.step3.nationalities.${code}`),
+      code
+    ])
+  );
 
   const reverseLangMap = Object.fromEntries(Object.entries(langMap).map(([k, v]) => [v, k]));
   const reverseNationMap = Object.fromEntries(Object.entries(nationMap).map(([k, v]) => [v, k]));
@@ -146,16 +146,18 @@ const SignUp3 = () => {
 
     try {
       // 요청 데이터 구성
+      const nationalityCode = nationMap[nationality] ?? "KR";
+      const nativeLanguageCode = langMap[useLang] ?? "ko";
+      const preferredLanguageCode = langMap[prefLang] ?? "ko";
+
       const requestData = {
-        nationalityCode: nationMap[nationality] ?? "KR",
-        nativeLanguageCode: langMap[useLang] ?? "ko",
-        preferredLanguageCode: langMap[prefLang] ?? "ko",
+        nationalityCode,
+        nativeLanguageCode,
+        preferredLanguageCode,
       };
 
-      // 요청 데이터 콘솔 출력
-      console.log("Step3 API 요청 데이터:", requestData);
-      console.log("온보딩 토큰:", onboardingToken);
-      console.log("Authorization 헤더:", `Bearer ${onboardingToken}`);
+      // 요청 바디 콘솔 출력
+      console.log("Step3 요청 바디:", requestData);
 
       // onboardingToken을 헤더에 넣어 step3 API 호출
       const response = await axiosInstance.post(
@@ -170,7 +172,6 @@ const SignUp3 = () => {
       );
 
       if (response.data) {
-        console.log("Step3 저장 완료:", response.data);
         navigate("/signup/step4");
       } else {
         alert(t("signup.step3.alert.saveFailed"));

@@ -5,6 +5,7 @@ import { StudyRequest } from "../../types/study.types";
 import { createStudy, handleApiError, getStudyDetail, updateStudy } from "../../api/studyAPI";
 import type {UserMeResponse } from "../../types/mypage&profile.types";
 import axiosInstance from "../../../axiosInstance";
+import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME } from "../../utils/languages";
 
 import AmericaProfileImg from "../../assets/img-profile1-America.svg";
 import KoreaProfileImg from "../../assets/img-profile1-Korea.svg";
@@ -484,11 +485,11 @@ const StudyPost = () => {
                   onChange={(e) => handleInputChange('language', e.target.value)}
                 >
                   <option value="">언어 선택</option>
-                  <option value="한국어">한국어</option>
-                  <option value="영어">영어</option>
-                  <option value="이탈리아어">이탈리아어</option>
-                  <option value="중국어">중국어</option>
-                  <option value="아랍어">아랍어</option>
+                  {SUPPORTED_LANGUAGE_CODES.map((code) => (
+                    <option key={code} value={LANGUAGE_CODE_TO_KOREAN_NAME[code]}>
+                      {LANGUAGE_CODE_TO_KOREAN_NAME[code]}
+                    </option>
+                  ))}
                 </Select>
                 {errors.language && <ErrorMessage>{errors.language}</ErrorMessage>}
               </FormGroup>

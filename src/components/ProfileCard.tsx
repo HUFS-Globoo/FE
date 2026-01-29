@@ -2,11 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import type { KeywordItem } from "../types/mypage&profile.types";
-import AmericaProfileImg from "../assets/img-profile1-America.svg";
-import KoreaProfileImg from "../assets/img-profile1-Korea.svg";
-import ItalyProfileImg from "../assets/img-profile1-Italy.svg";
-import EgyptProfileImg from "../assets/img-profile1-Egypt.svg";
-import ChinaProfileImg from "../assets/img-profile1-China.svg";
+
+import { COUNTRY_ASSETS } from "../utils/countryAssets";
+
 import EditIcon from "../assets/ic-edit.svg";
 import CampusIcon from "../assets/ic-campus.svg";
 import LanguageIcon from "../assets/ic-language-tag.svg";
@@ -42,15 +40,6 @@ interface ProfileCardProps {
   onImageUpload?: (file: File) => void;
   onImageReset?: () => void;  // 이미지 리셋 핸들러 추가
 }
-
-// 국가별 캐릭터 이미지 매핑
-const countryCharacterImages: { [key: string]: string } = {
-  US: AmericaProfileImg,
-  KR: KoreaProfileImg,
-  IT: ItalyProfileImg,
-  EG: EgyptProfileImg,
-  CN: ChinaProfileImg,
-};
 
 // 드롭다운 옵션
 const campusOptions = [
@@ -386,8 +375,12 @@ const ProfileCard = ({
     }
   };
 
-  const characterImage =
-    profileImageUrl || countryCharacterImages[country] || "https://via.placeholder.com/200";
+  const countryCode = (country || "KR").toUpperCase();
+  const fallbackCharacter =
+    (COUNTRY_ASSETS[countryCode] || COUNTRY_ASSETS["KR"]).character;
+
+  const characterImage = profileImageUrl || fallbackCharacter || "https://via.placeholder.com/200";
+
 
 
 type ChipCategory = "PERSONALITY" | "HOBBY" | "TOPIC" | "DEFAULT";

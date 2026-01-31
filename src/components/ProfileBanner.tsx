@@ -35,6 +35,21 @@ export interface ProfileBannerProps {
   onClick?: () => void;
 }
 
+const ContentContainer = styled.div<{ $iswhiteText?: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background: none;
+
+  /* 화이트 텍스트일 때 전체 기본 글자색 톤을 흰색으로 맞춤*/
+  color: ${({ $iswhiteText }) => ($iswhiteText ? "var(--white)" : "inherit")};
+`;
+//배경이미지 위에 블러처리(삭제함) + 그라데이션 추가(살짝)
 
 // 피그마 기준: 510px × 250px(aspect-ratio로 설정)
 // 왠지 모르겠는데 250px 로 하면 모서리가 이미지랑 안맞아서 220px으로 설정함
@@ -58,24 +73,14 @@ const CardWrapper = styled.div<{$banner: string}>`
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   }
 
+   &:hover ${ContentContainer} {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
   @media (max-width: 1200px) {
     max-width: 100%;
   }
 `;
-
-const ContentContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(0.5px);
-`;
-//배경이미지 위에 블러처리 + 그라데이션 추가(살짝)
 
 // 상단 키워드 태그 영역 (성격, 취미, 주제 - 3개 표시, 카테고리 구분 없음(색))
 const TopKeywordTags = styled.div`
@@ -124,9 +129,9 @@ const ProfileImage = styled.img`
 `;
 
 // 닉네임은 한줄만 표시(더 넘으면 elipsis 처리)
-const Nickname = styled.h3`
+const Nickname = styled.h3<{ $iswhiteText?: boolean }>`
   line-height: 1.4;
-  color: var(--black);
+  color: ${props => props.$iswhiteText ? "var(--white)" : "var(--black)"};
   margin: 0;
   text-align: center;
   word-break: keep-all;
@@ -163,12 +168,12 @@ const InfoTags = styled.div`
   flex-wrap: wrap;
 `;
 
-const InfoChip = styled.span`
-  color: var(--gray-700);
+const InfoChip = styled.span<{ $iswhiteText?: boolean }>`
+  color: ${props => props.$iswhiteText ? "var(--white)" : "var(--gray-700)"};
 `;
 
-const IntroTitle = styled.p`
-  color: var(--black);
+const IntroTitle = styled.p<{ $iswhiteText?: boolean }>`
+  color: ${props => props.$iswhiteText ? "var(--white)" : "var(--black)"};
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -179,8 +184,8 @@ const IntroTitle = styled.p`
   max-width: 255px;
 `;
 
-const IntroContent = styled.p`
-  color: var(--gray-700);
+const IntroContent = styled.p<{ $iswhiteText?: boolean }>`
+  color: ${props => props.$iswhiteText ? "var(--white)" : "var(--gray-700)"};
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -207,6 +212,9 @@ export const getCleanImageUrl = (url: string | null, fallback: string) => {
   return `${base}/${url.replace(/^\//, "")}?t=${Date.now()}`;
 };
 
+//검정 배너 국가 조건 만들기(텍스트 색상 white 적용)
+const WHITE_TEXT_COUNTRIES = new Set(["DE", "JP", "SA"]);
+
 const ProfileBanner = ({ 
   profileImageUrl,
   country,
@@ -220,6 +228,7 @@ const ProfileBanner = ({
 }: ProfileBannerProps) => {
 
   const validCountry = (country || "KR").toUpperCase();
+  const isWhiteText = WHITE_TEXT_COUNTRIES.has(validCountry);
   const asset = COUNTRY_ASSETS[validCountry] || COUNTRY_ASSETS["KR"]; // 안전장치(앱 터짐 방지)
 
   const bannerSrc = asset.banner;
@@ -263,7 +272,7 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
 
   return (
     <CardWrapper $banner={bannerSrc} onClick={onClick}>
-      <ContentContainer>
+      <ContentContainer $iswhiteText={isWhiteText}>
         <TopKeywordTags>
           {top3Keywords.map((keyword, index) => (
             <TopKeywordChip className="Button2" key={`keyword-${index}`}>
@@ -276,19 +285,19 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
         <MainContent>
           <LeftSection>
             <ProfileImage src={finalProfileImageUrl} alt="profile" />
-            <Nickname className="H5">{nickname}</Nickname>
+            <Nickname className="H5" $iswhiteText={isWhiteText}>{nickname}</Nickname>
             {mbti && <MBTIBadge className="Button1">{mbti}</MBTIBadge>}
           </LeftSection>
 
           <RightSection>
             <InfoTags>
-              {campusText && <InfoChip className="Button2">#{campusText}</InfoChip>}
+              {campusText && <InfoChip className="Button2" $iswhiteText={isWhiteText}>#{campusText}</InfoChip>}
               {allLanguages.map((lang, index) => (
-                <InfoChip className="Button2" key={`lang-${index}`}>#{lang}</InfoChip>
+                <InfoChip className="Button2" key={`lang-${index}`} $iswhiteText={isWhiteText}>#{lang}</InfoChip>
               ))}
             </InfoTags>
-            <IntroTitle className="Button1">{introTitle}</IntroTitle>
-            <IntroContent className="Body3">{introContent}</IntroContent>
+            <IntroTitle className="Button1" $iswhiteText={isWhiteText}>{introTitle}</IntroTitle>
+            <IntroContent className="Body3" $iswhiteText={isWhiteText}>{introContent}</IntroContent>
           </RightSection>
         </MainContent>
       </ContentContainer>

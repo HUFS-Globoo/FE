@@ -255,9 +255,69 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
     ? t("profile.campus.seoul") 
     : null;
 
+  // 영어 언어 이름을 언어 코드로 변환하는 매핑 (대소문자 구분 없이)
+  const languageNameToCode: { [key: string]: string } = {
+    "korean": "ko",
+    "english": "en",
+    "chinese": "zh",
+    "french": "fr",
+    "german": "de",
+    "japanese": "ja",
+    "spanish": "es",
+    "arabic": "ar",
+    "italian": "it",
+    "russian": "ru",
+    "polish": "pl",
+    "czech": "cs",
+    "slovak": "sk",
+    "romanian": "ro",
+    "bulgarian": "bg",
+    "vietnamese": "vi",
+    "thai": "th",
+    "indonesian": "id",
+    "malay": "ms",
+    "mongolian": "mn",
+    "hindi": "hi",
+    "persian": "fa",
+    "turkish": "tr",
+    "hebrew": "he",
+    "kazakh": "kk",
+    "uzbek": "uz",
+  };
+
   // 언어 텍스트 매핑
-  const getLanguageName = (code: string): string => {
-    return t(`profile.languages.${code}`) || code;
+  const getLanguageName = (codeOrName: string): string => {
+    if (!codeOrName) return codeOrName;
+    
+    // 이미 한국어로 번역된 경우 그대로 반환
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    if (koreanRegex.test(codeOrName)) {
+      return codeOrName;
+    }
+    
+    // 소문자로 정규화
+    const normalized = codeOrName.toLowerCase().trim();
+    
+    // 영어 이름인 경우 언어 코드로 변환
+    let langCode = normalized;
+    if (languageNameToCode[normalized]) {
+      langCode = languageNameToCode[normalized];
+    }
+    
+    // randomMatch.languages에서 먼저 찾기 (더 많은 언어 지원)
+    let translated = t(`randomMatch.languages.${langCode}`);
+    if (translated && translated !== `randomMatch.languages.${langCode}`) {
+      return translated;
+    }
+    
+    // profile.languages에서 찾기
+    translated = t(`profile.languages.${langCode}`);
+    if (translated && translated !== `profile.languages.${langCode}`) {
+      return translated;
+    }
+    
+    // 번역을 찾지 못하면 원본 반환
+    return codeOrName;
   };
 
   // native와 learn 언어를 모두 표시

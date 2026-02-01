@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -77,15 +77,19 @@ const Mypage = () => {
   const [myComments, setMyComments] = useState<Comment[]>([]);
   const [myAppliedStudies, setMyAppliedStudies] = useState<AppliedStudy[]>([]);
 
-  const LANGUAGE_MAP: Record<string, string> = Object.fromEntries(
-    SUPPORTED_LANGUAGE_CODES.map(code => [
-      code,
-      t(`randomMatch.languages.${code}`)
-    ])
+  const LANGUAGE_MAP: Record<string, string> = useMemo(() => 
+    Object.fromEntries(
+      SUPPORTED_LANGUAGE_CODES.map(code => [
+        code,
+        t(`randomMatch.languages.${code}`)
+      ])
+    ), [t]
   );
 
-  const LANGUAGE_REVERSE_MAP: Record<string, string> = Object.fromEntries(
-    Object.entries(LANGUAGE_MAP).map(([k, v]) => [v, k])
+  const LANGUAGE_REVERSE_MAP: Record<string, string> = useMemo(() => 
+    Object.fromEntries(
+      Object.entries(LANGUAGE_MAP).map(([k, v]) => [v, k])
+    ), [LANGUAGE_MAP]
   );
 
   const fetchMyKeywords = useCallback(async () => {

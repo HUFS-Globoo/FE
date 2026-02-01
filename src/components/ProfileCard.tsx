@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { KeywordItem } from "../types/mypage&profile.types";
 
 import { COUNTRY_ASSETS } from "../utils/countryAssets";
+import { SUPPORTED_LANGUAGE_CODES } from "../utils/languages";
 
 import EditIcon from "../assets/ic-edit.svg";
 import CampusIcon from "../assets/ic-campus.svg";
@@ -45,14 +46,6 @@ interface ProfileCardProps {
 const campusOptions = [
   { value: "GLOBAL", label: "글로벌캠퍼스" },
   { value: "SEOUL", label: "서울캠퍼스" },
-];
-
-const languageOptions = [
-  { value: "한국어", label: "한국어" },
-  { value: "영어", label: "영어" },
-  { value: "이탈리아어", label: "이탈리아어" },
-  { value: "아랍어", label: "아랍어" },
-  { value: "중국어", label: "중국어" },
 ];
 
 const Card = styled.div<{ $isEditMode: boolean }>`
@@ -346,6 +339,20 @@ const ProfileCard = ({
   onImageReset, //이미지 리셋 핸들러 추가
 }: ProfileCardProps) => {
   const { t } = useTranslation();
+
+  // 언어 옵션을 동적으로 생성
+  const languageOptions = SUPPORTED_LANGUAGE_CODES.map(code => ({
+    value: t(`randomMatch.languages.${code}`),
+    label: t(`randomMatch.languages.${code}`)
+  }));
+
+  // 언어 이름을 언어 코드로 변환하는 맵
+  const LANGUAGE_REVERSE_MAP: Record<string, string> = Object.fromEntries(
+    SUPPORTED_LANGUAGE_CODES.map(code => [
+      t(`randomMatch.languages.${code}`),
+      code
+    ])
+  );
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
     infoContent: infoContent || "",
@@ -358,20 +365,48 @@ const ProfileCard = ({
       profileImage: profileImageUrl || null, 
     }));
   }, [infoTitle, infoContent, profileImageUrl]);
-  
-  
+
+  // 번역된 언어 이름을 언어 코드로 변환하는 함수
+  const translateToCode = (langName: string): string => {
+    // 이미 언어 코드인 경우 (2글자 코드)
+    if (langName && langName.length === 2 && /^[a-z]{2}$/i.test(langName)) {
+      return langName;
+    }
+    // 번역된 이름인 경우 언어 코드로 변환
+    return LANGUAGE_REVERSE_MAP[langName] || langName;
+  };
 
   const [selectedValues, setSelectedValues] = useState({
     campus: campus,
-    nativeLanguages: nativeLanguages,
-    learnLanguages: learnLanguages,
+    nativeLanguages: nativeLanguages.map(translateToCode),
+    learnLanguages: learnLanguages.map(translateToCode),
   });
+
+  // nativeLanguages나 learnLanguages가 변경될 때 selectedValues 업데이트
+  useEffect(() => {
+    const translateToCode = (langName: string): string => {
+      // 이미 언어 코드인 경우 (2글자 코드)
+      if (langName && langName.length === 2 && /^[a-z]{2}$/i.test(langName)) {
+        return langName;
+      }
+      // 번역된 이름인 경우 언어 코드로 변환
+      return LANGUAGE_REVERSE_MAP[langName] || langName;
+    };
+    
+    setSelectedValues({
+      campus: campus,
+      nativeLanguages: nativeLanguages.map(translateToCode),
+      learnLanguages: learnLanguages.map(translateToCode),
+    });
+  }, [nativeLanguages, learnLanguages, campus, LANGUAGE_REVERSE_MAP]);
 
   const handleSelect = (name: string, value: string) => {
     if (name === "campus") {
       setSelectedValues({ ...selectedValues, [name]: value as "GLOBAL" | "SEOUL" });
     } else if (name === "nativeLanguages" || name === "learnLanguages") {
-      setSelectedValues({ ...selectedValues, [name]: [value] });
+      // 번역된 언어 이름을 언어 코드로 변환
+      const langCode = LANGUAGE_REVERSE_MAP[value] || value;
+      setSelectedValues({ ...selectedValues, [name]: [langCode] });
     }
   };
 
@@ -740,8 +775,14 @@ const [editedMbti, setEditedMbti] = useState(mbti);
                             item.dropdownName === "campus"
                               ? selectedValues.campus
                               : item.dropdownName === "nativeLanguages"
-                              ? selectedValues.nativeLanguages[0] ?? ""
-                              : selectedValues.learnLanguages[0] ?? ""
+                              ? (() => {
+                                  const code = selectedValues.nativeLanguages[0] ?? "";
+                                  return code ? t(`randomMatch.languages.${code}`) : "";
+                                })()
+                              : (() => {
+                                  const code = selectedValues.learnLanguages[0] ?? "";
+                                  return code ? t(`randomMatch.languages.${code}`) : "";
+                                })()
                           }
                           onChange={(e) =>
                             handleSelect(item.dropdownName!, e.target.value)

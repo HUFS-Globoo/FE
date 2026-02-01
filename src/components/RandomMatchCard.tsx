@@ -244,7 +244,7 @@ const MessageContainer = styled.div`
 const MessageBox = styled.div`
   display: inline-block;
   width: fit-content;
-  border-radius: 2rem;
+  border-radius: 0 0.75rem 0.75rem 0.75rem;
   background: var(--skyblue);
   padding: 0.3125rem 0.9375rem;
   justify-content: center;
@@ -308,6 +308,24 @@ const SendButton = styled.button`
   white-space: nowrap;
 `;
 
+const TranslateText = styled.span`
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--skyblue, #66CAE7);
+  cursor: pointer;
+  text-decoration: underline;
+  display: block;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 const ModalWrapper = styled.div`
   position: fixed;
   top: 0; left: 0;
@@ -368,6 +386,9 @@ export default function RandomMatchCard() {
   const [wsReady, setWsReady] = useState(false);
   const hasLeftChatRef = useRef(false); // 나가기 버튼을 눌렀는지 추적 (ref로 동기적 체크)
   const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
+  // 번역 상태를 별도로 관리 (메시지 갱신 시에도 유지)
+  const [translations, setTranslations] = useState<Map<number, string>>(new Map());
+  const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set());
 
 // 매칭 소켓(STOMP) 연결 및 상태 구독
 useEffect(() => {
@@ -1017,7 +1038,62 @@ const handleFindAnother = async () => {
     return t(`randomMatch.countries.${code}`) || code;
   };
 
- const partnerCountryCode = (partner?.country || "KR").toUpperCase();
+  // 텍스트가 한글인지 영어인지 감지하는 함수
+  const detectLanguage = (text: string): 'ko' | 'en' => {
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    return koreanRegex.test(text) ? 'ko' : 'en';
+  };
+
+  // 번역 함수
+  const handleTranslate = async (messageId: number, originalText: string) => {
+    try {
+      // 번역 중 상태로 설정
+      setTranslatingIds((prev) => new Set(prev).add(messageId));
+
+      // 언어 감지 및 타겟 언어 결정
+      const sourceLang = detectLanguage(originalText);
+      const targetLang = sourceLang === 'ko' ? 'en' : 'ko';
+
+      // 번역 API 호출
+      const res = await axiosInstance.post('/api/translate', {
+        text: originalText,
+        targetLang: targetLang,
+      });
+
+      // API 응답에서 번역된 텍스트 추출
+      const translatedText = res.data?.translatedText || res.data?.text || res.data?.data?.translatedText || res.data?.data?.text || res.data;
+
+      // 번역된 텍스트가 문자열인지 확인
+      if (typeof translatedText !== 'string') {
+        throw new Error('번역된 텍스트 형식이 올바르지 않습니다.');
+      }
+
+      // 번역된 텍스트를 별도 state에 저장 (메시지 갱신 시에도 유지)
+      setTranslations((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(messageId, translatedText);
+        return newMap;
+      });
+
+      // 번역 중 상태 제거
+      setTranslatingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
+    } catch (error) {
+      console.error('번역 실패:', error);
+      alert('번역에 실패했습니다.');
+      // 번역 중 상태 제거
+      setTranslatingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
+    }
+  };
+
+  const partnerCountryCode = (partner?.country || "KR").toUpperCase();
 
   const partnerProfileSrc =
     partner?.profileImageUrl ||
@@ -1126,9 +1202,38 @@ const handleFindAnother = async () => {
                       msg.senderId === userId
                         ? "var(--skyblue)"
                         : "var(--yellow2)",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: msg.senderId === userId ? 'flex-end' : 'flex-start',
+                    borderRadius: msg.senderId === userId
+                      ? "0.75rem 0 0.75rem 0.75rem" // 오른쪽 말풍선
+                      : "0 0.75rem 0.75rem 0.75rem", // 왼쪽 말풍선
                   }}
                 >
-                  {msg.message}
+                  <div>{translations.get(msg.messageId) || msg.message}</div>
+                  <TranslateText
+                    onClick={() => {
+                      if (translations.get(msg.messageId)) {
+                        // 원문 보기: 번역된 텍스트 제거
+                        setTranslations((prev) => {
+                          const newMap = new Map(prev);
+                          newMap.delete(msg.messageId);
+                          return newMap;
+                        });
+                      } else {
+                        // 번역하기: 번역 API 호출
+                        handleTranslate(msg.messageId, msg.message);
+                      }
+                    }}
+                    style={{
+                      pointerEvents: translatingIds.has(msg.messageId) ? 'none' : 'auto',
+                      opacity: translatingIds.has(msg.messageId) ? 0.5 : 1,
+                      alignSelf: msg.senderId === userId ? 'flex-end' : 'flex-start',
+                      color: msg.senderId === userId ? '#FFFFFF' : 'var(--skyblue, #66CAE7)',
+                    }}
+                  >
+                    {translatingIds.has(msg.messageId) ? '번역 중...' : translations.get(msg.messageId) ? '원문 보기' : '번역하기'}
+                  </TranslateText>
                 </MessageBox>
               ))}
             </MessageContainer>

@@ -245,7 +245,7 @@ const CommentSection = ({
   };
 
   const handleDeleteComment = (commentId: number) => {
-    if (confirm(t("mypage.confirm.deleteComment"))) {
+    if (confirm(t("study.detail.comments.deleteConfirm"))) {
       onDeleteComment(commentId);
     }
   };

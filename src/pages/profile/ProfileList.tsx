@@ -437,10 +437,11 @@ const ProfileList: React.FC = () => {
         }}
         keywords={profile.keywords}
         intro={
-          profile.infoTitle && profile.infoContent
-            ? `${profile.infoTitle}\n${profile.infoContent}`
+          profile.infoTitle || profile.infoContent
+            ? `${profile.infoTitle ?? ""}\n${profile.infoContent ?? ""}`.trim()
             : ""
         }
+
         onClick={() => handleProfileClick(profile.userId)}
       />
     );

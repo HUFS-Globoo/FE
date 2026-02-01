@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import type { KeywordItem } from "../types/mypage&profile.types";
@@ -342,17 +342,21 @@ const ProfileCard = ({
   const { t } = useTranslation();
 
   // 언어 옵션을 동적으로 생성
-  const languageOptions = SUPPORTED_LANGUAGE_CODES.map(code => ({
-    value: t(`randomMatch.languages.${code}`),
-    label: t(`randomMatch.languages.${code}`)
-  }));
+  const languageOptions = useMemo(() => 
+    SUPPORTED_LANGUAGE_CODES.map(code => ({
+      value: t(`randomMatch.languages.${code}`),
+      label: t(`randomMatch.languages.${code}`)
+    })), [t]
+  );
 
-  // 언어 이름을 언어 코드로 변환하는 맵
-  const LANGUAGE_REVERSE_MAP: Record<string, string> = Object.fromEntries(
-    SUPPORTED_LANGUAGE_CODES.map(code => [
-      t(`randomMatch.languages.${code}`),
-      code
-    ])
+  // 언어 이름을 언어 코드로 변환하는 맵 (메모이제이션)
+  const LANGUAGE_REVERSE_MAP: Record<string, string> = useMemo(() => 
+    Object.fromEntries(
+      SUPPORTED_LANGUAGE_CODES.map(code => [
+        t(`randomMatch.languages.${code}`),
+        code
+      ])
+    ), [t]
   );
   
   // ✅ 유저별 고정 랜덤 인덱스 (userId 기반)
@@ -425,11 +429,22 @@ const displayIntroContent = isOwner
       return LANGUAGE_REVERSE_MAP[langName] || langName;
     };
     
-    setSelectedValues({
-      campus: campus,
-      nativeLanguages: nativeLanguages.map(translateToCode),
-      learnLanguages: learnLanguages.map(translateToCode),
-    });
+    const newNativeLanguages = nativeLanguages.map(translateToCode);
+    const newLearnLanguages = learnLanguages.map(translateToCode);
+    
+    // 값이 실제로 변경되었는지 확인
+    const hasChanged = 
+      selectedValues.campus !== campus ||
+      JSON.stringify(selectedValues.nativeLanguages) !== JSON.stringify(newNativeLanguages) ||
+      JSON.stringify(selectedValues.learnLanguages) !== JSON.stringify(newLearnLanguages);
+    
+    if (hasChanged) {
+      setSelectedValues({
+        campus: campus,
+        nativeLanguages: newNativeLanguages,
+        learnLanguages: newLearnLanguages,
+      });
+    }
   }, [nativeLanguages, learnLanguages, campus, LANGUAGE_REVERSE_MAP]);
 
   const handleSelect = (name: string, value: string) => {

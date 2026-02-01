@@ -449,9 +449,82 @@ const [editedMbti, setEditedMbti] = useState(mbti);
 
   const displayName = `${nickname}`;
 
+  // 영어 언어 이름을 언어 코드로 변환하는 매핑 (대소문자 구분 없이)
+  const languageNameToCode: { [key: string]: string } = {
+    "korean": "ko",
+    "english": "en",
+    "chinese": "zh",
+    "french": "fr",
+    "german": "de",
+    "japanese": "ja",
+    "spanish": "es",
+    "arabic": "ar",
+    "italian": "it",
+    "russian": "ru",
+    "polish": "pl",
+    "czech": "cs",
+    "slovak": "sk",
+    "romanian": "ro",
+    "bulgarian": "bg",
+    "vietnamese": "vi",
+    "thai": "th",
+    "indonesian": "id",
+    "malay": "ms",
+    "mongolian": "mn",
+    "hindi": "hi",
+    "persian": "fa",
+    "turkish": "tr",
+    "hebrew": "he",
+    "kazakh": "kk",
+    "uzbek": "uz",
+  };
+
+  // 언어 코드를 한국어로 번역하는 함수
+  const getLanguageName = (lang: string): string => {
+    if (!lang) return lang;
+    
+    // 이미 한국어로 번역된 경우 그대로 반환
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    if (koreanRegex.test(lang)) {
+      return lang;
+    }
+    
+    // 소문자로 정규화
+    const normalized = lang.toLowerCase().trim();
+    
+    // 영어 이름인 경우 언어 코드로 변환
+    let langCode = normalized;
+    if (languageNameToCode[normalized]) {
+      langCode = languageNameToCode[normalized];
+    }
+    
+    // randomMatch.languages에서 먼저 찾기
+    let translated = t(`randomMatch.languages.${langCode}`);
+    if (translated && translated !== `randomMatch.languages.${langCode}`) {
+      return translated;
+    }
+    
+    // profile.languages에서 찾기
+    translated = t(`profile.languages.${langCode}`);
+    if (translated && translated !== `profile.languages.${langCode}`) {
+      return translated;
+    }
+    
+    // 번역을 찾지 못하면 원본 반환
+    return lang;
+  };
 
   const campusName =
     campusOptions.find((c) => c.value === selectedValues.campus)?.label || "글로벌캠퍼스";
+
+  // 언어 배열을 번역된 문자열로 변환
+  const translatedNativeLanguages = selectedValues.nativeLanguages
+    .map(lang => getLanguageName(lang))
+    .join(", ") || "-";
+  
+  const translatedLearnLanguages = selectedValues.learnLanguages
+    .map(lang => getLanguageName(lang))
+    .join(", ") || "-";
 
   const contactItems = [
     {
@@ -465,7 +538,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
     {
       icon: LanguageIcon,
       label: "사용언어",
-      value: selectedValues.nativeLanguages.join(", ") || "-",
+      value: translatedNativeLanguages,
       editable: true,
       dropdownName: "nativeLanguages",
       options: languageOptions,
@@ -473,7 +546,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
     {
       icon: LanguageIcon,
       label: "선호언어",
-      value: selectedValues.learnLanguages.join(", ") || "-",
+      value: translatedLearnLanguages,
       editable: true,
       dropdownName: "learnLanguages",
       options: languageOptions,

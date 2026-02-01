@@ -216,6 +216,7 @@ export const getCleanImageUrl = (url: string | null, fallback: string) => {
 const WHITE_TEXT_COUNTRIES = new Set(["DE", "JP", "SA"]);
 
 const ProfileBanner = ({ 
+  userId,
   profileImageUrl,
   country,
   nickname,
@@ -265,10 +266,37 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
   const learnLanguages = languages.learn.map(code => getLanguageName(code) || code);
   const allLanguages = [...nativeLanguages, ...learnLanguages];
 
-  // intro를 제목과 본문으로 분리
-  const introLines = intro ? intro.split('\n').filter(line => line.trim()) : [];
-  const introTitle = introLines[0] || '';
-  const introContent = introLines.slice(1).join(' ') || introLines[0] || '';
+  // ✅ 유저별 고정 랜덤 인덱스 (userId 기반)
+const pickIndex = (id: number, length: number) => {
+  if (length === 0) return 0;
+  return Math.abs(id) % length;
+};
+
+// ✅ intro 파싱 (title/content 각각 따로 처리해야 함)
+const rawLines = intro ? intro.split("\n") : [];
+const parsedTitle = (rawLines[0] ?? "").trim();
+// 2번째 줄부터는 content로 합치기 (없으면 "")
+const parsedContent = rawLines.slice(1).join(" ").trim();
+
+// ✅ fallback 텍스트 가져오기
+const fallbackTitle = t("profile.bannerFallback.title", { nickname });
+
+// returnObjects: true로 배열 가져오기
+const fallbackContents = t("profile.bannerFallback.contents", {
+  returnObjects: true,
+}) as string[];
+
+const fallbackContent =
+  fallbackContents[pickIndex(userId, fallbackContents.length)] ?? "";
+
+// ✅ 요구사항 반영:
+// - title만 있으면: title 그대로 + content는 랜덤 fallback
+// - content만 있으면: title은 fallback + content 그대로
+// - 둘 다 없으면: title은 fallback + content는 랜덤 fallback
+// - 둘 다 있으면: 둘 다 그대로
+const finalIntroTitle = parsedTitle ? parsedTitle : fallbackTitle;
+const finalIntroContent = parsedContent ? parsedContent : fallbackContent;
+
 
   return (
     <CardWrapper $banner={bannerSrc} onClick={onClick}>
@@ -296,8 +324,8 @@ const top3Keywords = [pickOne("PERSONALITY"), pickOne("HOBBY"), pickOne("TOPIC")
                 <InfoChip className="Button2" key={`lang-${index}`} $iswhiteText={isWhiteText}>#{lang}</InfoChip>
               ))}
             </InfoTags>
-            <IntroTitle className="Button1" $iswhiteText={isWhiteText}>{introTitle}</IntroTitle>
-            <IntroContent className="Body3" $iswhiteText={isWhiteText}>{introContent}</IntroContent>
+            <IntroTitle className="Button1" $iswhiteText={isWhiteText}>{finalIntroTitle}</IntroTitle>
+            <IntroContent className="Body3" $iswhiteText={isWhiteText}>{finalIntroContent}</IntroContent>
           </RightSection>
         </MainContent>
       </ContentContainer>

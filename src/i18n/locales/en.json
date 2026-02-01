@@ -528,7 +528,20 @@
       "he": "Hebrew",
       "kk": "Kazakh",
       "uz": "Uzbek"
-    }
+    },
+    "bannerFallback": {
+    "title": "Hi 👋 I'm {{nickname}}",
+    "contents": [
+      "Let’s get to know each other! Feel free to say hi :)",
+      "Let’s have a fun chat together!",
+      "I’d love it if you say hello ☺️",
+      "Let’s share language and culture!",
+      "Let’s learn from each other 🙌",
+      "Let’s start with a light conversation!",
+      "Let’s be friends! 🤝",
+      "Hope you have a lovely day 🌿"
+    ]
+  }
   },
   "mypage": {
     "title": "My Page",

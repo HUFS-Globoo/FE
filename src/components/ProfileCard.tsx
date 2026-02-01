@@ -11,7 +11,7 @@ import LanguageIcon from "../assets/ic-language-tag.svg";
 import EmailIcon from "../assets/ic-email.svg";
 
 interface ProfileCardProps {
-  userId?: number;
+  userId: number;
   username?: string;
   name?: string; 
   nickname: string;
@@ -324,6 +324,7 @@ const SelectInput = styled.select`
 `;
 
 const ProfileCard = ({
+  userId,
   name,
   username,
   nickname,
@@ -346,6 +347,37 @@ const ProfileCard = ({
   onImageReset, //이미지 리셋 핸들러 추가
 }: ProfileCardProps) => {
   const { t } = useTranslation();
+  
+  // ✅ 유저별 고정 랜덤 인덱스 (userId 기반)
+const pickIndex = (id: number, length: number) => {
+  if (length === 0) return 0;
+  return Math.abs(id) % length;
+};
+
+// ✅ fallback (타인 프로필에서만 사용)
+const fallbackTitle = t("profile.bannerFallback.title", { nickname });
+
+const fallbackContents = t("profile.bannerFallback.contents", {
+  returnObjects: true,
+}) as string[];
+
+const fallbackContent =
+  fallbackContents[pickIndex(userId ?? 0, fallbackContents.length)] ?? "";
+
+// ✅ 공백도 비어있다고 처리
+const safeTitle = (infoTitle ?? "").trim();
+const safeContent = (infoContent ?? "").trim();
+
+// ✅ 최종 표시 텍스트
+const displayIntroTitle = isOwner
+  ? safeTitle || "자기소개 제목을 입력해주세요"
+  : safeTitle || fallbackTitle;
+
+const displayIntroContent = isOwner
+  ? safeContent || "자기소개 내용을 입력해주세요"
+  : safeContent || fallbackContent;
+
+
   const [editedData, setEditedData] = useState({
     infoTitle: infoTitle || "",
     infoContent: infoContent || "",
@@ -623,12 +655,8 @@ const [editedMbti, setEditedMbti] = useState(mbti);
               </>
             ) : (
               <>
-                <IntroTitle className="H4">
-                  {editedData.infoTitle || "자기소개 제목을 입력해주세요"}
-                </IntroTitle>
-                <IntroText className="Body1">
-                  {editedData.infoContent || "자기소개 내용을 입력해주세요"}
-                </IntroText>
+                <IntroTitle className="H4">{displayIntroTitle}</IntroTitle>
+                <IntroText className="Body1">{displayIntroContent}</IntroText>
               </>
             )}
             <TagSection>

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { StudyMember } from "../../types/study.types";
 
 import { COUNTRY_ASSETS } from "../utils/countryAssets";
@@ -48,7 +49,9 @@ interface Props {
 }
 
 const StudyApplicantsList = ({ members, isLoading, currentUserId, authorId }: Props) => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isEnglish = i18n.language === 'en';
   const handleGoProfile = (userId: number) => {
     navigate(`/profile/${userId}`);
   };
@@ -56,16 +59,30 @@ const StudyApplicantsList = ({ members, isLoading, currentUserId, authorId }: Pr
     return (
     <Card>
       <Header>
-        <Title className="H4">해당 스터디에 신청한 사람들</Title>
+        <Title className="H4">{t("study.detail.applicants.title")}</Title>
         <SubTitle className="Body2">
-          다같이 열심히 공부해봐부!! {members.length > 0 ? `(신청 인원: ${members.length}명)` : ""}
+          {isEnglish ? (
+            <>
+              {t("study.detail.applicants.subtitle")}
+              {members.length > 0 && (
+                <>
+                  <br />
+                  ({t("study.detail.applicants.applicantCount")}: {members.length}{t("study.detail.participants")})
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {t("study.detail.applicants.subtitle")} {members.length > 0 ? `(${t("study.detail.applicants.applicantCount")}: ${members.length}${t("study.detail.participants")})` : ""}
+            </>
+          )}
         </SubTitle>
       </Header>
 
       {isLoading ? (
-        <StateText className="Body2">불러오는 중...</StateText>
+        <StateText className="Body2">{t("study.detail.applicants.loading")}</StateText>
       ) : members.length === 0 ? (
-        <StateText className="Body2">아직 신청한 사람이 없어요.</StateText>
+        <StateText className="Body2">{t("study.detail.applicants.empty")}</StateText>
       ) : (
         <List>
           {members.map((member) => {
@@ -81,7 +98,7 @@ const StudyApplicantsList = ({ members, isLoading, currentUserId, authorId }: Pr
                 <Info>
                   <NameLine>
                     <Nickname className="Button1">{member.nickname}</Nickname>
-                    {isAuthorRow && <AuthorText className="Button1">· 작성자</AuthorText>}
+                    {isAuthorRow && <AuthorText className="Button1">· {t("study.detail.author")}</AuthorText>}
                   </NameLine>
 
                     <Meta className="Body2">
@@ -90,7 +107,7 @@ const StudyApplicantsList = ({ members, isLoading, currentUserId, authorId }: Pr
                         {[ 
                             member.mbti,
                             member.campus &&
-                            (member.campus === "SEOUL" ? "서울캠퍼스" : "글로벌캠퍼스"),
+                            (member.campus === "SEOUL" ? t("profile.campus.seoul") : t("profile.campus.global")),
                         ]
                             .filter(Boolean)
                             .join(" · ")}
@@ -105,7 +122,7 @@ const StudyApplicantsList = ({ members, isLoading, currentUserId, authorId }: Pr
                     className="Button2"
                     onClick={() => handleGoProfile(member.userId)}
                   >
-                    더 보기 &gt;
+                    {t("common.more")}
                   </MoreButton>
                 )}
               </Row>

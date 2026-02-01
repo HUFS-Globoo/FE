@@ -577,7 +577,7 @@ useEffect(() => {
                 <LeftPanel>
   <UserProfileCard>
     {isUserLoading ? (
-      <p>사용자 정보 로딩 중...</p>
+      <p>{t("study.detail.profile.loading")}</p>
     ) : userMe ? (
       (() => {
         const myCountryCode = userMe.country?.toUpperCase();
@@ -602,7 +602,7 @@ useEffect(() => {
         );
       })()
     ) : (
-      <p>로그인이 필요합니다.</p>
+      <p>{t("study.detail.profile.loginRequired")}</p>
     )}
 
     <ButtonGroup>
@@ -611,21 +611,21 @@ useEffect(() => {
         className="Button1"
         onClick={handleMyPostsClick}
       >
-        작성한 게시글
+        {t("study.detail.profile.myPosts")}
       </ActionButton>
       <ActionButton
         $variant="secondary"
         className="Button1"
         onClick={handleMyCommentsClick}
       >
-        작성한 댓글
+        {t("study.detail.profile.myComments")}
       </ActionButton>
       <ActionButton
         $variant="primary"
         className="Button1"
         onClick={handleBackToList}
       >
-        스터디 목록
+        {t("study.detail.profile.backToList")}
       </ActionButton>
     </ButtonGroup>
   </UserProfileCard>
@@ -645,7 +645,7 @@ useEffect(() => {
                             <StudyAuthorSection>
                                 <StudyAuthorImage
                   src={finalAuthorProfileImage}
-                  alt="작성자"
+                  alt={t("study.detail.author")}
                 />
                                 <AuthorName className="H4">
                                     {studyData.authorNickname}

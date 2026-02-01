@@ -196,7 +196,7 @@ const NicnameContent = styled.div`
   padding-left: 0.94rem;
   font-size: 1rem;
   font-weight: 500;
-  line-height: 150%;
+  line-height: 150%; 
   flex: 1;
   min-width: 0;
   white-space: nowrap;
@@ -481,7 +481,7 @@ useEffect(() => {
                 setPartner(opponent);
               }
 
-                setStage("matched");
+        setStage("matched");
                 console.log("   - ✅ [STOMP] stage를 'matched'로 설정 완료");
               } else if (status === "CHATTING") {
                 console.log("✅ [STOMP] CHATTING 상태 수신 → 채팅 화면으로 전환");
@@ -579,8 +579,8 @@ useEffect(() => {
                 setChatRoomId(roomId);
                 localStorage.setItem("chatRoomId", String(roomId));
               }
-              setStage("chat");
-              setWaitingAccept(false);
+        setStage("chat");
+        setWaitingAccept(false);
               if (matchClientRef.current) {
                 matchClientRef.current.deactivate();
                 matchClientRef.current = null;
@@ -873,7 +873,7 @@ const handleFindAnother = async () => {
     console.log("✅ [채팅 WebSocket] 연결 성공");
     console.log("   - URL: wss://globoo.duckdns.org/ws/chat");
     console.log("   - chatRoomId:", chatRoomId);
-    
+  
     // 채팅방 입장을 위해 JOIN 메시지 먼저 전송
     if (chatRoomId) {
       const joinPayload = {
@@ -1000,7 +1000,7 @@ const handleFindAnother = async () => {
 
     // 나가기 버튼을 눌렀다는 플래그 설정 (LEAVE_NOTICE를 받아도 alert 안 띄우기 위해)
     hasLeftChatRef.current = true;
-
+  
     const leavePayload = {
       type: "LEAVE",
       chatRoomId,
@@ -1036,6 +1036,25 @@ const handleFindAnother = async () => {
 
   const getCountryName = (code: string): string => {
     return t(`randomMatch.countries.${code}`) || code;
+  };
+
+  // 키워드 번역 함수 (personality, hobby, topic 모든 카테고리에서 찾기)
+  const getKeywordName = (keywordName: string): string => {
+    if (!keywordName) return keywordName;
+    
+    // 모든 카테고리에서 번역 키 찾기
+    const categories = ['personality', 'hobby', 'topic'];
+    for (const category of categories) {
+      const translationKey = `signup.step4.keywords.${category}.items.${keywordName}`;
+      const translated = t(translationKey);
+      // 번역 키가 존재하고 원본과 다르면 번역된 값 반환
+      if (translated && translated !== translationKey) {
+        return translated;
+      }
+    }
+    
+    // 번역을 찾지 못하면 원본 반환
+    return keywordName;
   };
 
   // 텍스트가 한글인지 영어인지 감지하는 함수
@@ -1100,7 +1119,7 @@ const handleFindAnother = async () => {
     COUNTRY_ASSETS[partnerCountryCode]?.character ||
     COUNTRY_ASSETS["KR"]?.character ||
     MockImg;
-
+ 
 
   return (
     <Wrapper>
@@ -1152,10 +1171,10 @@ const handleFindAnother = async () => {
               </LanguageBox>
 
               <KeywordContainer>
-                <KeywordBox>#{partner?.mbti || "MBTI"}</KeywordBox>
-                <KeywordBox>#{partner?.keywords?.[0]?.name || "키워드1"}</KeywordBox>
-                <KeywordBox>#{partner?.keywords?.[1]?.name || "키워드2"}</KeywordBox>
-                <KeywordBox>#{partner?.keywords?.[2]?.name || "키워드3"}</KeywordBox>
+                {partner?.mbti && <KeywordBox>#{partner.mbti}</KeywordBox>}
+                {partner?.keywords?.[0]?.name && <KeywordBox>#{getKeywordName(partner.keywords[0].name)}</KeywordBox>}
+                {partner?.keywords?.[1]?.name && <KeywordBox>#{getKeywordName(partner.keywords[1].name)}</KeywordBox>}
+                {partner?.keywords?.[2]?.name && <KeywordBox>#{getKeywordName(partner.keywords[2].name)}</KeywordBox>}
               </KeywordContainer>
 
 
@@ -1239,18 +1258,18 @@ const handleFindAnother = async () => {
             </MessageContainer>
 
             <SendMessageContainer>
-              <SendInput
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
+            <SendInput
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
                 placeholder={t("randomMatch.chat.messagePlaceholder")}
-                onKeyUp={(e) => {
-                  if (e.nativeEvent.isComposing) return; 
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-              />
+              onKeyUp={(e) => {
+                if (e.nativeEvent.isComposing) return; 
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+            />
               <SendButton onClick={sendMessage}>전송</SendButton>
             </SendMessageContainer>
           </>

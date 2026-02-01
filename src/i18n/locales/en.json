@@ -320,7 +320,10 @@
       "noInfo": "No information",
       "startChat": "Start Chat",
       "findAnother": "Find Another",
-      "waitingAccept": "Waiting for the other person to accept..."
+      "waitingAccept": "Waiting for the other person to accept...",
+      "keyword1": "Keyword 1",
+      "keyword2": "Keyword 2",
+      "keyword3": "Keyword 3"
     },
     "chat": {
       "entered": " has entered.",

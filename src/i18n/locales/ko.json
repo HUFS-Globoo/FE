@@ -624,6 +624,14 @@
         "closed": "마감"
       },
       "participants": "명",
+      "author": "작성자",
+      "applicants": {
+        "title": "해당 스터디에 신청한 사람들",
+        "subtitle": "다같이 열심히 공부해봐부!!",
+        "applicantCount": "신청 인원",
+        "loading": "불러오는 중...",
+        "empty": "아직 신청한 사람이 없어요."
+      },
       "actions": {
         "edit": "수정하기",
         "delete": "삭제하기",
@@ -646,6 +654,17 @@
         "joinConfirm": "스터디에 가입 요청을 하시겠습니까?",
         "joinSuccess": "스터디 가입 요청을 성공적으로 보냈습니다.",
         "joinError": "스터디 가입 요청에 실패했습니다:"
+      },
+      "comments": {
+        "title": "댓글을 작성해주세요!",
+        "description": "해당 스터디에 대한 궁금한 점이나 상담을 자유롭게 작성해주세요.",
+        "placeholder": "댓글을 입력하세요",
+        "submit": "댓글 작성하기",
+        "listTitle": "댓글",
+        "loading": "댓글을 불러오는 중...",
+        "editPrompt": "댓글을 수정하세요:",
+        "deleteConfirm": "댓글을 삭제하시겠습니까?",
+        "iconAlt": "댓글 아이콘"
       }
     },
     "post": {

@@ -624,6 +624,14 @@
         "closed": "Closed"
       },
       "participants": "people",
+      "author": "Author",
+      "applicants": {
+        "title": "People who applied for this study",
+        "subtitle": "Let's all study hard together!!",
+        "applicantCount": "Applicants",
+        "loading": "Loading...",
+        "empty": "No one has applied yet."
+      },
       "actions": {
         "edit": "Edit",
         "delete": "Delete",
@@ -646,6 +654,17 @@
         "joinConfirm": "Do you want to request to join this study?",
         "joinSuccess": "Join request sent successfully.",
         "joinError": "Failed to join study:"
+      },
+      "comments": {
+        "title": "Please write a comment!",
+        "description": "Feel free to write any questions or consultations about this study.",
+        "placeholder": "Enter your comment",
+        "submit": "Post Comment",
+        "listTitle": "Comments",
+        "loading": "Loading comments...",
+        "editPrompt": "Edit your comment:",
+        "deleteConfirm": "Are you sure you want to delete this comment?",
+        "iconAlt": "Comment icon"
       }
     },
     "post": {

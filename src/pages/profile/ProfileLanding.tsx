@@ -1,6 +1,6 @@
 import * as React from "react";
-import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import styled, { keyframes, css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import ProfileBanner from "../../components/ProfileBanner";
 
@@ -338,10 +338,6 @@ const ProfileLanding: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const handleProfileClick = (userId: number) => {
-    navigate(`/profile/${userId}`);
-  };
-
   const handleExploreClick = () => {
     navigate('/profile');
   };
@@ -366,7 +362,6 @@ const ProfileLanding: React.FC = () => {
             key={profile.userId}
             $index={index}
             $size={getSizePattern(index)}
-            onClick={() => handleProfileClick(profile.userId)}
           >
             <ProfileBanner
               userId={profile.userId}

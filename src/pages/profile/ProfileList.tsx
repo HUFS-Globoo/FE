@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import ProfileBanner from "../../components/ProfileBanner";
 import HeaderImg from "../../assets/img-miniBoo.svg";
 import axiosInstance from "../../../axiosInstance";
+import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME } from "../../utils/languages";
 
 type Campus = "SEOUL" | "GLOBAL";
 type LanguageCode = string;
@@ -87,7 +88,7 @@ const FilterSection = styled.div`
 
 const FilterPlaceholder = styled.div<{ $isEnglish?: boolean }>`
   display: flex;
-  gap: 1.5rem;
+  gap: ${({ $isEnglish }) => ($isEnglish ? "1rem" : "1.5rem")};
   align-items: ${({ $isEnglish }) => ($isEnglish ? "flex-start" : "center")};
   color: var(--black);
   font-size: 0.9rem;
@@ -171,7 +172,7 @@ const ContentContainer = styled.div`
 
 const FilterWraaper = styled.div<{ $isEnglish?: boolean }>`
   display: flex;
-  gap: 1.5rem;
+  gap: ${({ $isEnglish }) => ($isEnglish ? "1rem" : "1.5rem")};
   flex-wrap: ${({ $isEnglish }) => ($isEnglish ? "wrap" : "nowrap")};
   flex: 1;
 `
@@ -236,32 +237,61 @@ const ProfileList: React.FC = () => {
     localStorage.getItem("useDefaultProfileImage") === "true";
 
 
-  // 프로필 조회 (필터 적용)l  
-  const fetchProfiles = async (page = 0) => {
+  // 프로필 조회 (필터 적용)
+  const fetchProfiles = async (page = 0, filterState = filters) => {
     try {
       const params: any = { page, size: profilesPerPage };
 
-      if (filters.campus) params.campus = filters.campus.toUpperCase();
-      if (filters.nativeLang) params.nativeLang = filters.nativeLang;
-      if (filters.learnLang) params.learnLang = filters.learnLang;
+      if (filterState.campus) {
+        params.campus = filterState.campus.toUpperCase();
+      }
+      if (filterState.nativeLang) {
+        params.nativeLang = filterState.nativeLang;
+      }
+      if (filterState.learnLang) {
+        params.learnLang = filterState.learnLang;
+      }
 
       const keywordArray = [
-        filters.personalityKeyword,
-        filters.hobbyKeyword,
-        filters.topicKeyword,
+        filterState.personalityKeyword,
+        filterState.hobbyKeyword,
+        filterState.topicKeyword,
       ]
         .filter((v) => v) 
         .map((v) => Number(v)); 
 
-      if (keywordArray.length > 0) params.keywordId = keywordArray;
+      if (keywordArray.length > 0) {
+        params.keywordId = keywordArray;
+      }
+
+      const hasFilter =
+        !!filterState.campus ||
+        !!filterState.nativeLang ||
+        !!filterState.learnLang ||
+        !!filterState.personalityKeyword ||
+        !!filterState.hobbyKeyword ||
+        !!filterState.topicKeyword;
+
+      if (hasFilter) {
+        console.log("✅ 프로필 필터 조회 요청", params);
+      } else {
+        console.log("ℹ️ 프로필 전체 조회 요청", params);
+      }
 
       const res = await axiosInstance.get("/api/profiles", { params });
-      setProfiles(res.data.content);
-      setTotalPages(res.data.totalPages);
+      setProfiles(res.data.content || []);
+      setTotalPages(res.data.totalPages || 1);
       console.log("프로필 조회 성공:", res.data);
     } catch (error) {
       console.error("프로필 조회 실패:", error);
+      setProfiles([]);
+      setTotalPages(1);
     }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchProfiles(0, filters);
   };
 
   const handleFilterChange = (key: string, value: string) => {
@@ -325,11 +355,28 @@ const ProfileList: React.FC = () => {
                 <option value="">
                   {t("profile.list.filters.all")}
                 </option>
-                <option value="Korean">{t("profile.list.languages.korean")}</option>
-                <option value="English">{t("profile.list.languages.english")}</option>
-                <option value="Chinese">{t("profile.list.languages.chinese")}</option>
-                <option value="Arabic">{t("profile.list.languages.arabic")}</option>
-                <option value="Italian">{t("profile.list.languages.italian")}</option>
+                {SUPPORTED_LANGUAGE_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {t(`randomMatch.languages.${code}`)}
+                  </option>
+                ))}
+              </FilterSelect>
+            </FilterContainer>
+
+            <FilterContainer $isEnglish={isEnglish}>
+              <span>{t("profile.list.filters.learnLanguage")}</span>
+              <FilterSelect
+                value={filters.learnLang}
+                onChange={(e) => handleFilterChange("learnLang", e.target.value)}
+              >
+                <option value="">
+                  {t("profile.list.filters.all")}
+                </option>
+                {SUPPORTED_LANGUAGE_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {t(`randomMatch.languages.${code}`)}
+                  </option>
+                ))}
               </FilterSelect>
             </FilterContainer>
 
@@ -401,7 +448,7 @@ const ProfileList: React.FC = () => {
 
           </FilterWraaper>
 
-          <SearchButton onClick={() => fetchProfiles(0)}>{t("profile.list.filters.search")}</SearchButton>
+          <SearchButton onClick={handleSearch}>{t("profile.list.filters.search")}</SearchButton>
 
         </FilterPlaceholder>
       </FilterSection>

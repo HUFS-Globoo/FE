@@ -501,8 +501,8 @@
       }
     },
     "campus": {
-      "global": "Global Campus",
-      "seoul": "Seoul Campus"
+      "global": "Global",
+      "seoul": "Seoul"
     },
     "languages": {
       "ko": "Korean",

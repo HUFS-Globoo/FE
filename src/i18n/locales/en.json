@@ -429,9 +429,10 @@
       "filters": {
         "campus": "Campus",
         "nativeLanguage": "Native Language",
-        "personalityKeyword": "Personality Keyword",
-        "hobbyKeyword": "Hobby Keyword",
-        "topicKeyword": "Topic Keyword",
+        "learnLanguage": "Preferred Language",
+        "personalityKeyword": "Personality",
+        "hobbyKeyword": "Hobby",
+        "topicKeyword": "Topic",
         "all": "All",
         "global": "Global Campus",
         "seoul": "Seoul Campus",

@@ -429,6 +429,7 @@
       "filters": {
         "campus": "캠퍼스",
         "nativeLanguage": "사용 언어",
+        "learnLanguage": "선호 언어",
         "personalityKeyword": "성격 키워드",
         "hobbyKeyword": "취미 키워드",
         "topicKeyword": "주제 키워드",

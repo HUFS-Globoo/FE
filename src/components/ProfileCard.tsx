@@ -42,11 +42,6 @@ interface ProfileCardProps {
   onImageReset?: () => void;  // 이미지 리셋 핸들러 추가
 }
 
-// 드롭다운 옵션
-const campusOptions = [
-  { value: "GLOBAL", label: "글로벌캠퍼스" },
-  { value: "SEOUL", label: "서울캠퍼스" },
-];
 
 const Card = styled.div<{ $isEditMode: boolean }>`
   width: 100%;
@@ -316,6 +311,46 @@ const SelectInput = styled.select`
   cursor: pointer;
 `;
 
+type ChipCategory = "PERSONALITY" | "HOBBY" | "TOPIC" | "DEFAULT";
+
+const normalizeKeywords = (
+  keywords: ProfileCardProps["keywords"]
+): { name: string; category: ChipCategory }[] => {
+  if (!keywords) return [];
+
+  // 1) object 그룹형: { personalityKeywords, hobbyKeywords, topicKeywords }
+  if (!Array.isArray(keywords)) {
+    return [
+      ...(keywords.personalityKeywords ?? []).map((name) => ({
+        name,
+        category: "PERSONALITY" as const,
+      })),
+      ...(keywords.hobbyKeywords ?? []).map((name) => ({
+        name,
+        category: "HOBBY" as const,
+      })),
+      ...(keywords.topicKeywords ?? []).map((name) => ({
+        name,
+        category: "TOPIC" as const,
+      })),
+    ];
+  }
+
+  // 2) string[] or KeywordItem[]
+  return keywords
+    .map((k) => {
+      if (typeof k === "string") {
+        return { name: k, category: "DEFAULT" as const };
+      }
+      // KeywordItem
+      return {
+        name: k.name,
+        category: (k.category ?? "DEFAULT") as ChipCategory,
+      };
+    })
+    .filter((k) => k.name);
+};
+
 const ProfileCard = ({
   userId,
   name,
@@ -340,6 +375,12 @@ const ProfileCard = ({
   onImageReset, //이미지 리셋 핸들러 추가
 }: ProfileCardProps) => {
   const { t } = useTranslation();
+
+  // 캠퍼스 옵션을 동적으로 생성 (번역 지원)
+  const campusOptions = useMemo(() => [
+    { value: "GLOBAL", label: t("profile.campus.global") },
+    { value: "SEOUL", label: t("profile.campus.seoul") },
+  ], [t]);
 
   // 언어 옵션을 동적으로 생성
   const languageOptions = useMemo(() => 
@@ -463,53 +504,36 @@ const displayIntroContent = isOwner
 
   const characterImage = profileImageUrl || fallbackCharacter || "https://via.placeholder.com/200";
 
+  // 키워드 번역 함수
+  const translateKeyword = (keywordName: string, category: ChipCategory): string => {
+    if (!keywordName) return keywordName;
+    
+    // category에 따라 적절한 번역 경로 사용
+    let translationKey = "";
+    switch (category) {
+      case "PERSONALITY":
+        translationKey = `signup.step4.keywords.personality.items.${keywordName}`;
+        break;
+      case "HOBBY":
+        translationKey = `signup.step4.keywords.hobby.items.${keywordName}`;
+        break;
+      case "TOPIC":
+        translationKey = `signup.step4.keywords.topic.items.${keywordName}`;
+        break;
+      default:
+        return keywordName; // DEFAULT는 번역 없이 원본 반환
+    }
+    
+    const translated = t(translationKey);
+    // 번역을 찾지 못하면 원본 반환
+    return translated !== translationKey ? translated : keywordName;
+  };
 
+  // 키워드 정규화 및 처리
+  const processedKeywords = useMemo(() => normalizeKeywords(keywords), [keywords]);
 
-type ChipCategory = "PERSONALITY" | "HOBBY" | "TOPIC" | "DEFAULT";
-
-const normalizeKeywords = (
-  keywords: ProfileCardProps["keywords"]
-): { name: string; category: ChipCategory }[] => {
-  if (!keywords) return [];
-
-  // 1) object 그룹형: { personalityKeywords, hobbyKeywords, topicKeywords }
-  if (!Array.isArray(keywords)) {
-    return [
-      ...(keywords.personalityKeywords ?? []).map((name) => ({
-        name,
-        category: "PERSONALITY" as const,
-      })),
-      ...(keywords.hobbyKeywords ?? []).map((name) => ({
-        name,
-        category: "HOBBY" as const,
-      })),
-      ...(keywords.topicKeywords ?? []).map((name) => ({
-        name,
-        category: "TOPIC" as const,
-      })),
-    ];
-  }
-
-  // 2) string[] or KeywordItem[]
-  return keywords
-    .map((k) => {
-      if (typeof k === "string") {
-        return { name: k, category: "DEFAULT" as const };
-      }
-      // KeywordItem
-      return {
-        name: k.name,
-        category: (k.category ?? "DEFAULT") as ChipCategory,
-      };
-    })
-    .filter((k) => k.name);
-};
-
-const processedKeywords = normalizeKeywords(keywords);
-
-
-const [isEditingMbti, setIsEditingMbti] = useState(false);
-const [editedMbti, setEditedMbti] = useState(mbti);
+  const [isEditingMbti, setIsEditingMbti] = useState(false);
+  const [editedMbti, setEditedMbti] = useState(mbti);
 
   useEffect(() => {
     setEditedMbti(mbti);
@@ -597,7 +621,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
   };
 
   const campusName =
-    campusOptions.find((c) => c.value === selectedValues.campus)?.label || "글로벌캠퍼스";
+    campusOptions.find((c) => c.value === selectedValues.campus)?.label || t("profile.campus.global");
 
   // 언어 배열을 번역된 문자열로 변환
   const translatedNativeLanguages = selectedValues.nativeLanguages
@@ -611,7 +635,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
   const contactItems = [
     {
       icon: CampusIcon,
-      label: "캠퍼스",
+      label: t("profile.list.filters.campus"),
       value: campusName,
       editable: true,
       dropdownName: "campus",
@@ -789,7 +813,7 @@ const [editedMbti, setEditedMbti] = useState(mbti);
                   $category={keyword.category}
                   className="Body3"
                 >
-                  # {keyword.name}
+                  # {translateKeyword(keyword.name, keyword.category)}
                 </Tag>
               ))}
             </TagSection>

@@ -271,6 +271,8 @@ const StudyDetail = () => {
     const [members, setMembers] = useState<StudyMember[]>([]);
     const [isMembersLoading, setIsMembersLoading] = useState(false);
 
+    const storedUserId = localStorage.getItem("userId");
+    const currentUserId = storedUserId ? Number(storedUserId) : undefined;
 
     const useDefaultProfile =
   typeof window !== "undefined" &&
@@ -309,14 +311,24 @@ const fetchMembers = useCallback(async () => {
   setIsMembersLoading(true);
   try {
     const res = await axiosInstance.get(`/api/studies/${studyId}/members`);
-    setMembers(res.data?.data ?? []);
+    const list = res.data?.data ?? [];
+
+    setMembers(list);
+
+    if (currentUserId != null) {
+      const alreadyJoined = list.some(
+        (member: any) => member.userId === currentUserId
+      );
+      setHasJoined(alreadyJoined);
+    }
   } catch (e) {
     console.error("신청자(멤버) 조회 실패:", e);
     setMembers([]);
   } finally {
     setIsMembersLoading(false);
   }
-}, [studyId]);
+}, [studyId, currentUserId]);
+
 
 
 const fetchComments = useCallback(async () => {
@@ -442,7 +454,7 @@ useEffect(() => {
 
     // ✅ 이미 한 번 가입한 상태 (이 페이지에서 한 번 성공한 이후)
     if (hasJoined) {
-      alert("이미 이 스터디에 가입하셨습니다.\n마이페이지에서 참여한 스터디를 확인해 주세요.");
+      alert("이미 이 스터디에 가입하셨습니다.\n마이페이지에서 참여한 스터디를 확인해 주세요!");
       return;
     }
 
@@ -457,7 +469,7 @@ useEffect(() => {
       typeof studyDetail.currentParticipants === "number" &&
       studyDetail.currentParticipants >= studyDetail.capacity
     ) {
-      alert("이미 정원이 가득 찬 스터디입니다.");
+      alert("이미 정원이 가득 찬 스터디입니다!");
       return;
     }
 
@@ -474,7 +486,7 @@ useEffect(() => {
       setIsJoining(true); // 🔹 요청 시작
 
       const res = await joinStudy(studyId);
-      alert(res.message || "스터디 가입 요청을 성공적으로 보냈습니다.");
+      alert("스터디 가입이 완료되었습니다.\n마이페이지에서 참여한 스터디를 확인해 주세요!");
 
       // 🔹 프론트 상태 즉시 반영
       setHasJoined(true);
@@ -521,8 +533,6 @@ useEffect(() => {
     }
     
     const studyData = studyDetail!;
-    const storedUserId = localStorage.getItem("userId");
-    const currentUserId = storedUserId ? Number(storedUserId) : undefined;
 
     const isAuthor = currentUserId != null && studyData.authorId === currentUserId;
       
@@ -711,7 +721,7 @@ useEffect(() => {
                           className="Button1"
                           onClick={handleJoinStudy}
                           style={{ marginTop: "1rem" }}
-                          disabled={hasJoined || isJoining}
+                          disabled={isJoining}
                         >
                           {hasJoined ? t("study.detail.actions.joined") : t("study.detail.actions.join")}
                         </JoinButton>

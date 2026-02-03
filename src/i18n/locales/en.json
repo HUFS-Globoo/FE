@@ -426,6 +426,7 @@
       "title": "Profile Search",
       "subtitle": "Find friends who fit you",
       "sectionTitle": "View Friends' Profiles",
+      "empty": "No profiles found.",
       "filters": {
         "campus": "Campus",
         "nativeLanguage": "Native Language",

@@ -42,6 +42,7 @@ const PageContainer = styled.div`
   margin: 0 auto;
   padding: 3rem 6.38rem;
   box-sizing: border-box;
+  min-height: 100vh;
   background-color: var(--gray-text-filled);
 `;
 
@@ -138,6 +139,13 @@ const ProfileGrid = styled.div`
   margin: 0 auto;
 `;
 
+const EmptyMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: var(--gray-600);
+  font-size: 1.2rem;
+`;
+
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -164,7 +172,7 @@ const ContentTitle = styled.div`
 `
 
 const ContentContainer = styled.div`
-
+  min-height: 440px;
   border-radius: 0.75rem;
   border: 1px solid var(--gray, #E0E0E0);
   background: var(--white, #FFFEFB);
@@ -456,45 +464,48 @@ const ProfileList: React.FC = () => {
 
       <ContentContainer>
         <SectionTitle className="H4">{t("profile.list.sectionTitle")}</SectionTitle>
-        <ProfileGrid>
-  {profiles.map((profile) => {
-    let effectiveProfileImageUrl = profile.profileImageUrl;
-    if (effectiveProfileImageUrl) {
-      effectiveProfileImageUrl = effectiveProfileImageUrl.replace(
-        /([^:]\/)\/+/g,
-        "$1"
-      );
-    }
-    if (profile.userId === currentUserId && useDefaultProfile) {
-      effectiveProfileImageUrl = null;
-    }
+        {profiles.length === 0 ? (
+          <EmptyMessage className="Body1">{t("profile.list.empty")}</EmptyMessage>
+        ) : (
+          <ProfileGrid>
+            {profiles.map((profile) => {
+              let effectiveProfileImageUrl = profile.profileImageUrl;
+              if (effectiveProfileImageUrl) {
+                effectiveProfileImageUrl = effectiveProfileImageUrl.replace(
+                  /([^:]\/)\/+/g,
+                  "$1"
+                );
+              }
+              if (profile.userId === currentUserId && useDefaultProfile) {
+                effectiveProfileImageUrl = null;
+              }
 
-    return (
-      <ProfileBanner
-        key={profile.userId}
-        userId={profile.userId}
-        nickname={profile.nickname}
-        campus={profile.campus}
-        country={profile.country}
-        mbti={profile.mbti}
-        profileImageUrl={effectiveProfileImageUrl}
-        languages={{
-          native: profile.nativeLanguages.map((l) => l.code),
-          learn: profile.learnLanguages.map((l) => l.code),
-        }}
-        keywords={profile.keywords}
-        intro={
-          profile.infoTitle || profile.infoContent
-            ? `${profile.infoTitle ?? ""}\n${profile.infoContent ?? ""}`.trim()
-            : ""
-        }
+              return (
+                <ProfileBanner
+                  key={profile.userId}
+                  userId={profile.userId}
+                  nickname={profile.nickname}
+                  campus={profile.campus}
+                  country={profile.country}
+                  mbti={profile.mbti}
+                  profileImageUrl={effectiveProfileImageUrl}
+                  languages={{
+                    native: profile.nativeLanguages.map((l) => l.code),
+                    learn: profile.learnLanguages.map((l) => l.code),
+                  }}
+                  keywords={profile.keywords}
+                  intro={
+                    profile.infoTitle || profile.infoContent
+                      ? `${profile.infoTitle ?? ""}\n${profile.infoContent ?? ""}`.trim()
+                      : ""
+                  }
 
-        onClick={() => handleProfileClick(profile.userId)}
-      />
-    );
-  })}
-</ProfileGrid>
-
+                  onClick={() => handleProfileClick(profile.userId)}
+                />
+              );
+            })}
+          </ProfileGrid>
+        )}
       </ContentContainer>
 
       {totalPages > 1 && (

@@ -615,8 +615,7 @@ const displayIntroContent = isOwner
     if (translated && translated !== `profile.languages.${langCode}`) {
       return translated;
     }
-    
-    // 번역을 찾지 못하면 원본 반환
+
     return lang;
   };
 

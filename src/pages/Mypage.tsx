@@ -331,11 +331,10 @@ const handleAppliedStudyClick = (studyId: number) => {
           `?t=${Date.now()}`;
       }
   
-      setUserData((prev: any) => ({
-  ...prev,
-  profileImageUrl: refreshedUser.profileImageUrl, // 또는 캐시버스터 붙인 값
-  _updateKey: Date.now(),
-}));
+      setUserData({
+        ...refreshedUser,
+        _updateKey: Date.now(),
+      });
   
       alert("프로필 이미지가 성공적으로 업로드되었습니다!");
     } catch (error) {
@@ -358,11 +357,15 @@ const handleProfileImageReset = async () => {
 
     localStorage.setItem("useDefaultProfileImage", "true");
 
-    setUserData((prev: any) => ({
-  ...prev,
-  profileImageUrl: null,
-  _updateKey: Date.now(),
-}));
+    const refreshed = await axiosInstance.get("/api/users/me");
+    const refreshedUser = refreshed.data;
+
+    refreshedUser.profileImageUrl = null;
+
+    setUserData({
+      ...refreshedUser,
+      _updateKey: Date.now(),
+    });
 
     alert(t("mypage.alert.imageResetSuccess"));
   } catch (error) {
@@ -462,6 +465,7 @@ const filteredAppliedStudies = myAppliedStudies.filter(
         
           return (
             <ProfileCard
+              key={`${profileSrc}-${userData._updateKey || ""}`}
               userId={userData.id}
               username={userData.username}
               name={userData.name}

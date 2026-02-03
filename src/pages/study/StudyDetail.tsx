@@ -30,6 +30,7 @@ import { COUNTRY_ASSETS } from "../../utils/countryAssets";
 import axiosInstance from "../../../axiosInstance";
 
 import { useTranslation } from "react-i18next";
+import { LANGUAGE_CODE_TO_KOREAN_NAME, isSupportedLanguage } from "../../utils/languages";
 
 // vite 환경변수 타입 경고를 피하기 위해 any 캐스팅
 const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL as string;
@@ -565,20 +566,29 @@ useEffect(() => {
   GLOBAL: "글로벌캠퍼스",
   SEOUL: "서울캠퍼스",
 };
-    const languageMap: { [key: string]: string } = {
-  한국어: "한국어",
-  영어: "영어",
-  일본어: "일본어",
-  중국어: "중국어",
-  아랍어: "아랍어",
-};
+
+    // 언어 코드 또는 한국어 이름을 한국어 이름으로 변환하는 함수
+    const getLanguageName = (lang: string): string => {
+      // 언어 코드인 경우 (예: "ar", "ko", "en")
+      if (isSupportedLanguage(lang)) {
+        return LANGUAGE_CODE_TO_KOREAN_NAME[lang];
+      }
+      // 이미 한국어 이름인 경우 (예: "아랍어", "한국어")
+      // LANGUAGE_CODE_TO_KOREAN_NAME의 값 중에 있는지 확인
+      const koreanName = Object.values(LANGUAGE_CODE_TO_KOREAN_NAME).find(name => name === lang);
+      if (koreanName) {
+        return koreanName;
+      }
+      // 매핑되지 않은 경우 원본 반환
+      return lang;
+    };
 
     const tags: string[] = [];
     const primaryCampus = studyData.campuses?.[0];
     const primaryLanguage = studyData.languages?.[0];
 
     if (primaryCampus) tags.push(campusMap[primaryCampus] || primaryCampus);
-    if (primaryLanguage) tags.push(languageMap[primaryLanguage] || primaryLanguage);
+    if (primaryLanguage) tags.push(getLanguageName(primaryLanguage));
 
 
     return (

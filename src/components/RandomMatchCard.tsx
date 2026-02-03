@@ -386,6 +386,7 @@ export default function RandomMatchCard() {
   const [wsReady, setWsReady] = useState(false);
   const hasLeftChatRef = useRef(false); // 나가기 버튼을 눌렀는지 추적 (ref로 동기적 체크)
   const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
+  const hasShownPartnerLeftAlertRef = useRef(false); // 상대방이 떠났다는 alert를 이미 띄웠는지 추적
   // 번역 상태를 별도로 관리 (메시지 갱신 시에도 유지)
   const [translations, setTranslations] = useState<Map<number, string>>(new Map());
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set());
@@ -481,8 +482,13 @@ useEffect(() => {
                 setPartner(opponent);
               }
 
+              // 새 매칭이 발생했으므로 수락 상태 초기화 및 alert 플래그 리셋
+              setHasAccepted(false);
+              setWaitingAccept(false);
+              hasShownPartnerLeftAlertRef.current = false;
+
         setStage("matched");
-                console.log("   - ✅ [STOMP] stage를 'matched'로 설정 완료");
+                console.log("   - ✅ [STOMP] stage를 'matched'로 설정 완료, hasAccepted 초기화");
               } else if (status === "CHATTING") {
                 console.log("✅ [STOMP] CHATTING 상태 수신 → 채팅 화면으로 전환");
                 const { chatRoomId: roomId } = payload;
@@ -501,6 +507,25 @@ useEffect(() => {
                   matchClientRef.current = null;
                 }
                 console.log("   - ✅ [STOMP] stage를 'chat'으로 설정 완료");
+              } else if (status === "PARTNER_LEFT" || status === "LEFT" || status === "MATCH_CANCELLED") {
+                console.log("⚠️ [STOMP] 상대방이 떠남 상태 수신:", status);
+                
+                // 중복 alert 방지 및 matched 상태일 때만 alert 표시
+                if (!hasShownPartnerLeftAlertRef.current && stage === "matched") {
+                  // 상대방이 떠났다는 알림을 먼저 표시
+                  alert(t("randomMatch.alert.partnerLeft"));
+                  hasShownPartnerLeftAlertRef.current = true;
+                }
+                
+                // 상태 초기화 및 다시 매칭 대기 상태로 전환
+                setStage("loading");
+                setMatchId(null);
+                setPartner(null);
+                setChatRoomId(null);
+                setHasAccepted(false);
+                setWaitingAccept(false);
+                
+                console.log("   - ✅ [STOMP] 상태 초기화 완료, 다시 매칭 대기 중");
               } else {
                 console.log("⚠️ [STOMP] 알 수 없는 status:", status);
               }
@@ -572,6 +597,12 @@ useEffect(() => {
               if (opponent) {
                 setPartner(opponent);
               }
+              
+              // 새 매칭이 발생했으므로 수락 상태 초기화 및 alert 플래그 리셋
+              setHasAccepted(false);
+              setWaitingAccept(false);
+              hasShownPartnerLeftAlertRef.current = false;
+              
               setStage("matched");
             } else if (status === "CHATTING") {
               const { chatRoomId: roomId } = payload;
@@ -585,6 +616,23 @@ useEffect(() => {
                 matchClientRef.current.deactivate();
                 matchClientRef.current = null;
               }
+            } else if (status === "PARTNER_LEFT" || status === "LEFT" || status === "MATCH_CANCELLED") {
+              console.log("⚠️ [STOMP] 상대방이 떠남 상태 수신:", status);
+              
+              // 중복 alert 방지 및 matched 상태일 때만 alert 표시
+              if (!hasShownPartnerLeftAlertRef.current && stage === "matched") {
+                // 상대방이 떠났다는 알림을 먼저 표시
+                alert(t("randomMatch.alert.partnerLeft"));
+                hasShownPartnerLeftAlertRef.current = true;
+              }
+              
+              // 상태 초기화 및 다시 매칭 대기 상태로 전환
+              setStage("loading");
+              setMatchId(null);
+              setPartner(null);
+              setChatRoomId(null);
+              setHasAccepted(false);
+              setWaitingAccept(false);
             }
           });
         },
@@ -672,9 +720,14 @@ useEffect(() => {
             }
           }
 
+          // 새 매칭이 발생했으므로 수락 상태 초기화 및 alert 플래그 리셋
+          setHasAccepted(false);
+          setWaitingAccept(false);
+          hasShownPartnerLeftAlertRef.current = false;
+
           // 화면 전환
           setStage("matched");
-          console.log("   - ✅ stage를 'matched'로 설정 완료 (REST API 기반)");
+          console.log("   - ✅ stage를 'matched'로 설정 완료 (REST API 기반), hasAccepted 초기화");
         }
 
         // ACCEPTED_BOTH 상태면 채팅으로 전환
@@ -695,11 +748,122 @@ useEffect(() => {
             matchClientRef.current = null;
           }
         }
+
+        // matched 상태에서 매칭이 취소되었거나 상대방이 떠난 경우 감지
+        if (stage === "matched") {
+          // 1. 상태가 CANCELLED, PARTNER_LEFT, LEFT인 경우
+          if (apiData.status === "CANCELLED" || apiData.status === "PARTNER_LEFT" || apiData.status === "LEFT") {
+            console.log("🔄 REST API에서 상대방이 떠남 감지 (상태 기반) → 상태 초기화");
+            
+            // 중복 alert 방지 - alert를 먼저 표시
+            if (!hasShownPartnerLeftAlertRef.current) {
+              alert(t("randomMatch.alert.partnerLeft"));
+              hasShownPartnerLeftAlertRef.current = true;
+            }
+            
+            // 상태 초기화 및 다시 매칭 대기 상태로 전환
+            setStage("loading");
+            setMatchId(null);
+            setPartner(null);
+            setChatRoomId(null);
+            setHasAccepted(false);
+            setWaitingAccept(false);
+          }
+          // 2. 현재 matchId와 서버의 matchId가 다르면 → 매칭이 취소되고 새로운 매칭이 발생한 것
+          else if (matchId && apiData.matchId && String(apiData.matchId) !== String(matchId)) {
+            console.log("🔄 REST API에서 matchId 불일치 감지 → 상대방이 떠나고 새 매칭 발생");
+            console.log("   - 현재 matchId:", matchId, "서버 matchId:", apiData.matchId);
+            
+            // 중복 alert 방지 - alert를 먼저 표시
+            if (!hasShownPartnerLeftAlertRef.current) {
+              alert(t("randomMatch.alert.partnerLeft"));
+              hasShownPartnerLeftAlertRef.current = true;
+            }
+            
+            // 새 매칭 정보로 업데이트
+            setMatchId(String(apiData.matchId));
+            
+            // 상대 프로필 가져오기
+            const opponentId =
+              apiData.userAId === userId ? apiData.userBId : apiData.userAId;
+            
+            if (opponentId) {
+              try {
+                const profileRes = await axiosInstance.get(`/api/profiles/${opponentId}`);
+                setPartner(profileRes.data);
+              } catch (profileErr) {
+                console.error("   - 상대 프로필 조회 실패:", profileErr);
+              }
+            }
+            
+            // 수락 상태 초기화
+            setHasAccepted(false);
+            setWaitingAccept(false);
+            // stage는 matched로 유지 (새 매칭이므로)
+          }
+          // 3. 상태가 FOUND가 아니고 WAITING도 아니면 → 매칭이 취소된 것
+          else if (apiData.status !== "FOUND" && apiData.status !== "WAITING" && apiData.status !== "ACCEPTED_ONE" && apiData.status !== "ACCEPTED_BOTH") {
+            console.log("🔄 REST API에서 매칭 상태 이상 감지 → 상태 초기화");
+            console.log("   - 현재 상태:", apiData.status);
+            
+            // 중복 alert 방지 - alert를 먼저 표시
+            if (!hasShownPartnerLeftAlertRef.current) {
+              alert(t("randomMatch.alert.partnerLeft"));
+              hasShownPartnerLeftAlertRef.current = true;
+            }
+            
+            // 상태 초기화 및 다시 매칭 대기 상태로 전환
+            setStage("loading");
+            setMatchId(null);
+            setPartner(null);
+            setChatRoomId(null);
+            setHasAccepted(false);
+            setWaitingAccept(false);
+          }
+        }
       } else {
-        console.log("🔄 [3초 주기] 유저 매칭 상태: 매칭 정보 없음 (큐 대기 중일 수 있음)");
+        // matched 상태에서 매칭 정보가 없어졌다면 상대방이 떠난 것으로 간주
+        if (stage === "matched") {
+          console.log("🔄 REST API에서 매칭 정보 없음 → 상대방이 떠난 것으로 간주");
+          
+          // 중복 alert 방지 - alert를 먼저 표시
+          if (!hasShownPartnerLeftAlertRef.current) {
+            alert(t("randomMatch.alert.partnerLeft"));
+            hasShownPartnerLeftAlertRef.current = true;
+          }
+          
+          // 상태 초기화 및 다시 매칭 대기 상태로 전환
+          setStage("loading");
+          setMatchId(null);
+          setPartner(null);
+          setChatRoomId(null);
+          setHasAccepted(false);
+          setWaitingAccept(false);
+        } else {
+          console.log("🔄 [3초 주기] 유저 매칭 상태: 매칭 정보 없음 (큐 대기 중일 수 있음)");
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("🔄 [3초 주기] 유저 매칭 상태 조회 실패:", err);
+      
+      // matched 상태에서 에러가 발생하면 (예: 404 Not Found) 매칭이 취소된 것으로 간주
+      if (stage === "matched" && (err?.response?.status === 404 || err?.response?.status === 400)) {
+        console.log("🔄 매칭 상태 조회 실패 (404/400) → 상대방이 떠난 것으로 간주");
+        
+        // 중복 alert 방지 - alert를 먼저 표시
+        if (!hasShownPartnerLeftAlertRef.current) {
+          alert(t("randomMatch.alert.partnerLeft"));
+          hasShownPartnerLeftAlertRef.current = true;
+        }
+        
+        // 상태 초기화 및 다시 매칭 대기 상태로 전환
+        setStage("loading");
+        setMatchId(null);
+        setPartner(null);
+        setChatRoomId(null);
+        setHasAccepted(false);
+        setWaitingAccept(false);
+      }
     }
   };
 

@@ -250,12 +250,20 @@ const StudyPost = () => {
       try {
         const res = await getStudyDetail(studyId);
         const data = res.data;
+        // ✅ 백엔드 캠퍼스 값("서울"/"글로벌") → 프론트 코드("SEOUL"/"GLOBAL") 변환
+        const toCampusCode = (v?: string): 'SEOUL' | 'GLOBAL' | '' => {
+          if (!v) return '';
+          if (v === '서울') return 'SEOUL';
+          if (v === '글로벌') return 'GLOBAL';
+          return '';
+        };
+
 
         setFormData({
           title: data.title,
           content: data.content,
           status: data.status,
-          campus: (data.campuses?.[0] as 'SEOUL' | 'GLOBAL' | '') ?? "",
+          campus: toCampusCode(data.campuses?.[0]),
           language: data.languages?.[0] ?? "",
           capacity: data.capacity,
         });

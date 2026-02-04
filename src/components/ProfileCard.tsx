@@ -115,6 +115,7 @@ const IntroTitle = styled.div`
 
 const IntroInput = styled.input`
   width: 100%;
+  color: var(--black);
   padding: 0.75rem;
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
@@ -137,6 +138,7 @@ const IntroText = styled.p`
 
 const IntroTextarea = styled.textarea`
   width: 100%;
+  color: var(--black);
   padding: 0.75rem;
   border: 1px solid var(--gray);
   border-radius: 0.5rem;

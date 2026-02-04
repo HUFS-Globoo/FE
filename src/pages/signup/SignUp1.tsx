@@ -47,6 +47,7 @@ const InputWrapper = styled.div`
     padding-left: 0.69rem;
     padding-right: 0rem;
     gap: 1.44rem;
+    color: var(--primary);
 `
 const Circle = styled.div<{ selected: boolean }>`
   width: 1.25rem;
@@ -61,6 +62,7 @@ const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.88rem;
+
 `;
 
 const InputBox = styled.div`
@@ -69,6 +71,7 @@ const InputBox = styled.div`
   border-bottom: 1px solid #ABABAB;
   display: flex;
   align-items: center;
+  color: var(--primary);
 `;
 
 const InputTitle = styled.div`
@@ -79,6 +82,7 @@ const InputTitle = styled.div`
 
 const InputItem = styled.input`
   border: none;
+  background-color: var(--white);
   &::placeholder {
     font-size: 1rem;
     font-weight: 500;
@@ -86,6 +90,17 @@ const InputItem = styled.input`
   }
   &:focus {
     outline: none;
+  }
+
+  /* 브라우저 자동완성(autofill) 배경을 흰색으로 통일 */
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--white) inset;
+    box-shadow: 0 0 0px 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--primary);
+    transition: background-color 5000s ease-in-out 0s;
   }
 `;
 
@@ -105,16 +120,49 @@ const BirthInputTitle = styled.div`
 const YearInputItem = styled.input`
   border: none;
   width: 2.5rem;
+  background-color: var(--white);
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--white) inset;
+    box-shadow: 0 0 0px 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--primary);
+    transition: background-color 5000s ease-in-out 0s;
+  }
 `;
 
 const MonthInputItem = styled.input`
   border: none;
   width: 1.25rem;
+  background-color: var(--white);
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--white) inset;
+    box-shadow: 0 0 0px 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--primary);
+    transition: background-color 5000s ease-in-out 0s;
+  }
 `;
 
 const DayInputItem = styled.input`
   border: none;
   width: 1.25rem;
+  background-color: var(--white);
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--white) inset;
+    box-shadow: 0 0 0px 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--primary);
+    transition: background-color 5000s ease-in-out 0s;
+  }
 `;
 
 const Box = styled.div`
@@ -130,6 +178,7 @@ const GenderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-left: 1.44rem;
+  color: var(--primary);
 `;
 
 const GenderTitle = styled.div`

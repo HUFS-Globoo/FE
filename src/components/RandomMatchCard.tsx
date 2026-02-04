@@ -404,6 +404,7 @@ export default function RandomMatchCard() {
   const hasLeftChatRef = useRef(false); // 나가기 버튼을 눌렀는지 추적 (ref로 동기적 체크)
   const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
   const hasShownPartnerLeftAlertRef = useRef(false); // 상대방이 떠났다는 alert를 이미 띄웠는지 추적
+  const messageContainerRef = useRef<HTMLDivElement>(null); // 메시지 컨테이너 ref (자동 스크롤용)
   // 번역 상태를 별도로 관리 (메시지 갱신 시에도 유지)
   const [translations, setTranslations] = useState<Map<number, string>>(new Map());
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set());
@@ -1146,9 +1147,13 @@ const handleFindAnother = async () => {
   };
 }, [stage, chatRoomId]);
 
-    
-  
-
+// 메시지가 추가될 때마다 자동으로 스크롤을 맨 아래로 이동
+useEffect(() => {
+  if (messageContainerRef.current && stage === "chat") {
+    // 스크롤을 맨 아래로 이동
+    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+  }
+}, [messages, stage]);
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -1392,7 +1397,7 @@ const handleFindAnother = async () => {
               <OutIcon onClick={handleEndChat} />
             </MessageHeader>
 
-            <MessageContainer>
+            <MessageContainer ref={messageContainerRef}>
               {messages.map((msg, idx) => (
                 <MessageBox
                   key={idx}

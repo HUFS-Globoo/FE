@@ -76,6 +76,8 @@ const RightPanel = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: 2.5rem;
+  color: var(--primary);
+
 `;
 
 // 사용자 프로필 카드 (좌측)

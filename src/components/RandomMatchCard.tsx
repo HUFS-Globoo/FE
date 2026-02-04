@@ -19,10 +19,11 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  margin: 0 auto;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 29.5625rem;
   height: 37.4375rem;
-  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,14 +34,18 @@ const Container = styled.div`
   backdrop-filter: blur(38px);
   z-index: 1;
   box-sizing: border-box;
+  max-width: 29.5625rem;
+  max-height: 37.4375rem;
+  min-width: 29.5625rem;
+  min-height: 37.4375rem;
 `;
 
 const ColorBackground = styled.div<{ stage: string }>`
   position: absolute;
-  bottom: -0.56rem;
-  right: 0.56rem;
-  width: 100%;
-  height: 100%;
+  top: 0.4rem;
+  left: -0.4rem;
+  width: 29.5625rem;
+  height: 37.4375rem;
   border-radius: 2rem;
   background: ${({ stage }) => {
     switch (stage) {
@@ -53,6 +58,11 @@ const ColorBackground = styled.div<{ stage: string }>`
     }
   }};
   z-index: 0;
+  box-sizing: border-box;
+  max-width: 29.5625rem;
+  max-height: 37.4375rem;
+  min-width: 29.5625rem;
+  min-height: 37.4375rem;
 `;
 
 const Title = styled.div`
@@ -745,7 +755,7 @@ useEffect(() => {
 
           // 화면 전환
           setStage("matched");
-          console.log("   - ✅ stage를 'matched'로 설정 완료 (REST API 기반), hasAccepted 초기화");
+          console.log("   - ✅ stage를 'matched'로 설정 완료  hasAccepted 초기화");
         }
 
         // ACCEPTED_BOTH 상태면 채팅으로 전환

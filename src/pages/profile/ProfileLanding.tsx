@@ -5,40 +5,41 @@ import { useTranslation } from "react-i18next";
 import ProfileBanner from "../../components/ProfileBanner";
 
 const mockProfilesForLanding = [
-  {
-    userId: 35,
-    nickname: "뽀또",
-    campus: "GLOBAL" as const,
-    country: "US" as const,
-    mbti: "ENFP",
-    profileImage: null,
-    languages: {
-      native: ["en"],
-      learn: ["en", "zh"]
-    },
-    keywords: ["솔직한", "산책", "아이돌"],
-    intro: "Hi! 다양한 문화에 관심이 많아요\n함께 언어교환하며 친구가 되어봐요!"
+   {
+  userId: 35,
+  nickname: "焼き芋好き",
+  campus: "GLOBAL" as const,
+  country: "JP" as const,
+  mbti: "ISTJ",
+  profileImage: null,
+  languages: {
+    native: ["일본어"],
+    learn: ["en", "ko"]
   },
+  keywords: ["솔직한", "차분한", "음악감상"],
+  intro: "はじめまして！焼き芋が大好きな日本の大学生です"
+},
   {
     userId: 33,
-    nickname: "jack",
+    nickname: "Tony",
     campus: "GLOBAL" as const,
     country: "US" as const,
     mbti: "ENFP",
     profileImage: null,
     languages: {
       native: ["en"],
-      learn: ["zh", "ko"]
+      learn: ["en", "ko"]
     },
-    keywords: ["활발한", "영화 시청", "음악"],
-    intro: "Nice to meet you!\nI love Korean culture and food. Let's be friends!"
+    keywords: ["솔직한", "산책", "아이돌"],
+    intro: "Hi! I love exploring different cultures.\nLet’s exchange languages and become friends!"
   },
+
   {
     userId: 32,
     nickname: "고구마말랭이",
     campus: "GLOBAL" as const,
     country: "KR" as const,
-    mbti: "ENFP",
+    mbti: "INFJ",
     profileImage: null,
     languages: {
       native: ["ko"],
@@ -52,7 +53,7 @@ const mockProfilesForLanding = [
     nickname: "田中さくら",
     campus: "GLOBAL" as const,
     country: "CN" as const,
-    mbti: "ENFP",
+    mbti: "ENTP",
     profileImage: null,
     languages: {
       native: ["zh"],
@@ -63,14 +64,14 @@ const mockProfilesForLanding = [
   },
   {
     userId: 30,
-    nickname: "모하메드",
+    nickname: "محمد",
     campus: "GLOBAL" as const,
     country: "EG" as const,
-    mbti: "ENFP",
+    mbti: "INFP",
     profileImage: null,
     languages: {
       native: ["ar"],
-      learn: ["ko"]
+      learn: ["ko", "ar"]
     },
     keywords: ["활발한", "운동", "환경"],
     intro: "مرحبا! أحب الثقافة الكورية\nLet's exchange languages and cultures!"
@@ -78,14 +79,14 @@ const mockProfilesForLanding = [
   }
   ,{
     userId: 29,
-    nickname: "진수진수",
+    nickname: "Marco",
     campus: "GLOBAL" as const,
     country: "IT" as const,
-    mbti: "ISFP",
+    mbti: "ENFJ",
     profileImage: null,
     languages: {
       native: ["it"],
-      learn: ["it"]
+      learn: ["ko", "en"]
     },
     keywords: ["활발한", "운동", "음악"],
     intro: "Gratum est vos convenire!"
@@ -176,7 +177,7 @@ const FloatingProfile = styled.div<{
   
   ${props => props.$index === 1 && css`
     top: 5%;
-    left: 28%;
+    left: 31%;
     animation: ${float2} 5s ease-in-out infinite;
   `}
   
@@ -194,7 +195,7 @@ const FloatingProfile = styled.div<{
   
   ${props => props.$index === 4 && css`
     bottom: 15%;
-    right: 20%;
+    right: 5%;
     animation: ${float2} 5.5s ease-in-out infinite;
   `}
   

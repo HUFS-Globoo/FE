@@ -45,6 +45,7 @@ const RightPanel = styled.div`
 
 const PageTitle = styled.h1`
   margin-bottom: 2.5rem;
+  color: var(--primary);
 `;
 
 // 사용자 프로필 카드 (좌측)
@@ -210,6 +211,10 @@ const FilterSelect = styled.select`
   border: none;
   font-family: 'SchoolSafetyRoundedSmile';
   cursor: pointer;
+  background-color: var(--white);
+  color: var(--black);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 
   &:focus {
 

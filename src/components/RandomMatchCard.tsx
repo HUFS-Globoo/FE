@@ -59,6 +59,7 @@ const Title = styled.div`
   font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
+  color: var(--primary);
 `;
 
 const spin = keyframes`
@@ -92,6 +93,7 @@ const MatchedTitle = styled.div`
   font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
+  color: var(--primary);
 `;
 
 const MatchedProfile = styled.div`
@@ -116,6 +118,8 @@ const ProfileName = styled.div`
   font-weight: 500;
   text-align: center;
   padding-top: 1.12rem;
+  color: var(--primary);
+
 `;
 
 const LanguageBox = styled.div`
@@ -124,6 +128,7 @@ const LanguageBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.87rem;
+
 `
 
 
@@ -131,6 +136,8 @@ const LanguageContent = styled.div`
   font-size: 1rem;
   font-weight: 300;
   text-align: center;
+  color: var(--primary);
+
 `
 
 const KeywordContainer = styled.div`
@@ -150,6 +157,8 @@ const KeywordBox = styled.div`
   border-radius: 3.125rem;
   padding: 0.5625rem 1.5rem 0.5rem 1.5rem;
   box-sizing: border-box;
+  color: var(--primary);
+
 `
 
 const ButtonContainer = styled.div`
@@ -170,6 +179,8 @@ const Button = styled.div`
   border: 2.769px solid rgba(255, 255, 255, 0.6);
   background: linear-gradient(116deg, rgba(239,239,239,0.6) 10.92%, rgba(255,255,255,0.08) 96.4%);
   cursor: pointer;
+  color: var(--primary);
+
 `;
 
 const MessageHeader = styled.div`
@@ -182,6 +193,8 @@ const MessageHeader = styled.div`
   padding: 0 1.69rem;
   box-sizing: border-box;
   gap: 0.5rem;
+  color: var(--primary);
+
 `;
 
 
@@ -249,6 +262,8 @@ const MessageBox = styled.div`
   padding: 0.3125rem 0.9375rem;
   justify-content: center;
   align-items: center;
+  color: var(--primary);
+
 `
 
 const SendMessageContainer = styled.div`
@@ -347,6 +362,8 @@ const ModalBox = styled.div`
   text-align: center;
   font-size: 1.1rem;
   font-weight: 500;
+  color: var(--primary);
+
 `;
 
 

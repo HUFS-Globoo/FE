@@ -190,16 +190,20 @@ const FilterContainer = styled.div<{ $isEnglish?: boolean }>`
 
 const FilterSelect = styled.select`
   width: 100%;
-  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--gray-300);
+  background-color: var(--white);
   font-family: 'SchoolSafetyRoundedSmile';
+  color: var(--black);
 
   &:focus {
-
     outline: none;
+    border-color: var(--primary);
   }
 
   &:hover {
-    border-color: var(--Primary-400);
+    border-color: var(--primary);
   }
 
   &:disabled {

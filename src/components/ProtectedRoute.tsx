@@ -34,6 +34,7 @@ const Container = styled.div`
   align-items: center;
   gap: 2rem;
   box-sizing: border-box;
+  background-color: var(--white);
 `;
 
 const Message = styled.div`

@@ -26,7 +26,7 @@ const TransparentHeader = styled(Header)`
 
 const Banner = styled.div`
   top: -3.81rem;
-  height: 28.75rem;
+  height: 24.5rem;
   background: url(${BannerImg}) center/cover no-repeat;
   position: relative;
   pointer-events: none;

@@ -83,6 +83,7 @@ const InputTitle = styled.div`
 
 const InputItem = styled.input`
   border: none;
+  color: var(--black);
   background-color: var(--white);
   &::placeholder {
     font-size: 1rem;
@@ -121,6 +122,7 @@ const BirthInputTitle = styled.div`
 const YearInputItem = styled.input`
   border: none;
   width: 2.5rem;
+  color: var(--black);
   background-color: var(--white);
 
   &:-webkit-autofill,
@@ -137,6 +139,7 @@ const YearInputItem = styled.input`
 const MonthInputItem = styled.input`
   border: none;
   width: 1.25rem;
+  color: var(--black);
   background-color: var(--white);
 
   &:-webkit-autofill,
@@ -154,6 +157,7 @@ const DayInputItem = styled.input`
   border: none;
   width: 1.25rem;
   background-color: var(--white);
+  color: var(--black);
 
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
@@ -366,7 +370,9 @@ export default function SignUp1() {
                       });
                     }}
                   />
-                  <span>{t("signup.step1.fields.birthDate.year")}</span>
+                  <span style={{ color: "var(--black)" }}>
+                    {t("signup.step1.fields.birthDate.year")}
+                  </span>
 
                   <MonthInputItem
                     type="text"

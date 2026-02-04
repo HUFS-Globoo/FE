@@ -56,6 +56,9 @@ const MessageTextarea = styled.textarea`
   min-height: 8rem;
   resize: vertical;
   margin-bottom: 1rem;
+  background-color: var(--gray-text-filled);
+  color: #121212;
+  caret-color: #121212;
   
   &:focus {
     outline: none;

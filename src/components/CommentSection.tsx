@@ -123,6 +123,7 @@ const CommentTextarea = styled.textarea`
   width: 100%;
   padding: 1rem;
   border: 1px solid var(--gray);
+  box-sizing: border-box;
   border-radius: 0.75rem;
   font-size: 1rem;
   font-family: 'Escoredream', sans-serif;
@@ -130,6 +131,9 @@ const CommentTextarea = styled.textarea`
   min-height: 6rem;
   resize: vertical;
   margin-bottom: 1rem;
+  background-color: var(--gray-text-filled);
+  color: #121212;
+  caret-color: #121212;
   
   &:focus {
     outline: none;

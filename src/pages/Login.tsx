@@ -12,6 +12,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   overflow: hidden;
+  background-color: var(--white);
 `
 
 const IntroContainer = styled.div`
@@ -26,6 +27,8 @@ const IntroContainer = styled.div`
   align-items: center;
   overflow-y: auto;
   flex-shrink: 0;
+
+
 `
 
 const MainCharacter = styled.img`
@@ -55,17 +58,21 @@ const LoginContainer = styled.div`
   padding-top: 12rem;
   overflow-y: auto;
   min-width: 0;
+  background-color: var(--white);
+
 `
 
 const LoginTitle = styled.div`
   font-size: 2rem;
   font-weight: 600;
+  color: var(--primary);
 `
 
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.25rem;
+  color: var(--primary);
 `
 
 const InputBox = styled.div`
@@ -83,8 +90,10 @@ const InputItem = styled.input`
   width: 22.5rem;
   height: 3.25rem;
   border: none;
+  background-color: var(--white);
   border-bottom: 0.0625rem solid #ABABAB;
   align-items: center;
+  color: var(--primary);
   &::placeholder {
     font-size: 1rem;
     font-weight: 500;
@@ -92,6 +101,17 @@ const InputItem = styled.input`
   }
   &:focus {
     outline: none; 
+  }
+
+  /* 브라우저 자동완성(autofill) 배경을 흰색으로 통일 */
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--white) inset;
+    box-shadow: 0 0 0px 1000px var(--white) inset;
+    -webkit-text-fill-color: var(--primary);
+    transition: background-color 5000s ease-in-out 0s;
   }
 `
 

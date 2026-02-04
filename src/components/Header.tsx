@@ -14,6 +14,8 @@ const Container = styled.div`
   align-items: center;
   padding: 0 2rem; 
   box-sizing: border-box;
+  color: var(--primary);
+  background-color: var(--white);
 `
 const HeaderLogo = styled.img`
   width: 120px;

@@ -25,6 +25,7 @@ const Container = styled.div`
   display: flex;
   height: 100vh;
   position: relative;
+  background-color: var(--white);
   //overflow: hidden; 
 `
 
@@ -49,6 +50,7 @@ const ContentTitle = styled.div`
   font-weight: 400;
   padding-top: 2.12rem;
   text-align: center;
+  color: var(--primary);
 `
 
 const Content = styled.div`
@@ -58,6 +60,7 @@ const Content = styled.div`
   font-size: 1.25rem;
   font-weight: 400;
   line-height: 1.625rem;
+  color: var(--primary);
 `
 
 

@@ -44,7 +44,7 @@ const ContentContainer = styled.div`
 `
 
 const ContentTitle = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso OTF";
+  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 2rem;
   font-weight: 400;
   padding-top: 2.12rem;
@@ -54,7 +54,7 @@ const ContentTitle = styled.div`
 const Content = styled.div`
   margin: 0 auto;
   text-align: center;
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 1.25rem;
   font-weight: 400;
   line-height: 1.625rem;

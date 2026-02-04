@@ -56,7 +56,7 @@ const ColorBackground = styled.div<{ stage: string }>`
 `;
 
 const Title = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
 `;
@@ -89,7 +89,7 @@ const CancelButton = styled.div`
 `;
 
 const MatchedTitle = styled.div`
-  font-family: "Hakgyoansim Dunggeunmiso TTF";
+  font-family: 'SchoolSafetyRoundedSmile', sans-serif;
   font-size: 1.5rem;
   font-weight: 400;
 `;

@@ -200,6 +200,7 @@ const CommentText = styled.p`
   color: var(--gray-700);
   margin: 0 0 0.5rem 0;
   line-height: 1.5;
+
 `;
 
 const CommentActions = styled.div`

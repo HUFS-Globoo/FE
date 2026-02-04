@@ -15,6 +15,7 @@ const SignUpTitle = styled.div`
   font-family: 'Escoredream';
   font-size: 2rem;
   font-weight: 500;
+  color: var(--primary);
 `;
 
 const StepContainer = styled.div`
@@ -22,6 +23,7 @@ const StepContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 3.75rem;
+  color: var(--primary);
 `;
 
 const StepBox = styled.div`
@@ -29,6 +31,7 @@ const StepBox = styled.div`
   flex-direction: row;
   width: 100%;
   gap: 1rem;
+  
 `;
 
 const StepIcon = styled.div`

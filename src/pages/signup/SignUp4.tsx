@@ -25,6 +25,7 @@ const ContentContainer = styled.div`
 const ContentTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 500;
+  color: var(--primary);
 `
 
 const InputContainer = styled.div`
@@ -48,6 +49,7 @@ const MbtiInputTitle = styled.div`
   font-weight: 500;
   display: flex;
   align-items: center;
+  color: var(--primary);
 `
 
 const SelectInput = styled.select`
@@ -122,6 +124,7 @@ const KeywordItem = styled.div<{ $isEnglish?: boolean }>`
   cursor: pointer;
   border-radius: 1.5rem;
   text-align: center;
+  color: var(--primary);
 `
 
 const SignUp4 = () => {
@@ -250,7 +253,7 @@ const SignUp4 = () => {
               </SelectInput>
             </MbtiInputContainer>
             <KeywordContainer>
-            <p style={{ fontSize: "1.25rem" }}>{t("signup.step4.keywords.personality.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.personality.selectCount")}</span></p>
+            <p style={{ fontSize: "1.25rem" ,color: "var(--primary)" }}>{t("signup.step4.keywords.personality.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.personality.selectCount")}</span></p>
             <KeywordBox $isEnglish={isEnglish}>
               {personality.map((persona) => (
                 <KeywordItem
@@ -268,7 +271,7 @@ const SignUp4 = () => {
               ))}
             </KeywordBox>
 
-            <p style={{ fontSize: "1.25rem" }}>{t("signup.step4.keywords.hobby.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.hobby.selectCount")}</span></p>
+            <p style={{ fontSize: "1.25rem" ,color: "var(--primary)" }}>{t("signup.step4.keywords.hobby.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.hobby.selectCount")}</span></p>
             <KeywordBox $isEnglish={isEnglish}>
               {hobbis.map((hobby) => (
                 <KeywordItem
@@ -286,7 +289,7 @@ const SignUp4 = () => {
               ))}
             </KeywordBox>
 
-            <p style={{ fontSize: "1.25rem" }}>{t("signup.step4.keywords.topic.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.topic.selectCount")}</span></p>
+            <p style={{ fontSize: "1.25rem" ,color: "var(--primary)"}}>{t("signup.step4.keywords.topic.title")} <span style={{ fontSize: "1rem", color: "#9CA3AF" }}>{t("signup.step4.keywords.topic.selectCount")}</span></p>
             <KeywordBox $isEnglish={isEnglish}>
               {subjects.map((subject) => (
                 <KeywordItem

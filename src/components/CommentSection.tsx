@@ -11,6 +11,7 @@ interface CommentSectionProps {
   studyId: number;
   comments: StudyComment[]; 
   currentUserId: number;
+  authorId: number;
   onAddComment: (content: string) => Promise<boolean>;
   onEditComment: (commentId: number, content: string) => Promise<boolean>;
   onDeleteComment: (commentId: number) => void;
@@ -192,7 +193,7 @@ const CommentContent = styled.div`
 const CommentAuthor = styled.div`
   font-weight: 600;
   color: var(--black);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
 `;
 
 const CommentText = styled.p`
@@ -222,10 +223,26 @@ const ActionButton = styled.button<{ $variant?: 'delete' | 'edit' }>`
   }
 `;
 
+const NameLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  margin-bottom: 0.5rem;
+`;
+
+const AuthorText = styled.span`
+  color: #2F96B4;
+  flex-shrink: 0;
+  font-size: 11px;
+`;
+
+
 const CommentSection = ({ 
   studyId, 
   comments, 
   currentUserId, 
+  authorId,
   onAddComment, 
   onEditComment, 
   onDeleteComment,
@@ -313,15 +330,26 @@ useEffect(() => {
             </div>
           ) : (
             <CommentsList>
-              {comments.map((comment) => (
-                <CommentItem key={comment.id}>
+              {comments.map((comment) => {
+                  const commentAuthorId = Number((comment.author as any).userId ?? comment.author.id);
+                 const isAuthorComment = commentAuthorId === Number(authorId);
+
+
+                return(
+                  <CommentItem key={comment.id}>
                   <CommentAvatar
                     src={getCommentProfileImage(comment, currentUserId, currentUserProfileImageUrl)}
                     alt={comment.author.nickname}
                   />
                   
                   <CommentContent>
-                    <CommentAuthor className="H5">{comment.author.nickname}</CommentAuthor>
+                      <NameLine>
+                        <CommentAuthor className="H5">{comment.author.nickname}</CommentAuthor>
+                        {isAuthorComment && (
+                          <AuthorText className="Button1">· {t("study.detail.author")}</AuthorText>
+                        )}
+                      </NameLine>
+                    
                     <CommentText className="Body2">{comment.content}</CommentText>
                     
                     {/* 본인이 작성한 댓글만 수정/삭제 버튼 표시 */}
@@ -345,7 +373,8 @@ useEffect(() => {
                     )}
                   </CommentContent>
                 </CommentItem>
-              ))}
+                );
+              })}
             </CommentsList>
           )}
         </>

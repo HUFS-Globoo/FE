@@ -741,6 +741,7 @@ useEffect(() => {
                       studyId={studyId}
                       comments={comments}
                       currentUserId={currentUserId ?? 0}
+                      authorId={studyData.authorId}
                       onAddComment={handleAddComment}
                       onEditComment={handleEditComment}
                       onDeleteComment={handleDeleteComment}

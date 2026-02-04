@@ -50,6 +50,7 @@ const WithdrawButton = styled.button`
 
 const PageTitle = styled.h1`
   margin-bottom: 2.5rem;
+  color: var(--primary);
 `;
 
 const Mypage = () => {

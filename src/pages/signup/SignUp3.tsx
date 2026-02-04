@@ -27,6 +27,7 @@ const ContentContainer = styled.div`
 const ContentTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 500;
+  color: var(--primary);
 `
 
 const InputContainer = styled.div`
@@ -50,6 +51,7 @@ const UserLanguageTitle = styled.div`
   font-weight: 500;
   display: flex;
   align-items: center;
+  color: var(--primary);
 `
 
 const SelectInput = styled.select`

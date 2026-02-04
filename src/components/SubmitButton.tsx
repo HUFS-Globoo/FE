@@ -12,6 +12,7 @@ const Container = styled.button`
   background: #FFE6A2;
   font-size: 1rem;
   font-weight: 500;
+  color: var(--primary);
 
 `
 

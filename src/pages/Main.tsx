@@ -15,6 +15,8 @@ const Container = styled.div`
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--white);
+  box-sizing: border-box;
+  overflow-x: hidden;
 `
 const TransparentHeader = styled(Header)`
   position: absolute;

@@ -97,11 +97,17 @@ const GlobalStyle = createGlobalStyle`
       font-display: swap;
   }
 
+  /* 전역 box-sizing 설정 */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   /* 전역 기본 폰트 및 배경 설정 */
   html {
     margin: 0;
     padding: 0;
     background-color: var(--white);
+    overflow-x: hidden;
   }
 
   body {
@@ -109,11 +115,14 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     font-family: 'Escoredream', sans-serif;
     background-color: var(--white);
+    overflow-x: hidden;
   }
 
   #root {
     min-height: 100vh;
     background-color: var(--white);
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   /* 타이포그래피 스타일 추가 */

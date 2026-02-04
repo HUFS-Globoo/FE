@@ -79,6 +79,7 @@ const EmailInputTitle = styled.div`
 
 const EmailInputItem = styled.input`
   border: none;
+  color: var(--black);
   width: 9.88rem;
   background-color: var(--white);
   &::placeholder {

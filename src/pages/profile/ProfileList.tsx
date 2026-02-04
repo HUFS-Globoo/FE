@@ -139,13 +139,6 @@ const ProfileGrid = styled.div`
   margin: 0 auto;
 `;
 
-const EmptyMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: var(--gray-600);
-  font-size: 1.2rem;
-`;
-
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -464,48 +457,45 @@ const ProfileList: React.FC = () => {
 
       <ContentContainer>
         <SectionTitle className="H4">{t("profile.list.sectionTitle")}</SectionTitle>
-        {profiles.length === 0 ? (
-          <EmptyMessage className="Body1">{t("profile.list.empty")}</EmptyMessage>
-        ) : (
-          <ProfileGrid>
-            {profiles.map((profile) => {
-              let effectiveProfileImageUrl = profile.profileImageUrl;
-              if (effectiveProfileImageUrl) {
-                effectiveProfileImageUrl = effectiveProfileImageUrl.replace(
-                  /([^:]\/)\/+/g,
-                  "$1"
-                );
-              }
-              if (profile.userId === currentUserId && useDefaultProfile) {
-                effectiveProfileImageUrl = null;
-              }
+        <ProfileGrid>
+  {profiles.map((profile) => {
+    let effectiveProfileImageUrl = profile.profileImageUrl;
+    if (effectiveProfileImageUrl) {
+      effectiveProfileImageUrl = effectiveProfileImageUrl.replace(
+        /([^:]\/)\/+/g,
+        "$1"
+      );
+    }
+    if (profile.userId === currentUserId && useDefaultProfile) {
+      effectiveProfileImageUrl = null;
+    }
 
-              return (
-                <ProfileBanner
-                  key={profile.userId}
-                  userId={profile.userId}
-                  nickname={profile.nickname}
-                  campus={profile.campus}
-                  country={profile.country}
-                  mbti={profile.mbti}
-                  profileImageUrl={effectiveProfileImageUrl}
-                  languages={{
-                    native: profile.nativeLanguages.map((l) => l.code),
-                    learn: profile.learnLanguages.map((l) => l.code),
-                  }}
-                  keywords={profile.keywords}
-                  intro={
-                    profile.infoTitle || profile.infoContent
-                      ? `${profile.infoTitle ?? ""}\n${profile.infoContent ?? ""}`.trim()
-                      : ""
-                  }
+    return (
+      <ProfileBanner
+        key={profile.userId}
+        userId={profile.userId}
+        nickname={profile.nickname}
+        campus={profile.campus}
+        country={profile.country}
+        mbti={profile.mbti}
+        profileImageUrl={effectiveProfileImageUrl}
+        languages={{
+          native: profile.nativeLanguages.map((l) => l.code),
+          learn: profile.learnLanguages.map((l) => l.code),
+        }}
+        keywords={profile.keywords}
+        intro={
+          profile.infoTitle || profile.infoContent
+            ? `${profile.infoTitle ?? ""}\n${profile.infoContent ?? ""}`.trim()
+            : ""
+        }
 
-                  onClick={() => handleProfileClick(profile.userId)}
-                />
-              );
-            })}
-          </ProfileGrid>
-        )}
+        onClick={() => handleProfileClick(profile.userId)}
+      />
+    );
+  })}
+</ProfileGrid>
+
       </ContentContainer>
 
       {totalPages > 1 && (

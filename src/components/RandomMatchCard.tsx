@@ -415,6 +415,7 @@ export default function RandomMatchCard() {
   const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
   const hasShownPartnerLeftAlertRef = useRef(false); // 상대방이 떠났다는 alert를 이미 띄웠는지 추적
   const messageContainerRef = useRef<HTMLDivElement>(null); // 메시지 컨테이너 ref (자동 스크롤용)
+  const prevPathRef = useRef<string>(location.pathname); // 이전 경로 추적 (라우트 변경 감지용)
   // 번역 상태를 별도로 관리 (메시지 갱신 시에도 유지)
   const [translations, setTranslations] = useState<Map<number, string>>(new Map());
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set());
@@ -678,32 +679,148 @@ useEffect(() => {
 
   connectMatching();
 
+  // cleanup 함수: 컴포넌트 언마운트 시 큐에서 제거
   return () => {
+    // STOMP 연결 종료
     if (matchClientRef.current) {
       matchClientRef.current.deactivate();
       matchClientRef.current = null;
     }
+    
+    // 매칭 큐에서 제거
+    if (userId && !isDesignPreview) {
+      axiosInstance
+        .delete("/api/matching/queue", {
+          data: { userId },
+        })
+        .then(() => {
+          console.log("✅ 컴포넌트 언마운트 시 큐에서 제거 성공");
+        })
+        .catch((err) => {
+          console.error("❌ 컴포넌트 언마운트 시 큐 제거 실패:", err);
+        });
+    }
   };
 }, [userId, isDesignPreview]);
 
+// 브라우저 창 닫기/새로고침 감지 (여러 이벤트로 확실하게 처리)
 useEffect(() => {
-  const handleLeave = () => {
-    if (!userId) return;
+  if (isDesignPreview || !userId) return;
+
+  let hasRemoved = false; // 중복 제거 방지 플래그
+
+  const removeFromQueue = () => {
+    if (hasRemoved) return; // 이미 제거했으면 중복 호출 방지
+    hasRemoved = true;
+
+    const baseURL = axiosInstance.defaults.baseURL || '';
+    const token = localStorage.getItem('accessToken') || '';
+    const data = JSON.stringify({ userId });
+    
+    // fetch with keepalive를 사용하여 페이지가 닫히는 중에도 요청 완료 시도
+    // keepalive 옵션은 페이지가 닫혀도 요청이 완료될 때까지 브라우저가 대기함
+    fetch(`${baseURL}/api/matching/queue`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: data,
+      keepalive: true, // 페이지가 닫혀도 요청 완료 시도
+    }).catch(() => {
+      // 에러는 무시 (페이지가 닫히는 중이므로)
+    });
+  };
+
+  // 여러 이벤트 리스너 등록 (각각 다른 상황에서 트리거됨)
+  
+  // 1. beforeunload: 페이지를 떠나기 직전 (가장 일반적)
+  globalThis.addEventListener("beforeunload", removeFromQueue);
+  
+  // 2. pagehide: 페이지가 숨겨질 때 (모바일에서 더 신뢰성 높음)
+  globalThis.addEventListener("pagehide", removeFromQueue);
+  
+  // 3. unload: 페이지 언로드 시 (deprecated이지만 일부 브라우저에서 여전히 작동)
+  globalThis.addEventListener("unload", removeFromQueue);
+  
+  // 4. visibilitychange: 탭이 숨겨지거나 백그라운드로 갈 때
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      // 탭이 숨겨졌을 때도 큐에서 제거 (사용자가 다른 탭으로 이동하거나 창을 최소화)
+      removeFromQueue();
+    }
+  };
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  // 5. freeze: 페이지가 백그라운드로 이동하여 동결될 때 (모바일)
+  globalThis.addEventListener("freeze", removeFromQueue);
+
+  return () => {
+    globalThis.removeEventListener("beforeunload", removeFromQueue);
+    globalThis.removeEventListener("pagehide", removeFromQueue);
+    globalThis.removeEventListener("unload", removeFromQueue);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    globalThis.removeEventListener("freeze", removeFromQueue);
+  };
+}, [userId, isDesignPreview]);
+
+// React Router 뒤로가기 및 라우트 변경 감지하여 큐에서 제거
+useEffect(() => {
+  if (isDesignPreview || !userId) return;
+
+  let isLeaving = false; // 중복 호출 방지 플래그
+
+  const removeFromQueue = () => {
+    if (isLeaving) return; // 이미 제거 중이면 중복 호출 방지
+    isLeaving = true;
+
+    console.log("⚠️ 페이지 이탈 감지 → 큐에서 제거 시도");
     axiosInstance
       .delete("/api/matching/queue", {
         data: { userId },
       })
-      .catch(() => {});
+      .then(() => {
+        console.log("✅ 큐에서 제거 성공");
+      })
+      .catch((err) => {
+        console.error("❌ 큐 제거 실패:", err);
+      });
   };
 
-  window.addEventListener("beforeunload", handleLeave);
-  window.addEventListener("pagehide", handleLeave);
+  // popstate 이벤트 리스너 추가 (뒤로가기/앞으로가기)
+  globalThis.addEventListener("popstate", removeFromQueue);
 
   return () => {
-    window.removeEventListener("beforeunload", handleLeave);
-    window.removeEventListener("pagehide", handleLeave);
+    globalThis.removeEventListener("popstate", removeFromQueue);
+    // 컴포넌트 언마운트 시에도 큐에서 제거
+    if (!isLeaving) {
+      removeFromQueue();
+    }
   };
-}, [userId]);
+}, [userId, isDesignPreview]);
+
+// location.pathname 변경 감지 (다른 라우트로 이동)
+useEffect(() => {
+  if (isDesignPreview || !userId) return;
+
+  // 경로가 /random-match에서 다른 경로로 변경된 경우에만 큐에서 제거
+  if (prevPathRef.current === "/random-match" && location.pathname !== "/random-match") {
+    console.log("⚠️ /random-match에서 다른 페이지로 이동 → 큐에서 제거 시도");
+    axiosInstance
+      .delete("/api/matching/queue", {
+        data: { userId },
+      })
+      .then(() => {
+        console.log("✅ 라우트 변경 시 큐에서 제거 성공");
+      })
+      .catch((err) => {
+        console.error("❌ 라우트 변경 시 큐 제거 실패:", err);
+      });
+  }
+
+  // 현재 경로를 이전 경로로 저장
+  prevPathRef.current = location.pathname;
+}, [location.pathname, userId, isDesignPreview]);
 
 // 3초마다 유저 매칭 상태를 콘솔에 출력하고, FOUND 상태면 화면 전환
 // 채팅 단계에서는 상태 확인 불필요 (이미 채팅 중이므로)

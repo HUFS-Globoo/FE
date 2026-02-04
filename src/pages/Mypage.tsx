@@ -8,7 +8,7 @@ import axiosInstance from "../../axiosInstance";
 import type { Post, Comment, AppliedStudy } from "../types/mypage&profile.types";
 import { updateComment, deleteComment } from "../api/commentAPI";
 import { getProfileSrc } from "../utils/profileImage";
-import { SUPPORTED_LANGUAGE_CODES } from "../utils/languages";
+import { SUPPORTED_LANGUAGE_CODES, LANGUAGE_CODE_TO_KOREAN_NAME, isSupportedLanguage } from "../utils/languages";
 
 
 const Container = styled.div`
@@ -93,6 +93,28 @@ const Mypage = () => {
     ), [LANGUAGE_MAP]
   );
 
+  // 언어 코드 또는 한국어 이름을 한국어 이름으로 변환하는 함수
+  const getLanguageName = (lang: string): string => {
+    if (!lang) return lang;
+    
+    // 소문자로 정규화
+    const normalizedLang = lang.toLowerCase().trim();
+    
+    // 언어 코드인 경우 (예: "ar", "ko", "en", "MN" -> "mn")
+    if (isSupportedLanguage(normalizedLang)) {
+      return LANGUAGE_CODE_TO_KOREAN_NAME[normalizedLang];
+    }
+    
+    // 이미 한국어 이름인 경우 (예: "아랍어", "한국어")
+    const koreanName = Object.values(LANGUAGE_CODE_TO_KOREAN_NAME).find(name => name === lang);
+    if (koreanName) {
+      return koreanName;
+    }
+    
+    // 매핑되지 않은 경우 원본 반환
+    return lang;
+  };
+
   const fetchMyKeywords = useCallback(async () => {
       try {
         const res = await axiosInstance.get("/api/users/me/keywords");
@@ -156,7 +178,7 @@ const Mypage = () => {
           title: post.title,
           tags: [
             ...(post.campuses || []),
-            ...(post.languages || []),
+            ...(post.languages || []).map((lang: string) => getLanguageName(lang)),
           ],
           createdAt: post.createdAt,
         }));
@@ -182,7 +204,7 @@ const Mypage = () => {
 
               const tags = [
                 ...(post.campuses || []),
-                ...(post.languages || []),
+                ...(post.languages || []).map((lang: string) => getLanguageName(lang)),
               ];
 
               return {

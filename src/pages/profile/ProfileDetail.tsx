@@ -28,6 +28,8 @@ const PageTitle = styled.h1`
 
 const MessageSection = styled.div`
   width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
   background-color: var(--white);
   border: 1px solid var(--gray);
   border-radius: 1rem;
@@ -42,6 +44,9 @@ const MessageTitle = styled.div`
 
 const MessageTextarea = styled.textarea`
   width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+  display: block;
   padding: 1rem;
   border: 1px solid var(--gray);
   border-radius: 0.5rem;
@@ -64,6 +69,7 @@ const MessageTextarea = styled.textarea`
 
 const MessageButton = styled.button`
   width: 100%;
+  box-sizing: border-box;
   padding: 1rem;
   background-color: var(--skyblue);
   color: var(--white);

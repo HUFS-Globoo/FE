@@ -33,8 +33,9 @@ const CharacterImg = styled.img`
   position: absolute;
   bottom: -8rem;
   right: 1%; 
-  width: 27.8125rem;
-  height: 35.75rem;
+  width: 16.6875rem;
+  height: 21.45rem;
+  animation: ${float} 4s ease-in-out infinite;
 `
 
 const ContentContainer = styled.div`

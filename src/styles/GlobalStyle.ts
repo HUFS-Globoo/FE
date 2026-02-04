@@ -97,9 +97,23 @@ const GlobalStyle = createGlobalStyle`
       font-display: swap;
   }
 
-  /* 전역 기본 폰트 설정 */
+  /* 전역 기본 폰트 및 배경 설정 */
+  html {
+    margin: 0;
+    padding: 0;
+    background-color: var(--white);
+  }
+
   body {
+    margin: 0;
+    padding: 0;
     font-family: 'Escoredream', sans-serif;
+    background-color: var(--white);
+  }
+
+  #root {
+    min-height: 100vh;
+    background-color: var(--white);
   }
 
   /* 타이포그래피 스타일 추가 */

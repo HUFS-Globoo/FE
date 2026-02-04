@@ -14,6 +14,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--white);
 `
 const TransparentHeader = styled(Header)`
   position: absolute;
@@ -48,6 +49,7 @@ const BannerContentWrapper = styled.div`
   flex-direction: column;
   //padding-top: 3.9rem;
   gap: 2.94rem;
+  color: var(--primary);
 `
 
 const BannerTitle = styled.div`
@@ -75,6 +77,7 @@ const ContentContainer = styled.div`
   //justify-content: center;
   align-items: center;
   padding-bottom: 2rem;
+  background-color: var(--white);
 `
 
 const ContentTitle = styled.div`
@@ -100,6 +103,7 @@ const ServiceCard = styled.div`
   box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
   justify-content: center;
   align-items: center;
+  color: var(--primary);
 `
 
 const Icon = styled.img`

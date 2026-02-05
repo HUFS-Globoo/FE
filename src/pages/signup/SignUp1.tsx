@@ -12,6 +12,25 @@ const Container = styled.div`
   flex-direction: row;
 `;
 
+const BirthNotice = styled.div`
+  position: absolute;
+  left: 0.69rem;
+  bottom: 0.2rem;          /* ✅ 선이랑 떨어지게 (값 조절 가능) */
+  font-size: 0.75rem;
+  color: #ABABAB;
+  line-height: 1;
+  white-space: nowrap; 
+
+`;
+
+const BirthSection = styled.div`
+   position: relative;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  padding-bottom: 1.25rem;
+`;
+
 const ContentContainer = styled.div`
   flex: 1;
   display: flex;
@@ -111,6 +130,7 @@ const BirthWrapper = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1.63rem;
+  align-items: center;
 `;
 
 const BirthInputTitle = styled.div`
@@ -173,7 +193,7 @@ const DayInputItem = styled.input`
 const Box = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 
 `
 const GenderWrapper = styled.div`
@@ -356,50 +376,57 @@ export default function SignUp1() {
           </InputBox>
 
           <Box>
-            <InputWrapper>
-              <BirthWrapper>
-                <BirthInputTitle>{t("signup.step1.fields.birthDate.label")}</BirthInputTitle>
-                  <YearInputItem
-                    type="text"
-                    placeholder={t("signup.step1.fields.birthDate.yearPlaceholder")}
-                    onChange={(e) => {
-                      const [_, m = "", d = ""] = signupData.birthDate?.split("-") || [];
-                      setSignupData({
-                        ...signupData,
-                        birthDate: `${e.target.value}-${m}-${d}`,
-                      });
-                    }}
-                  />
-                  <span style={{ color: "var(--black)" }}>
-                    {t("signup.step1.fields.birthDate.year")}
-                  </span>
+            <BirthSection>
+              <InputWrapper>
+                <BirthWrapper>
+                  <BirthInputTitle>{t("signup.step1.fields.birthDate.label")}</BirthInputTitle>
+                    <YearInputItem
+                      type="text"
+                      placeholder={t("signup.step1.fields.birthDate.yearPlaceholder")}
+                      onChange={(e) => {
+                        const [_, m = "", d = ""] = signupData.birthDate?.split("-") || [];
+                        setSignupData({
+                          ...signupData,
+                          birthDate: `${e.target.value}-${m}-${d}`,
+                        });
+                      }}
+                    />
+                    <span style={{ color: "var(--black)" }}>
+                      {t("signup.step1.fields.birthDate.year")}
+                    </span>
 
-                  <MonthInputItem
-                    type="text"
-                    placeholder={t("signup.step1.fields.birthDate.monthPlaceholder")}
-                    onChange={(e) => {
-                      const [y = "", _, d = ""] = signupData.birthDate?.split("-") || [];
-                      setSignupData({
-                        ...signupData,
-                        birthDate: `${y}-${e.target.value}-${d}`,
-                      });
-                    }}
-                  />
-                  <span>{t("signup.step1.fields.birthDate.month")}</span>
-                  <DayInputItem
-                    type="text"
-                    placeholder={t("signup.step1.fields.birthDate.dayPlaceholder")}
-                    onChange={(e) => {
-                      const [y = "", m = ""] = signupData.birthDate?.split("-") || [];
-                      setSignupData({
-                        ...signupData,
-                        birthDate: `${y}-${m}-${e.target.value}`,
-                      });
-                    }}
-                  />
-                  <span>{t("signup.step1.fields.birthDate.day")}</span>
-              </BirthWrapper>
-            </InputWrapper>
+                    <MonthInputItem
+                      type="text"
+                      placeholder={t("signup.step1.fields.birthDate.monthPlaceholder")}
+                      onChange={(e) => {
+                        const [y = "", _, d = ""] = signupData.birthDate?.split("-") || [];
+                        setSignupData({
+                          ...signupData,
+                          birthDate: `${y}-${e.target.value}-${d}`,
+                        });
+                      }}
+                    />
+                    <span>{t("signup.step1.fields.birthDate.month")}</span>
+                    <DayInputItem
+                      type="text"
+                      placeholder={t("signup.step1.fields.birthDate.dayPlaceholder")}
+                      onChange={(e) => {
+                        const [y = "", m = ""] = signupData.birthDate?.split("-") || [];
+                        setSignupData({
+                          ...signupData,
+                          birthDate: `${y}-${m}-${e.target.value}`,
+                        });
+                      }}
+                    />
+                    <span>{t("signup.step1.fields.birthDate.day")}</span>
+                </BirthWrapper>
+              </InputWrapper>
+
+            <BirthNotice>
+  월과 일은 두 자리 숫자로 입력해 주세요. (예: 03월, 01일)
+</BirthNotice>
+
+</BirthSection>
 
             <GenderWrapper>
               <GenderTitle>{t("signup.step1.fields.gender.label")}</GenderTitle>

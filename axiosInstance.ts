@@ -45,6 +45,20 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    // 403 에러 (토큰 만료 등) 처리
+    if (error.response?.status === 403) {
+      // 토큰 만료 알림
+      alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+      
+      // localStorage 클리어
+      localStorage.clear();
+      
+      // 로그인 페이지로 이동
+      globalThis.location.href = "/login";
+      
+      return Promise.reject(error);
+    }
+    
     return Promise.reject(error);
   }
 );

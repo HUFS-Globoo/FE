@@ -65,6 +65,26 @@ const MessageList = styled.div`
   align-items: flex-start;
   gap: 0.5rem;
   align-self: stretch;
+  max-height: 32rem;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 0.375rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0.625rem;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `
 
 const MessageListBox = styled.div`
@@ -516,36 +536,21 @@ export default function Message() {
 
                 return (
                   <MessageListBox
-          key={room.id}
-          onClick={async () => {
-            try {
-              const res = await axiosInstance.get(`/api/users/${partner.id}`);
-              const userDetail = res.data;
-
-              const enrichedPartner = {
-                ...partner,
-                nickname: userDetail.nickname,                      
-                username: userDetail.nickname || partner.username,   
-                country: userDetail.country ?? partner.country,     
-                profileImageUrl: userDetail.profileImageUrl ?? partner.profileImageUrl,
-              };
-
-              setSelectedProfile(enrichedPartner);
-            } catch (e) {
-              console.error("쪽지 상대 프로필 불러오기 실패:", e);
-              setSelectedProfile(partner);
-            }
-          }}
-          style={{ cursor: "pointer" }}
-        >
-            <CharacterImage
-          src={partner.profileImageUrl || partnerFallback}
-          alt={`${partner.username} 이미지`}
-        />
-          <MessageNickname className="H4">
-            {partner.nickname}
-          </MessageNickname>
-        </MessageListBox>
+                    key={room.id}
+                    onClick={() => {
+                      // 이미 목록 조회 시 프로필 정보를 받아왔으므로 추가 API 호출 없이 선택
+                      setSelectedProfile(partner);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <CharacterImage
+                      src={partner.profileImageUrl || partnerFallback}
+                      alt={`${partner.username} 이미지`}
+                    />
+                    <MessageNickname className="H4">
+                      {partner.nickname}
+                    </MessageNickname>
+                  </MessageListBox>
                 );
               })
             ) : (

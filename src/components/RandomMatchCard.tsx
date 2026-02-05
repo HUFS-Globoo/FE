@@ -241,7 +241,7 @@ const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0 1.69rem;
+  padding: 0 1.69rem 1rem 1.69rem;
   box-sizing: border-box;
   overflow-y: auto; 
   flex: 1;

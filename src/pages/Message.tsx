@@ -106,6 +106,8 @@ const ChatBox = styled.div`
   gap: 2.5rem;
   flex: 1 0 0;
   align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
 `
 
 const ChatHeader = styled.div`
@@ -155,6 +157,27 @@ const MessageContainer = styled.div`
   align-items: center;
   width: 42.13rem;
   gap: 0.5rem;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 0.375rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0.625rem;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `
 
 const MessageBox = styled.div`
@@ -205,7 +228,7 @@ const SendInput = styled.input`
   }
 `
 
-const SendButton = styled.div`
+const SendButton = styled.button`
   display: flex;
   padding: 0.75rem 1.25rem;
   justify-content: center;
@@ -216,6 +239,13 @@ const SendButton = styled.div`
   box-sizing: border-box;
   background: var(--skyblue, #66CAE7);
   cursor: pointer;
+  border: none;
+  color: #fff;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `
 
 const TranslateText = styled.span`
@@ -247,12 +277,15 @@ export default function Message() {
     message: string;
     isMine: boolean;
     isRead: boolean;
+    createdAt?: string;
+    sentAt?: string;
   };
   
   const [messages, setMessages] = useState<MessageItem[]>([]);
   // 번역 상태를 별도로 관리 (메시지 갱신 시에도 유지)
   const [translations, setTranslations] = useState<Map<number, string>>(new Map());
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set());
+  const [isSending, setIsSending] = useState(false); // 중복 전송 방지 플래그
 
   useEffect(() => {
     const fetchChatRooms = async () => {
@@ -310,7 +343,15 @@ export default function Message() {
           message: msg.content,
           isMine: Number(msg.sender.id) === Number(currentUserId),
           isRead: msg.isRead,
+          createdAt: msg.createdAt || msg.sentAt || msg.timestamp,
+          sentAt: msg.sentAt || msg.createdAt || msg.timestamp,
         }));
+        // 시간 순서로 정렬 (오래된 것부터)
+        formattedMessages.sort((a, b) => {
+          const timeA = a.createdAt || a.sentAt || '';
+          const timeB = b.createdAt || b.sentAt || '';
+          return new Date(timeA).getTime() - new Date(timeB).getTime();
+        });
         setMessages(formattedMessages);
   
         await axiosInstance.post(`/api/messages/${selectedProfile.id}/read`);
@@ -385,8 +426,9 @@ export default function Message() {
   };
 
   const handleSendMessage = async () => {
-    if (!selectedProfile || newMessage.trim() === "") return;
+    if (!selectedProfile || newMessage.trim() === "" || isSending) return;
 
+    setIsSending(true);
     try {
       const res = await axiosInstance.post("/api/messages", {
         partnerId: selectedProfile.id, 
@@ -400,9 +442,20 @@ export default function Message() {
         message: res.data.content,
         isMine: res.data.sender.id === currentUserId, 
         isRead: res.data.isRead,
+        createdAt: res.data.createdAt || res.data.sentAt || res.data.timestamp,
+        sentAt: res.data.sentAt || res.data.createdAt || res.data.timestamp,
       };
 
-      setMessages((prev) => [...prev, newMsg]); 
+      // 시간 순서로 정렬하여 추가
+      setMessages((prev) => {
+        const updated = [...prev, newMsg];
+        updated.sort((a, b) => {
+          const timeA = a.createdAt || a.sentAt || '';
+          const timeB = b.createdAt || b.sentAt || '';
+          return new Date(timeA).getTime() - new Date(timeB).getTime();
+        });
+        return updated;
+      }); 
       setNewMessage(""); 
 
       const container = document.getElementById("messageContainer");
@@ -413,6 +466,8 @@ export default function Message() {
       }
     } catch (error) {
       console.error("메시지 전송 실패:", error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -608,13 +663,14 @@ export default function Message() {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === "Enter" && !e.shiftKey && !isSending) {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleSendMessage();
                   }
                 }}
               />
-              <SendButton className="H4" onClick={handleSendMessage}>
+              <SendButton className="H4" onClick={handleSendMessage} disabled={isSending}>
                 {t("message.chat.sendButton")}
               </SendButton>
             </SendBox>

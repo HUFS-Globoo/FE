@@ -38,6 +38,7 @@ const Container = styled.div`
   max-height: 37.4375rem;
   min-width: 29.5625rem;
   min-height: 37.4375rem;
+  overflow: hidden;
 `;
 
 const ColorBackground = styled.div<{ stage: string }>`
@@ -243,7 +244,8 @@ const MessageContainer = styled.div`
   padding: 0 1.69rem;
   box-sizing: border-box;
   overflow-y: auto; 
-  max-height: 28rem;
+  flex: 1;
+  min-height: 0;
   scroll-behavior: smooth; 
 
   &::-webkit-scrollbar {
@@ -331,6 +333,11 @@ const SendButton = styled.button`
   justify-content: center;
   padding: 0 0.75rem;
   white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 const TranslateText = styled.span`
@@ -411,6 +418,7 @@ export default function RandomMatchCard() {
   const [waitingAccept, setWaitingAccept] = useState(false);
   const [hasAccepted, setHasAccepted] = useState(false);
   const [wsReady, setWsReady] = useState(false);
+  const [isSending, setIsSending] = useState(false); // 중복 전송 방지 플래그
   const hasLeftChatRef = useRef(false); // 나가기 버튼을 눌렀는지 추적 (ref로 동기적 체크)
   const hasJoinedRef = useRef(false); // JOIN 메시지를 보냈는지 추적
   const hasShownPartnerLeftAlertRef = useRef(false); // 상대방이 떠났다는 alert를 이미 띄웠는지 추적
@@ -1225,11 +1233,21 @@ const handleFindAnother = async () => {
           senderNickname: data.senderNickname,
           senderProfileImageUrl: data.senderProfileImageUrl,
           message: data.message,
-          sentAt: data.sentAt,
+          sentAt: data.sentAt || data.createdAt || data.timestamp,
           isMine: data.senderId === userId,
         };
 
-        setMessages((prev) => [...prev, normalized]);
+        // 시간 순서로 정렬하여 추가
+        setMessages((prev) => {
+          const updated = [...prev, normalized];
+          updated.sort((a, b) => {
+            const timeA = a.sentAt || '';
+            const timeB = b.sentAt || '';
+            if (!timeA || !timeB) return 0; // 시간 정보가 없으면 순서 유지
+            return new Date(timeA).getTime() - new Date(timeB).getTime();
+          });
+          return updated;
+        });
         break;
       }
   
@@ -1283,7 +1301,7 @@ useEffect(() => {
 }, [messages, stage]);
 
   const sendMessage = () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isSending) return;
   
     if (!chatRoomId) {
       console.warn("chatRoomId 없음 → 첫 메시지 전송 불가");
@@ -1294,6 +1312,8 @@ useEffect(() => {
       console.log("웹소켓 준비 안됨");
       return;
     }
+
+    setIsSending(true);
   
     const payload = {
       type: "MESSAGE",
@@ -1303,6 +1323,7 @@ useEffect(() => {
   
     ws.current.send(JSON.stringify(payload));
     setInput("");
+    setIsSending(false);
   };
   
 
@@ -1575,15 +1596,15 @@ useEffect(() => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
                 placeholder={t("randomMatch.chat.messagePlaceholder")}
-              onKeyUp={(e) => {
-                if (e.nativeEvent.isComposing) return; 
-                if (e.key === "Enter") {
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey && !isSending) {
                   e.preventDefault();
+                  e.stopPropagation();
                   sendMessage();
                 }
               }}
             />
-              <SendButton onClick={sendMessage}>전송</SendButton>
+              <SendButton onClick={sendMessage} disabled={isSending}>전송</SendButton>
             </SendMessageContainer>
           </>
         )}

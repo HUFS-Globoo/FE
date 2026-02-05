@@ -241,7 +241,7 @@ const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0 1.69rem;
+  padding: 0 1.69rem 1rem 1.69rem;
   box-sizing: border-box;
   overflow-y: auto; 
   flex: 1;
@@ -278,7 +278,7 @@ const MessageBox = styled.div`
 
 `
 
-const SendMessageContainer = styled.div`
+const SendMessageContainer = styled.form`
   width: 27.75rem;
   height: 2.3125rem;
   background-color: #E1E1E1;
@@ -1591,20 +1591,18 @@ useEffect(() => {
               ))}
             </MessageContainer>
 
-            <SendMessageContainer>
+            <SendMessageContainer
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage();
+              }}
+            >
             <SendInput
               value={input}
               onChange={(e) => setInput(e.target.value)}
                 placeholder={t("randomMatch.chat.messagePlaceholder")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !isSending) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  sendMessage();
-                }
-              }}
             />
-              <SendButton onClick={sendMessage} disabled={isSending}>전송</SendButton>
+              <SendButton type="submit" disabled={isSending}>전송</SendButton>
             </SendMessageContainer>
           </>
         )}

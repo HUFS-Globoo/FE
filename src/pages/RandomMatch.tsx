@@ -21,12 +21,11 @@ const Icon = styled.img`
 
 const Container = styled.div`
   max-width: 100%;
-  max-height: 100%;
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
   background-color: var(--white);
-  //overflow: hidden; 
+  padding-bottom: 3rem;
 `
 
 const CharacterImg = styled.img`

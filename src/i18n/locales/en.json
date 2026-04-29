@@ -19,7 +19,8 @@
       "content": "Secure school email verification helps you find international friends who match you.<br /> Connect through 1:1 chats, learn languages naturally, and start global networking on campus."
     },
     "content": {
-      "title": "Our Main Services"
+      "title": "Our Main Services",
+      "notice": "Inappropriate behavior (sexual harassment, profanity, defamation, etc.) is strictly prohibited for safe global exchange.<br /> If you have any issues, let us know! @hufs.globoo"
     },
     "services": {
       "randomMatch": {
@@ -594,7 +595,8 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
-    "more": "View more >"
+    "more": "View more >",
+    "notice": "Inappropriate behavior (sexual harassment, profanity, defamation, etc.) is strictly prohibited for safe global exchange.<br /> If you have any issues, let us know! @hufs.globoo"
   },
   "study": {
     "title": "Study Groups",

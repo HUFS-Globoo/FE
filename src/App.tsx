@@ -1,4 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import GlobalStyle from "./styles/GlobalStyle";
 
 // 페이지 import
@@ -31,8 +33,19 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Context
 import { SignupProvider } from "./contexts/SignupContext";
 
+const NoticeFooter = styled.h3`
+  font-family: 'SchoolSafetyRoundedSmile';
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--primary);
+  text-align: center;
+  margin: 0;
+  padding: 2rem 1rem;
+`
+
 function App() {
   const location = useLocation();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -138,6 +151,7 @@ function App() {
             } 
           />
         </Routes>
+        <NoticeFooter dangerouslySetInnerHTML={{ __html: t("common.notice") }} />
       </SignupProvider>
     </>
   );

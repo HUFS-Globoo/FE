@@ -1,0 +1,200 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777467244341,
+  "projectRoot": "c:\\Users\\gram\\머쨍2\\FE",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.1.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.1.1",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.1.7",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "lint": "eslint .",
+      "preview": "vite preview"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1777467244273,
+      "keyFiles": [
+        "favicon.ico",
+        "logo.svg",
+        "vite.svg"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 4,
+      "lastAccessed": 1777467244274,
+      "keyFiles": [
+        "App.css",
+        "App.tsx",
+        "index.css",
+        "main.tsx"
+      ]
+    },
+    "src\\api": {
+      "path": "src\\api",
+      "purpose": "API routes",
+      "fileCount": 2,
+      "lastAccessed": 1777467244285,
+      "keyFiles": [
+        "commentAPI.ts",
+        "studyAPI.ts"
+      ]
+    },
+    "src\\assets": {
+      "path": "src\\assets",
+      "purpose": "Static assets",
+      "fileCount": 84,
+      "lastAccessed": 1777467244286,
+      "keyFiles": [
+        "banner-background.svg",
+        "card.svg",
+        "character-2.svg"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 11,
+      "lastAccessed": 1777467244286,
+      "keyFiles": [
+        "ActivityTabs.tsx",
+        "CommentSection.tsx",
+        "Header.tsx"
+      ]
+    },
+    "src\\pages": {
+      "path": "src\\pages",
+      "purpose": "Page components",
+      "fileCount": 5,
+      "lastAccessed": 1777467244287,
+      "keyFiles": [
+        "Login.tsx",
+        "Main.tsx",
+        "Message.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src\\pages\\Main.tsx",
+      "accessCount": 21,
+      "lastAccessed": 1777465314202,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\study\\StudyPost.tsx",
+      "accessCount": 18,
+      "lastAccessed": 1777466514890,
+      "type": "file"
+    },
+    {
+      "path": "src\\i18n\\locales\\ko.json",
+      "accessCount": 8,
+      "lastAccessed": 1777464118197,
+      "type": "file"
+    },
+    {
+      "path": "src\\i18n\\locales\\en.json",
+      "accessCount": 8,
+      "lastAccessed": 1777464168435,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 6,
+      "lastAccessed": 1777464327161,
+      "type": "directory"
+    },
+    {
+      "path": "src\\App.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777467293571,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\RandomMatch.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777467452350,
+      "type": "file"
+    },
+    {
+      "path": "src\\styles\\GlobalStyle.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777464330860,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\RandomMatchCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777467289630,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

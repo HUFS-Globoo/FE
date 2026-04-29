@@ -129,7 +129,6 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   color: var(--black);
-  font-weight: 500;
 `;
 
 const Select = styled.select`
@@ -187,6 +186,11 @@ const ErrorMessage = styled.span`
   font-size: 0.75rem;
 `;
 
+const PostNotice = styled.p`
+  color: #ff6a6a;
+  margin: 0 0 1rem 0;
+`;
+
 const SubmitButton = styled.button`
   width: 100%;
   padding: 1rem;
@@ -195,8 +199,6 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: 0.75rem;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
@@ -460,6 +462,7 @@ const StudyPost = () => {
           <PageTitle className="H1">{isEditMode ? "게시글 수정" : "게시글 작성"}</PageTitle>
           
           <PostFormCard>
+            <PostNotice className="Button1">※ 부적절한 목적의 게시글은 사전 안내 없이 삭제될 수 있습니다.</PostNotice>
             <FormRow>
               <FormGroup>
                 <Label className="H5">캠퍼스</Label>
@@ -537,7 +540,8 @@ const StudyPost = () => {
               {errors.content && <ErrorMessage>{errors.content}</ErrorMessage>}
             </FormGroup>
 
-            <SubmitButton 
+            <SubmitButton
+              className="H4"
               onClick={handleSubmit}
               disabled={!isFormValid || isSubmitting || !userMe}
             >

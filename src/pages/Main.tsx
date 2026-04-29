@@ -70,6 +70,18 @@ const BannerContent = styled.div`
   letter-spacing: 0.036rem;
 `
 
+const BannerNotice = styled.h3`
+  font-family: 'SchoolSafetyRoundedSmile';
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.875rem;
+  letter-spacing: 0.036rem;
+  color: var(--primary);
+  text-align: left;
+  margin: 0;
+  align-self: flex-start;
+`
+
 const ContentContainer = styled.div`
   flex: 1;
   display: flex;
@@ -196,6 +208,7 @@ const Main = () => {
           <BannerContentWrapper>
             <BannerTitle>{t("main.banner.title")}</BannerTitle>
             <BannerContent dangerouslySetInnerHTML={{ __html: t("main.banner.content") }} />
+            <BannerNotice dangerouslySetInnerHTML={{ __html: '※ ' + t("common.notice").replace(/<br\s*\/?>/gi, ' ') }} /> 
           </BannerContentWrapper>
         </BannerContainer>
       </Banner>
